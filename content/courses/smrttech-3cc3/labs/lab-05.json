@@ -1,0 +1,1151 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-05",
+  "number": 5,
+  "title": "Servo Motor Control with LabVIEW and Arduino",
+  "summary": [
+    "From analog input and HMI commands to controlled motion."
+  ],
+  "cardSummary": "Servo and potentiometer wiring, LINX analog read, voltage-to-angle scaling, pulse-width mapping, Manual and Automatic HMI modes, automatic waving SubVI, and safe motion troubleshooting.",
+  "chips": [
+    "Software: LabVIEW + NI LINX Toolkit",
+    "Hardware: Arduino Mega, servo, potentiometer",
+    "Pins: A0 input, D7 servo signal",
+    "Deliverables: main VI + wave SubVI"
+  ],
+  "duration": {
+    "prelab": "25-35 min",
+    "lab": "3 hours",
+    "postlab": "45-60 min",
+    "safety": "Low voltage, moving part caution"
+  },
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "analog-input",
+    "digital-output",
+    "labview-interface",
+    "while-loops",
+    "systematic-troubleshooting"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Tools & Access",
+      "subtitle": "Servo, potentiometer, Arduino A0, Arduino D7",
+      "handleLabel": "Open lab tools reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Setup Checklist",
+          "items": [
+            "Attach the servo motor plastic arm attachment before testing motion.",
+            "Confirm brown servo wire to GND, red to 5 V, orange to Digital Pin 7.",
+            "Confirm potentiometer middle terminal to Analog Pin 0.",
+            "Confirm LINX firmware, board type, and serial port before running."
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Key Values",
+          "items": [
+            { "term": "Pot input", "description": "A0" },
+            { "term": "Servo signal", "description": "D7" },
+            { "term": "Center pulse", "description": "~1500 µs" },
+            { "term": "Lab prep range", "description": "600-2400 µs" },
+            { "term": "Wait", "description": "10 ms" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Servo Limit Note",
+          "paragraphs": [
+            "The preparation example uses 600–2400 microseconds for its servo. Do not assume every servo can safely use that range."
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Scaling & Logic",
+      "subtitle": "Voltage, angle, pulse width, SubVI state",
+      "handleLabel": "Open formula and concept reference",
+      "blocks": [
+        {
+          "type": "formula",
+          "title": "Manual Mode",
+          "expression": "Angle = V / 5 * 180"
+        },
+        {
+          "type": "formula",
+          "expression": "PW = Angle / 180 * (URV - LRV) + LRV"
+        },
+        {
+          "type": "list",
+          "title": "Knowledge Links",
+          "items": [
+            "[Analog input sensing (A0)](kb:analog-input)",
+            "[Digital output and servo signal (D7)](kb:digital-output)",
+            "[LabVIEW interface](kb:labview-interface)",
+            "[LabVIEW loops](kb:while-loops)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)"
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Formula Node Syntax Reference",
+          "paragraphs": [
+            "A practical map of the syntax documented by NI. Create input/output terminals on the Formula Node border first, then reference those terminal names in the code.",
+            "[Open the official NI Formula Node syntax reference](https://www.ni.com/docs/en-US/bundle/labview/page/formula-node-syntax.html)"
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Statements, blocks, and comments",
+          "open": true,
+          "paragraphs": [
+            "End each executable statement with `;`. Use braces to group a block. Both one-line and block comments are supported."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "labview-formula-node",
+          "title": "Statements, blocks, and comments",
+          "code": "// One-line comment\n/* Multi-line\n   comment */\n{\n    output = input;\n}"
+        },
+        {
+          "type": "details",
+          "summary": "Assignments and expressions",
+          "paragraphs": [
+            "An assignment writes a value to an output, local variable, or array element. Expressions can use parentheses, function calls, array subscriptions, and the conditional `? :` form.",
+            "Assignment operators: `= += -= *= /= >>= <<= &= ^= |= %= **=`."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "labview-formula-node",
+          "title": "Assignments and expressions",
+          "code": "Angle = voltage * 36;\ncount += 1;\nlimit = (high > low) ? high : low;\nreading = samples[index];"
+        },
+        {
+          "type": "details",
+          "summary": "Operators",
+          "paragraphs": [
+            "Binary operators: `+ - * / ^ != == > < >= <= && || & | % **`.",
+            "Unary operators: `+ - ! ++ -- ~`. Use `==` to compare; a single `=` assigns."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Conditionals and selection",
+          "paragraphs": [
+            "Use `if`, `else`, `switch`, `case`, and `default` to choose behaviour."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "labview-formula-node",
+          "title": "Conditionals and selection",
+          "code": "if (Angle >= highLimit) {\n    Direction = -1;\n} else if (Angle <= lowLimit) {\n    Direction = 1;\n}\n\nswitch (mode) {\n    case 0: output = manualValue; break;\n    default: output = automaticValue; break;\n}"
+        },
+        {
+          "type": "details",
+          "summary": "Loops and flow control",
+          "paragraphs": [
+            "Formula Nodes support `for`, `while`, and `do ... while` loops. `break;` leaves the nearest loop or switch; `continue;` skips to the next loop iteration."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "labview-formula-node",
+          "title": "Loops and flow control",
+          "code": "for (i = 0; i < 3; i++) {\n    total += samples[i];\n}\n\nwhile (running) {\n    // repeated work\n}\n\ndo {\n    count--;\n} while (count > 0);"
+        },
+        {
+          "type": "details",
+          "summary": "Variables, arrays, and types",
+          "paragraphs": [
+            "Declare a local variable with a type and identifier; arrays include a constant size in brackets.",
+            "Floating-point types: `float`, `float32`, `float64`. Integer types: `int`, `int8`, `int16`, `int32`, `uInt8`, `uInt16`, `uInt32`."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "labview-formula-node",
+          "title": "Variables, arrays, and types",
+          "code": "float64 scaled;\nint32 index;\nuInt16 samples[3];\nscaled = 0.0;"
+        },
+        {
+          "type": "details",
+          "summary": "Identifiers and constants",
+          "paragraphs": [
+            "Identifiers begin with a letter or underscore, then may contain letters, digits, or underscores. Constants can be `pi`, decimal, binary (`0b...`), octal (leading `0`), hexadecimal (`0x...`), or floating-point values with an optional exponent such as `1.5e2`."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Functions and scope",
+          "paragraphs": [
+            "Use a function as `functionName(argument1, argument2)`. NI documents the available functions separately; only use functions supported by the installed LabVIEW version. Variables follow Formula Node scope rules, so declare locals in the block where they are needed and avoid reusing a terminal name for a local variable."
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "This reference is for Formula Node syntax only. Keep LabVIEW dataflow, wires, terminals, and local-variable configuration on the block diagram."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "success",
+          "title": "Concept anchor",
+          "paragraphs": [
+            "LabVIEW does not send degrees directly to the servo. It calculates a pulse-width command; the servo electronics interpret that signal as a target position."
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "prepare",
+      "title": "Lab scenario and setup",
+      "navLabel": "Prepare",
+      "eyebrow": "Prepare",
+      "intro": [
+        "You are building a local IoT motion-control node. The system must accept either a physical input from a potentiometer or an HMI command from LabVIEW, convert that command into a safe servo pulse width, and move a servo motor predictably. In automatic mode, the system performs a repeated waving motion based on speed and number of waves."
+      ],
+      "blocks": [
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "This lab focuses on the local motion-control and HMI layer of an IoT system. It does not yet upload motion data or commands to the cloud."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Central question",
+          "paragraphs": [
+            "How does a voltage from a potentiometer or an HMI command become controlled servo motion?"
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Manual servo command chain",
+          "steps": [
+            { "label": "Potentiometer", "detail": "Physical input changes position." },
+            { "label": "A0 voltage", "detail": "Arduino measures voltage." },
+            { "label": "LINX read", "detail": "LabVIEW receives voltage." },
+            { "label": "Angle", "detail": "Voltage maps to 0-180 degrees." },
+            { "label": "Pulse width", "detail": "Angle maps to microseconds." },
+            { "label": "D7 signal", "detail": "Arduino commands servo." },
+            { "label": "Motion", "detail": "Servo shaft moves." }
+          ]
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Software", "body": "LabVIEW, NI LabVIEW LINX Toolkit, and LINX firmware loaded to Arduino." },
+            { "title": "Hardware", "body": "Arduino Mega, USB cable, breadboard, servo motor, potentiometer, 8 jumper wires, and the servo motor plastic arm attachment." },
+            { "title": "Required pins", "body": "Analog Pin 0 for potentiometer input. Digital Pin 7 for the servo signal." }
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "Learning outcomes",
+          "items": [
+            "**Servo wiring:** Identify servo power, ground, and signal wires.",
+            "**Safe circuit build:** Wire a servo motor and potentiometer to Arduino Mega safely.",
+            "**Analog input:** Read potentiometer voltage from A0 using LINX.",
+            "**Scaling:** Scale voltage to angle, then angle to servo pulse width.",
+            "**LINX servo control:** Use Servo Open, Servo Write, Servo Close, and LINX Close.",
+            "**HMI modes:** Build Manual and Automatic LabVIEW front panels.",
+            "**Automatic logic:** Use Case Structures, Formula Nodes, SubVIs, local variables, and previous-state values.",
+            "**Troubleshooting:** Diagnose wiring, scaling, servo-range, and LabVIEW logic faults."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, and course resources before beginning the lab.",
+          "items": [
+            { "key": "material-labview", "label": "LabVIEW and the NI LabVIEW LINX Toolkit are installed." },
+            { "key": "material-firmware", "label": "Arduino firmware for LINX is available to load." },
+            { "key": "material-arduino", "label": "Arduino Mega and a USB data cable are available." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires are available." },
+            { "key": "material-potentiometer", "label": "Potentiometer is available." },
+            { "key": "material-servo", "label": "Servo motor is available." },
+            { "key": "material-coupling", "label": "Servo motor plastic arm attachment is available." },
+            { "key": "material-port", "label": "The Arduino serial port can be identified on this computer." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "predict",
+      "title": "Build the command chain and predict scaling values",
+      "navLabel": "Predict",
+      "eyebrow": "Predict",
+      "blocks": [
+        {
+          "type": "ordering",
+          "key": "command-chain",
+          "title": "Build the command chain",
+          "prompt": "Drag the events into order.",
+          "items": [
+            { "key": "chain-pot", "label": "Potentiometer rotates" },
+            { "key": "chain-a0", "label": "Voltage on A0 changes" },
+            { "key": "chain-linx", "label": "LabVIEW reads voltage through LINX" },
+            { "key": "chain-angle", "label": "Voltage is scaled to angle" },
+            { "key": "chain-pw", "label": "Angle is scaled to pulse width" },
+            { "key": "chain-d7", "label": "Servo command is written to Digital Pin 7" },
+            { "key": "chain-motion", "label": "Servo shaft moves" }
+          ],
+          "successMessage": "Correct measurement chain.",
+          "failureMessage": "Not yet. Trace the path from potentiometer motion to servo shaft motion."
+        },
+        {
+          "type": "formula",
+          "title": "Voltage to angle",
+          "expression": "Angle = V / 5 * 180"
+        },
+        {
+          "type": "fields",
+          "title": "Predict the angle command",
+          "description": "Expected relationship: Angle = V / 5 * 180.",
+          "fields": [
+            { "key": "angle-0", "label": "Angle at V = 0 V", "control": "number", "unit": "degrees", "expected": { "value": 0 } },
+            { "key": "angle-25", "label": "Angle at V = 2.5 V", "control": "number", "unit": "degrees", "expected": { "value": 90 } },
+            { "key": "angle-5", "label": "Angle at V = 5 V", "control": "number", "unit": "degrees", "expected": { "value": 180 } }
+          ]
+        },
+        {
+          "type": "formula",
+          "title": "Angle to pulse width",
+          "expression": "PW = Angle / 180 * (URV - LRV) + LRV",
+          "note": "Preparation example limits: LRV = 600, URV = 2400, so PW = Angle / 180 * 1800 + 600."
+        },
+        {
+          "type": "fields",
+          "title": "Predict the pulse-width command",
+          "description": "Expected relationship: LRV = 600, URV = 2400.",
+          "fields": [
+            { "key": "pw-0", "label": "Pulse width at 0 degrees", "control": "number", "unit": "µs", "expected": { "value": 600 } },
+            { "key": "pw-90", "label": "Pulse width at 90 degrees", "control": "number", "unit": "µs", "expected": { "value": 1500 } },
+            { "key": "pw-180", "label": "Pulse width at 180 degrees", "control": "number", "unit": "µs", "expected": { "value": 2400 } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "build-circuit",
+      "title": "Build the physical command-and-motion circuit",
+      "navLabel": "Build Circuit",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab5-pdf-servo-coupling.jpg",
+          "alt": "Photo of a servo motor with the plastic arm attachment fitted to the shaft.",
+          "caption": "Attach the servo motor plastic arm attachment before testing servo motion."
+        },
+        {
+          "type": "figure",
+          "src": "lab5-pdf-servo-circuit-schematic.jpg",
+          "alt": "Schematic showing Arduino Mega connected to a potentiometer and servo motor.",
+          "caption": "Connect the potentiometer to A0 and the servo signal to Digital Pin 7."
+        },
+        {
+          "type": "figure",
+          "src": "lab5-pdf-servo-circuit-photo.jpg",
+          "alt": "Breadboard photo showing the Arduino Mega, potentiometer, and servo motor wiring.",
+          "caption": "Compare your wiring with this Arduino, breadboard, potentiometer, and servo layout."
+        },
+        {
+          "type": "steps",
+          "title": "Breadboard rails",
+          "items": [
+            "Positive row to Arduino 5 V.",
+            "Negative row to Arduino GND."
+          ]
+        },
+        {
+          "type": "steps",
+          "title": "Servo motor",
+          "items": [
+            "Brown GND wire to negative rail.",
+            "Red VCC wire to positive rail.",
+            "Orange PWM wire to Arduino Digital Pin 7."
+          ]
+        },
+        {
+          "type": "steps",
+          "title": "Potentiometer",
+          "items": [
+            "One outside terminal to negative rail.",
+            "Other outside terminal to positive rail.",
+            "Middle terminal to Arduino Analog Pin 0."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "Record the potentiometer voltage range",
+          "description": "After the circuit passes its wiring checks, use a multimeter to measure between the potentiometer middle terminal (the A0 output) and GND. Turn only the potentiometer knob while measuring; do not move wires while the circuit is powered. These values establish the physical voltage range that later becomes the Manual angle command.",
+          "columns": ["Potentiometer position", "Multimeter measurement point", "Measured output voltage"],
+          "rows": [
+            {
+              "label": "Fully turned left",
+              "unit": "V",
+              "cells": [
+                { "control": "static", "value": "Middle terminal / A0 to GND" },
+                { "control": "number", "key": "pot-v-left", "min": 0, "max": 5.2, "step": 0.01 }
+              ]
+            },
+            {
+              "label": "Middle position",
+              "unit": "V",
+              "cells": [
+                { "control": "static", "value": "Middle terminal / A0 to GND" },
+                { "control": "number", "key": "pot-v-middle", "min": 0, "max": 5.2, "step": 0.01 }
+              ]
+            },
+            {
+              "label": "Fully turned right",
+              "unit": "V",
+              "cells": [
+                { "control": "static", "value": "Middle terminal / A0 to GND" },
+                { "control": "number", "key": "pot-v-right", "min": 0, "max": 5.2, "step": 0.01 }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "Which component is the input device?",
+            "Which component is the output device?",
+            "What does the potentiometer physically change?",
+            "What does Arduino A0 measure?",
+            "What does the servo signal wire receive?",
+            "Why must the servo and Arduino share ground?",
+            "What would happen if the red and brown servo wires were reversed?",
+            "What evidence would show the circuit is safe to power?"
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "build-d7", "label": "Servo signal pin recorded as Digital Pin 7." },
+            { "key": "build-a0", "label": "Potentiometer input recorded as Analog Pin 0." },
+            { "key": "build-power", "label": "Servo power and ground checked." },
+            { "key": "build-middle", "label": "Potentiometer middle terminal checked." },
+            { "key": "build-coupling", "label": "Servo motor plastic arm attachment installed." },
+            { "key": "build-clear", "label": "Wires clear of servo motion." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "build-safe-evidence", "label": "What evidence tells you the circuit is safe to power?", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "If a wiring check fails",
+          "paragraphs": [
+            "Disconnect power before correcting it, then recheck servo polarity, D7, A0, common ground, the arm attachment, and clearance around the moving shaft before powering again."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "manual-control",
+      "title": "Open Arduino, read voltage, and command the servo",
+      "navLabel": "Manual Control",
+      "intro": [
+        "Build the main VI that communicates with Arduino and the servo. Begin with a basic fixed pulse-width test before scaling."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab5-pdf-arduino-interface.png",
+          "alt": "LabVIEW block diagram opening LINX and the servo channel, reading analog voltage inside a While Loop, writing a fixed pulse width, and closing both resources.",
+          "caption": "Wire LINX Open, Servo Open, Analog Read, Set Pulse Width, Servo Close, and LINX Close in sequence."
+        },
+        {
+          "type": "details",
+          "summary": "A. LINX Open",
+          "open": true,
+          "paragraphs": [
+            "Add LINX Open, create the Serial Port constant, and set it to COM3 or the correct Arduino COM port."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "B. Servo Open",
+          "paragraphs": [
+            "Add LINX Servo Open and set Servo Channel to `7`."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "C. While Loop",
+          "paragraphs": [
+            "Place the loop, wire LINX resource and error tunnels, and create a Stop control."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "D. Analog Read",
+          "paragraphs": [
+            "Add LINX Analog Read inside the loop and set Analog Channel to `0`. Create a Voltage indicator."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "E. Set Pulse Width",
+          "paragraphs": [
+            "Add Servo Write / Set Pulse Width inside the loop, set Servo Channel to `7`, and initially use `1000` microseconds."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "F. Close functions",
+          "paragraphs": [
+            "Add Servo Close after the loop, then LINX Close. Wire resource and error lines through all blocks."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Find the safe pulse-width limits",
+          "paragraphs": [
+            "Use the Manual control to increase or decrease the pulse width cautiously. Identify the lowest value that places the servo at approximately 0 degrees and the highest value that places it at approximately 180 degrees. Stop before the servo strains against its mechanical end stop, and record the two limits in the table in the next stage."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "If the fixed pulse-width test does not move safely",
+          "paragraphs": [
+            "Stop the VI normally and disconnect power if the servo is blocked, hot, or driving against an end stop. Verify the LINX firmware and COM port, Servo Channel 7, Analog Channel 0, common ground, and wiring before changing one item and retesting."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "Why does the servo need to be opened before writing commands?",
+            "What does Analog Read return?",
+            "Does Analog Read measure angle directly?",
+            "What does Set Pulse Width send to the servo?",
+            "Why should Servo Close and LINX Close occur after the loop?",
+            "What could happen if the VI is aborted before close functions run?",
+            "What does a constant pulse width of 1000 microseconds test?"
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "manual-com", "label": "Arduino COM port selected", "control": "text" },
+            { "key": "manual-pw-test", "label": "Pulse width test value", "control": "text" },
+            { "key": "manual-pw-lower", "label": "Highest pulse width for approximately 0 degrees", "control": "number", "unit": "µs", "step": 1 },
+            { "key": "manual-pw-upper", "label": "Lowest pulse width for approximately 180 degrees", "control": "number", "unit": "µs", "step": 1 }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "manual-servo7", "label": "Servo channel set to 7." },
+            { "key": "manual-analog0", "label": "Analog channel set to 0." },
+            { "key": "manual-voltage", "label": "Voltage indicator visible." },
+            { "key": "manual-close", "label": "Servo Close and LINX Close present." }
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "Manual angle map",
+          "columns": ["Target servo angle", "Your pulse-width value (microseconds)", "Observed response / notes"],
+          "rows": [
+            {
+              "label": "0 degrees",
+              "cells": [
+                { "control": "number", "key": "manual-map-0", "step": 1 },
+                { "control": "text", "key": "manual-map-note-0", "optional": true }
+              ]
+            },
+            {
+              "label": "90 degrees",
+              "cells": [
+                { "control": "number", "key": "manual-map-90", "step": 1 },
+                { "control": "text", "key": "manual-map-note-90", "optional": true }
+              ]
+            },
+            {
+              "label": "180 degrees",
+              "cells": [
+                { "control": "number", "key": "manual-map-180", "step": 1 },
+                { "control": "text", "key": "manual-map-note-180", "optional": true }
+              ]
+            }
+          ],
+          "note": "Use the lower and upper limits you found above, then test intermediate values to map the pulse width that produces 0, 90, and 180 degrees. These measurements become the calibration points for the angle-to-pulse-width conversion."
+        }
+      ]
+    },
+    {
+      "id": "scale-angle",
+      "title": "Build the Manual/Automatic front panel and scale voltage to angle",
+      "navLabel": "Scale Angle",
+      "intro": [
+        "Add the front-panel HMI controls, then create the Manual case that turns potentiometer voltage into an angle command. For this first introduction to the structures, review the [Case Structure skill](kb:case-structure) and [Formula Node skill](kb:formula-node) in the course skill tree."
+      ],
+      "blocks": [
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "predict-case", "label": "What does the Case Structure decide?", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab5-pdf-front-panel.jpg",
+          "alt": "LabVIEW front panel with Choice Enum, Angle gauge, Speed and NumberOfWaves controls, GO button, Stop button, and Voltage indicator.",
+          "caption": "Use this front panel as the visual reference for the Manual/Automatic HMI controls."
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Enum", "body": "Name it `Choice`. Right-click the Enum control, choose **Properties**, open **Edit Items**, select **Insert**, and add `Manual` and `Automatic` as the two items." },
+            { "title": "Gauge", "body": "Find it in **Controls > Modern > Numeric > Gauge**. Name it `Angle`, then right-click the gauge, choose **Properties**, open the **Scale** tab, and set the scale range to 0–180 degrees." },
+            { "title": "Controls", "body": "Add `Speed` and `NumberOfWaves` as **Numeric controls**. Add `GO` as an **OK button**, and keep the `Voltage` indicator." }
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab5-build-hmi-manual-case.png",
+          "alt": "LabVIEW Manual Case Structure selected by the Choice Enum, converting Voltage to Angle and sending the result to the Angle indicator",
+          "caption": "This Case Structure view shows the Choice selector, the active Manual case, the voltage input, and the Angle output tunnel."
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "How the Manual case fits into the Case Structure",
+          "paragraphs": [
+            "The Case Structure chooses which command path is active. Wire the `Choice` Enum to the selector terminal on the left side of the Case Structure; when the user selects `Manual`, LabVIEW displays and executes the Manual case, while `Automatic` will select the separate automatic-wave case later."
+          ]
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Inputs", "body": "The Manual case receives the potentiometer voltage from `Analog Read`. The `Choice` Enum is the selector input that determines which case is shown and executed." },
+            { "title": "Processing", "body": "Inside the Manual case, the Formula Node maps the 0-5 V input to a 0-180 degree command using `Angle = V / 5 * 180;`." },
+            { "title": "Output", "body": "Wire the Formula Node's `Angle` output to the Angle indicator and through the Case Structure output tunnel. This single angle output will then continue, on the next stage of this lab, to the shared pulse-width scaling and servo command." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Build sequence",
+          "paragraphs": [
+            "Create the `Manual` and `Automatic` Enum items, wire `Choice` to the Case Structure selector, place the Formula Node in the Manual case, connect the voltage input and Angle output, then confirm that the Manual case produces one clean angle value for the next stage."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "What is the input to the Manual case?",
+            "What is the output of the Manual case?",
+            "Why divide by 5?",
+            "Why multiply by 180?",
+            "What happens if the potentiometer does not reach exactly 0 V or 5 V?",
+            "Is the Angle gauge a measured shaft angle or a commanded angle?",
+            "What would happen if the two outside potentiometer terminals were swapped?"
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "manual-screenshot",
+          "label": "Upload one screenshot or PDF showing the Manual case front panel and the Manual Case block diagram",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Show the Choice control, Voltage and Angle indicators on the front panel, plus the Formula Node and its V-to-Angle wiring in the Manual Case."
+        }
+      ]
+    },
+    {
+      "id": "scale-pulse-width",
+      "title": "Convert angle into servo pulse width",
+      "navLabel": "Scale Pulse Width",
+      "intro": [
+        "Place a Formula Node below the Case Structure so the Manual and Automatic cases share one angle-to-pulse-width conversion. The Case Structure should produce one numeric `Angle` value; the Formula Node should receive that value, apply the calibrated lower and upper pulse limits, and produce one numeric `PW` output for Set Pulse Width.",
+        "The mapping should preserve the endpoints: 0 degrees corresponds to your measured lower limit, 180 degrees corresponds to your measured upper limit, and intermediate angles scale proportionally between them. Use input and output terminals on the Formula Node border with names that match the block-diagram wiring."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab5-scale-pulse-width-case.png",
+          "alt": "LabVIEW Case Structure and Formula Node showing Choice selecting Manual, Voltage converted to Angle, and Angle passed toward pulse-width scaling.",
+          "caption": "Use this as a wiring and architecture reference: the Choice Enum selects the Manual case, the voltage is converted to an Angle, and that angle is passed to the shared pulse-width conversion. Recreate the structure with your own calibrated limits from Manual Control."
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Add input `Angle`. Add output `PW`. Connect `PW` to the Pulse Width input of Set Pulse Width One Channel."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Use your recorded potentiometer range",
+          "paragraphs": [
+            "Revisit the fully-left, middle, and fully-right voltages from Build Circuit. They are a physical reference for how the knob changes the Manual angle command. The direction may be reversed depending on which outside potentiometer terminal is connected to 5 V, but the Formula Node at this stage receives the resulting `Angle`, not the raw voltage. Use the three recorded positions to reason about the expected low, middle, and high pulse-width commands before testing."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Temporary Manual-case test",
+          "paragraphs": [
+            "LabVIEW may show an error because the Automatic case does not yet have its input mapped. To test the Manual case only, temporarily wire the `Voltage` input directly to the `Angle` output in the Automatic case so the Case Structure is complete. This is only a temporary test connection; it is **not** the final Automatic-case implementation."
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Measured or adjusted pulse-width values",
+          "description": "For each target angle, record your measured or adjusted pulse-width value and any notes.",
+          "fields": [
+            {
+              "key": "pw-measured-0",
+              "label": "0 degrees — measured or adjusted value",
+              "control": "number",
+              "unit": "µs",
+              "step": 1,
+              "rangeNote": {
+                "min": 400,
+                "max": 2600,
+                "message": "Abnormal or unexpected value: this is outside the expected 400–2600 microsecond range. Record the observation, then verify the servo limits and wiring."
+              }
+            },
+            { "key": "pw-note-0", "label": "Notes — 0 degrees", "control": "text", "optional": true },
+            {
+              "key": "pw-measured-90",
+              "label": "90 degrees — measured or adjusted value",
+              "control": "number",
+              "unit": "µs",
+              "step": 1,
+              "rangeNote": {
+                "min": 400,
+                "max": 2600,
+                "message": "Abnormal or unexpected value: this is outside the expected 400–2600 microsecond range. Record the observation, then verify the servo limits and wiring."
+              }
+            },
+            { "key": "pw-note-90", "label": "Notes — 90 degrees", "control": "text", "optional": true },
+            {
+              "key": "pw-measured-180",
+              "label": "180 degrees — measured or adjusted value",
+              "control": "number",
+              "unit": "µs",
+              "step": 1,
+              "rangeNote": {
+                "min": 400,
+                "max": 2600,
+                "message": "Abnormal or unexpected value: this is outside the expected 400–2600 microsecond range. Record the observation, then verify the servo limits and wiring."
+              }
+            },
+            { "key": "pw-note-180", "label": "Notes — 180 degrees", "control": "text", "optional": true }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "Why does the servo need pulse width rather than only an angle number?",
+            "What does 1500 microseconds usually represent?",
+            "Why might a different servo require different limits?",
+            "What could happen if the pulse-width range is too wide?",
+            "How could you test safe limits cautiously?",
+            "What is the difference between commanded angle and actual servo position?",
+            "Why should pulse width be bounded?"
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "hmi-case-explain", "label": "Why should both cases provide one Angle output before the shared pulse-width conversion?", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "hmi-choice", "label": "Choice Enum is wired to the Case Structure selector and has Manual and Automatic cases." },
+            { "key": "hmi-angle", "label": "Angle gauge range is 0–180 degrees." },
+            { "key": "hmi-speed", "label": "Speed and NumberOfWaves Numeric controls are present for the upcoming Automatic mode." },
+            { "key": "hmi-go", "label": "GO is an OK button and the calibrated pulse-width conversion is outside the Case Structure." }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "hmi-integration-evidence",
+          "label": "Upload a screenshot or PDF of the main VI showing the Choice Enum, Case Structure, the Manual path, and the shared angle-to-pulse-width path",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Show enough of the block diagram to make the one shared output path visible. Your next-stage SubVI is not required in this screenshot."
+        }
+      ]
+    },
+    {
+      "id": "create-subvi",
+      "title": "Create a reusable automatic-wave SubVI",
+      "navLabel": "Create SubVI",
+      "intro": [
+        "Create a new Blank VI for automatic waving. Add front-panel controls and indicators, then create a Formula Node using the [current NI documentation](https://www.ni.com/docs/en-US/bundle/labview/page/formula-node-syntax.html). Build and explain your own logic rather than copying a finished program."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab5-pdf-subvi-front-panel.png",
+          "alt": "SubVI front panel with Go, NumberOfWaves, Speed, Waving, Direction, Wave Count, and Angle.",
+          "caption": "These controls and indicators define the automatic waving state."
+        },
+        {
+          "type": "figure",
+          "src": "lab5-pdf-wave-servo-icon.png",
+          "alt": "Wave Servo icon for the automatic waving SubVI.",
+          "caption": "Edit the SubVI icon so it remains recognizable when placed in the main VI."
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Connector pane",
+          "paragraphs": [
+            "Set a pattern with three inputs and one output. Top input to GO, middle to NumberOfWaves, bottom to Speed, output to Angle."
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Copy this structure into the Formula Node after creating the listed terminals. The TODO comments deliberately leave the automatic-wave behaviour for you to implement and test."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "labview-formula-node",
+          "title": "Formula Node starter architecture",
+          "code": "/*\nInputs: GO, NumberOfWaves, Speed\nOutputs: Angle, Direction, WaveCount, Waving\n*/\n\n// Start from the previous iteration's state.\nAngle = AngleLast;\nDirection = DirectionLast;\nWaveCount = WaveCountLast;\nWaving = WavingLast;\n\n// TODO: Start a new sequence when GO is pressed.\n// TODO: Increment/Decrement Angle using Speed and Direction.\n// TODO: Reverse Direction at your safe angle limits.\n// TODO: Update WaveCount after each completed pass.\n// TODO: Stop waving when the requested count reaches zero."
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Controls", "body": "`Go`, `NumberOfWaves`, and `Speed`." },
+            { "title": "Indicators", "body": "`Waving`, `Direction`, `Wave Count`, and `Angle`." },
+            { "title": "State inputs", "body": "Local variables changed to Read provide AngleLast, DirectionLast, WaveCountLast, and WavingLast." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Logic requirements",
+          "paragraphs": [
+            "Initialize state from the previous values; use `GO` to begin a wave sequence; advance or reverse the angle according to direction; reverse at the safe limits; decrement the wave count at each completed pass; and stop when the requested count reaches zero. Document your own implementation."
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Automatic waving state diagram",
+          "steps": [
+            { "label": "Idle" },
+            { "label": "GO pressed" },
+            { "label": "Waving forward" },
+            { "label": "Boundary reached" },
+            { "label": "Waving backward" },
+            { "label": "Count decreases" },
+            { "label": "Idle" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Timing and icon",
+          "paragraphs": [
+            "Add Wait with constant 10. Edit the icon, for example `Wave Servo`. Save the SubVI."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "Why does automatic mode need memory of the previous angle?",
+            "What do Waving, Direction, and WaveCount represent?",
+            "What happens when GO becomes true?",
+            "What condition causes direction to reverse?",
+            "What does `==` mean?",
+            "What does `|` mean?",
+            "Why does the code stop when WaveCount reaches 0?",
+            "Why are local variables used here?",
+            "What are the risks of using local variables carelessly?"
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "subvi-front",
+          "label": "SubVI front panel evidence file",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Accepted: PNG, JPG/JPEG, WebP, GIF, or PDF. Filename only; the file is not uploaded or embedded."
+        },
+        {
+          "type": "evidence",
+          "key": "subvi-block",
+          "label": "SubVI block diagram evidence file",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Accepted: PNG, JPG/JPEG, WebP, GIF, or PDF. Filename only; the file is not uploaded or embedded."
+        },
+        {
+          "type": "evidence",
+          "key": "subvi-icon",
+          "label": "Icon and connector pane evidence file",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Accepted: PNG, JPG/JPEG, WebP, GIF, or PDF. Filename only; the file is not uploaded or embedded."
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "subvi-if", "label": "Explain one if statement", "control": "textarea" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "automatic-control",
+      "title": "Insert the automatic-wave SubVI into the main VI",
+      "navLabel": "Automatic Control",
+      "intro": [
+        "Return to the main VI from the [Scale Pulse Width stage](#scale-pulse-width). Place the saved [SubVI](kb:vi-subvi) in the Automatic case, remove the temporary pass-through connection, and connect the SubVI output to the Case Structure output."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab5-automatic-control-case.png",
+          "alt": "LabVIEW Automatic Case Structure with Choice set to Automatic, an OK button, Speed and NumberOfWaves numeric controls wired to the Wave Servo SubVI, and the Angle output routed to the shared pulse-width Formula Node.",
+          "caption": "In the Automatic case, wire GO, Speed, and NumberOfWaves into the Wave Servo SubVI. Route its Angle output through the Case Structure tunnel to the shared pulse-width mapping below; use the pulse-width limits you recorded during Manual Control."
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Inputs",
+          "items": [
+            "GO to top SubVI input.",
+            "NumberOfWaves to middle input.",
+            "Speed to bottom input."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Output",
+          "paragraphs": [
+            "SubVI Angle output connects to the Case Structure output. The shared pulse-width conversion then commands the servo."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "Manual mode and Automatic mode produce the same kind of output: an angle command. The shared pulse-width conversion turns either angle source into a servo command."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "Why should both cases output an angle?",
+            "Why should pulse-width scaling remain outside the Case Structure?",
+            "What would happen if Automatic output pulse width instead of angle?",
+            "What does GO trigger?",
+            "What does Speed change?",
+            "What does NumberOfWaves change?",
+            "How will you test that the number of waves is correct?",
+            "How can you safely stop automatic motion?"
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "For each **Setting** cell, enter the values you actually used (for example mode, speed, or number of waves), then record your observation and decision for that same test."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "columns": ["Test", "Setting", "Expected observation", "Actual observation", "Decision"],
+          "rows": [
+            {
+              "label": "Manual mode",
+              "cells": [
+                { "control": "text", "key": "auto-manual-setting" },
+                { "control": "static", "value": "Potentiometer changes command angle" },
+                { "control": "text", "key": "auto-manual-actual" },
+                { "control": "text", "key": "auto-manual-decision" }
+              ]
+            },
+            {
+              "label": "Automatic mode",
+              "cells": [
+                { "control": "text", "key": "auto-auto-setting" },
+                { "control": "static", "value": "Servo waves using GO, Speed, NumberOfWaves" },
+                { "control": "text", "key": "auto-auto-actual" },
+                { "control": "text", "key": "auto-auto-decision" }
+              ]
+            },
+            {
+              "label": "Stop button",
+              "cells": [
+                { "control": "text", "key": "auto-stop-setting" },
+                { "control": "static", "value": "Loop ends and close functions run" },
+                { "control": "text", "key": "auto-stop-actual" },
+                { "control": "text", "key": "auto-stop-decision" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "If Manual mode works but Automatic mode does not",
+          "paragraphs": [
+            "Keep the known-good wiring and scaling unchanged. Check the Choice selector, SubVI connector pane, Automatic-case output tunnel, and local-variable read direction one at a time, then repeat the same controlled test."
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "auto-final-evidence",
+          "label": "Final main VI front-panel and block-diagram evidence file",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Accepted: PNG, JPG/JPEG, WebP, GIF, or PDF. The completion record stores only the filename; it does not upload or embed the file."
+        },
+        {
+          "type": "evidence",
+          "key": "final-servo-main-vi",
+          "label": "Final main servo-control VI file",
+          "accept": [".vi"]
+        },
+        {
+          "type": "evidence",
+          "key": "final-servo-subvi",
+          "label": "Final automatic-wave SubVI file",
+          "accept": [".vi"]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Deliverables and assessment",
+      "navLabel": "Reflect",
+      "eyebrow": "Reflect",
+      "submission": true,
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Learning Outcomes Achieved",
+          "items": [
+            "Acquire potentiometer voltage through Arduino A0 with LabVIEW LINX.",
+            "Scale voltage to commanded angle and angle to a safe servo pulse width on D7.",
+            "Build Manual and Automatic HMI paths and integrate reusable automatic-wave SubVI logic.",
+            "Verify controlled motion, normal shutdown, and task-specific fault recovery using evidence."
+          ]
+        },
+        {
+          "type": "questions",
+          "title": "Reflection questions",
+          "items": [
+            { "key": "reflect-1", "prompt": "What does the potentiometer physically change?" },
+            { "key": "reflect-2", "prompt": "What does Arduino A0 actually measure?" },
+            { "key": "reflect-3", "prompt": "Does LabVIEW send an angle directly to the servo? Explain." },
+            { "key": "reflect-4", "prompt": "Why must voltage be scaled to angle before calculating pulse width?" },
+            { "key": "reflect-5", "prompt": "Why must angle be scaled to pulse width?" },
+            { "key": "reflect-6", "prompt": "What does a pulse width of approximately 1500 microseconds usually represent?" },
+            { "key": "reflect-7", "prompt": "Why might 600-2400 microseconds not be safe for every servo?" },
+            { "key": "reflect-8", "prompt": "What is the purpose of the Manual/Automatic Case Structure?" },
+            { "key": "reflect-9", "prompt": "Why is the automatic waving logic placed in a SubVI?" },
+            { "key": "reflect-10", "prompt": "What does each if statement in your automatic Formula Node logic do?" },
+            { "key": "reflect-11", "prompt": "What do `==` and `|` mean in the code?" },
+            { "key": "reflect-12", "prompt": "Why are local variables used in the automatic SubVI?" },
+            { "key": "reflect-13", "prompt": "What could cause servo jitter?" },
+            { "key": "reflect-14", "prompt": "What could cause the servo to move in the opposite direction from the potentiometer?" },
+            { "key": "reflect-15", "prompt": "Does this lab create a complete IoT system? If not, which IoT layer is completed and what still needs to be added?" },
+            { "key": "reflect-16", "prompt": "What did you initially believe about servo control that this lab changed or clarified?" }
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Glossary",
+          "items": [
+            { "term": "Servo motor", "description": "A motor assembly that moves to a commanded position using an internal control circuit." },
+            { "term": "Servo horn", "description": "The attachment on the servo shaft that transfers motion to a mechanism." },
+            { "term": "Servo motor plastic arm attachment", "description": "The plastic arm fitted to the servo motor shaft before testing motion." },
+            { "term": "Potentiometer", "description": "A variable resistor used here to create a changing voltage." },
+            { "term": "Analog input", "description": "A microcontroller input that reads a voltage range." },
+            { "term": "Arduino A0", "description": "Analog Pin 0, used for the potentiometer voltage." },
+            { "term": "Digital Pin 7", "description": "The Arduino pin used for the servo control signal." },
+            { "term": "PWM", "description": "Pulse-width modulation or timed pulse signaling used by many servo interfaces." },
+            { "term": "Pulse width", "description": "The duration of the servo command pulse, measured in microseconds." },
+            { "term": "Microsecond", "description": "One millionth of a second." },
+            { "term": "Commanded angle", "description": "The angle value calculated by software." },
+            { "term": "Actual angle", "description": "The physical shaft position, which may differ slightly from the command." },
+            { "term": "LabVIEW", "description": "A graphical programming environment." },
+            { "term": "VI", "description": "Virtual Instrument, a LabVIEW program." },
+            { "term": "SubVI", "description": "A reusable LabVIEW program used inside another VI." },
+            { "term": "Front Panel", "description": "The user-facing LabVIEW controls and indicators." },
+            { "term": "Block Diagram", "description": "The graphical LabVIEW program logic." },
+            { "term": "HMI", "description": "Human-machine interface." },
+            { "term": "LINX", "description": "LabVIEW toolkit for communicating with Arduino." },
+            { "term": "Servo Open", "description": "LINX function that prepares a servo channel." },
+            { "term": "Set Pulse Width", "description": "LINX function that writes the servo pulse command." },
+            { "term": "Servo Close", "description": "LINX function that closes the servo channel." },
+            { "term": "Analog Read", "description": "LINX function that reads voltage from an analog channel." },
+            { "term": "While Loop", "description": "A repeated LabVIEW structure." },
+            { "term": "Stop button", "description": "The normal way to stop the VI loop." },
+            { "term": "Abort button", "description": "An emergency interruption, not normal shutdown." },
+            { "term": "Case Structure", "description": "LabVIEW structure that selects code based on Choice." },
+            { "term": "Manual mode", "description": "Mode where potentiometer voltage generates the angle command." },
+            { "term": "Automatic mode", "description": "Mode where the SubVI generates the angle command over time." },
+            { "term": "Formula Node", "description": "LabVIEW node for compact formula-based calculations. Consult the current NI documentation for supported syntax." },
+            { "term": "Local variable", "description": "A LabVIEW object used here to read previous state values." },
+            { "term": "GO button", "description": "Button that starts automatic waving." },
+            { "term": "Speed", "description": "User control for how quickly the angle changes." },
+            { "term": "NumberOfWaves", "description": "User control for requested waving repetitions." },
+            { "term": "Direction", "description": "Boolean state that selects increasing or decreasing angle." },
+            { "term": "Waving", "description": "Boolean state indicating automatic motion is active." },
+            { "term": "Wave Count", "description": "Remaining automatic wave count." },
+            { "term": "`==` operator", "description": "Equality comparison." },
+            { "term": "`|` operator", "description": "Logical OR in the Formula Node condition." },
+            { "term": "LRV", "description": "Lower reference value for pulse-width mapping." },
+            { "term": "URV", "description": "Upper reference value for pulse-width mapping." },
+            { "term": "Saturation", "description": "A limit condition where a command or actuator cannot increase further." },
+            { "term": "Jitter", "description": "Small unwanted servo movement or vibration." },
+            { "term": "IoT motion-control node", "description": "A local sensing and motion layer that could later connect to cloud commands or logging." }
+          ]
+        }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Completed servo and potentiometer circuit.",
+    "Manual-control front panel and block diagram evidence.",
+    "Evidence that A0 is read and Digital Pin 7 commands the servo.",
+    "Voltage-to-angle and angle-to-pulse-width calculations.",
+    "Formula Node explanations.",
+    "Completed automatic-wave SubVI with front panel, block diagram, icon, and connector pane.",
+    "Final main VI with SubVI in Automatic case.",
+    "Manual and automatic mode test evidence.",
+    "Explanation of each if statement, `==`, `|`, and local variables.",
+    "Three applications of servomotors.",
+    "Student names and numbers as required.",
+    "Report formatted according to 3CC3 Lab Policies and Report Writing.pdf."
+  ]
+}
