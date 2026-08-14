@@ -1,5 +1,6 @@
 /* ==========================================================================
-   Components — page chrome: skip link, top bar, hero, sidebars, footer
+   Components — application shell: app bar, navigation rail, layout,
+   reference drawers, footer
    ========================================================================== */
 
 /* Skip link for keyboard users; visible only on focus */
@@ -21,143 +22,300 @@
 }
 
 /* --------------------------------------------------------------------------
-   Top bar — fixed course navigation with the checkpoint stepper
+   App bar — slim fixed header with course identity and page context
    -------------------------------------------------------------------------- */
-.c-topbar {
+.c-appbar {
   position: fixed;
   inset: 0 0 auto 0;
-  z-index: 40;
-  background: color-mix(in srgb, var(--md-sys-color-surface) 92%, transparent);
+  z-index: 70;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  padding-inline: var(--md-sys-space-4);
+  background: color-mix(in srgb, var(--md-sys-color-surface) 94%, transparent);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
 }
 
-.c-topbar__inner {
-  max-width: var(--md-sys-layout-max-width);
-  margin-inline: auto;
-  padding: var(--md-sys-space-2) var(--md-sys-space-5);
-  display: flex;
+.c-appbar__menu {
+  display: none;
   align-items: center;
-  gap: var(--md-sys-space-2);
-  overflow-x: auto;
-}
-
-.c-topbar__label {
-  flex: 0 0 auto;
-  font-size: 0.7rem;
-  font-weight: var(--md-sys-type-weight-bold);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--md-sys-color-on-surface-variant);
-  margin-right: var(--md-sys-space-1);
-}
-
-.c-topbar__link,
-.c-topbar__step {
-  flex: 0 0 auto;
-  padding: 0.5rem 0.9rem;
-  border: 1px solid transparent;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
   border-radius: var(--md-sys-shape-full);
   background: transparent;
-  font-size: var(--md-sys-type-label-size);
-  font-weight: var(--md-sys-type-weight-medium);
-  color: var(--md-sys-color-on-surface-variant);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+  color: var(--md-sys-color-on-surface);
 }
 
-.c-topbar__link:hover,
-.c-topbar__step:hover {
+.c-appbar__menu:hover {
   background: var(--md-sys-color-surface-container-high);
 }
 
-.c-topbar__current {
-  flex: 0 0 auto;
-  padding: 0.5rem 0.9rem;
-  border-radius: var(--md-sys-shape-full);
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-  font-size: var(--md-sys-type-label-size);
+.c-appbar__menu-icon,
+.c-appbar__menu-icon::before,
+.c-appbar__menu-icon::after {
+  display: block;
+  width: 1.15rem;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.c-appbar__menu-icon {
+  position: relative;
+}
+
+.c-appbar__menu-icon::before,
+.c-appbar__menu-icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.c-appbar__menu-icon::before { top: -6px; }
+.c-appbar__menu-icon::after { top: 6px; }
+
+.c-appbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  text-decoration: none;
+  color: inherit;
+}
+
+.c-appbar__logo {
+  height: 2rem;
+  width: auto;
+}
+
+.c-appbar__course {
   font-weight: var(--md-sys-type-weight-bold);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
-.c-topbar__step.is-active {
+.c-appbar__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: var(--md-sys-space-3);
+  border-left: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-appbar__spacer {
+  flex: 1 1 auto;
+}
+
+.c-appbar__chip {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Shell — navigation rail beside a centred content column
+   -------------------------------------------------------------------------- */
+.l-shell {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 3.5rem;
+}
+
+.l-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.l-content {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 58rem;
+  margin-inline: auto;
+  padding: var(--md-sys-space-6) var(--md-sys-space-5) var(--md-sys-space-8);
+}
+
+/* --------------------------------------------------------------------------
+   Navigation rail
+   -------------------------------------------------------------------------- */
+.c-nav {
+  position: sticky;
+  top: 3.5rem;
+  flex: 0 0 17rem;
+  width: 17rem;
+  height: calc(100vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--md-sys-space-5) var(--md-sys-space-3) var(--md-sys-space-7);
+  border-right: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
+}
+
+.c-nav__group {
+  margin-bottom: var(--md-sys-space-5);
+}
+
+.c-nav__label {
+  margin: 0 0 var(--md-sys-space-2);
+  padding-inline: var(--md-sys-space-3);
+  font-size: 0.7rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  width: 100%;
+  padding: 0.5rem var(--md-sys-space-3);
+  border: 0;
+  border-radius: var(--md-sys-shape-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.86rem;
+  font-weight: var(--md-sys-type-weight-medium);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.c-nav__item:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-nav__item.is-active {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-nav__num {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-high);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.c-nav__item.is-active .c-nav__num {
   background: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
 }
 
-.c-topbar__step.is-complete:not(.is-active)::after {
-  content: "✓";
-  margin-left: 0.4em;
+.c-nav__item.is-complete .c-nav__num {
+  background: var(--md-sys-color-success-container);
   color: var(--md-sys-color-success);
-  font-weight: var(--md-sys-type-weight-bold);
 }
 
-.c-topbar__step.is-complete.is-active::after {
-  content: "✓";
-  margin-left: 0.4em;
-}
-
-.c-topbar__score {
-  flex: 0 0 auto;
-  margin-left: auto;
-  padding: 0.45rem 0.9rem;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-full);
-  font-size: var(--md-sys-type-label-size);
-  font-weight: var(--md-sys-type-weight-bold);
-  font-variant-numeric: tabular-nums;
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-lowest);
+.c-nav__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Push page content below the fixed bar */
-.c-page {
-  padding-top: 4.5rem;
-  padding-bottom: var(--md-sys-space-8);
+.c-nav__check {
+  flex: 0 0 auto;
+  color: var(--md-sys-color-success);
+  font-weight: var(--md-sys-type-weight-bold);
+  visibility: hidden;
+}
+
+.c-nav__item.is-complete .c-nav__check {
+  visibility: visible;
+}
+
+.c-nav-scrim {
+  display: none;
+}
+
+/* Collapse the rail behind the app-bar toggle on narrow screens */
+@media (max-width: 959.98px) {
+  .c-appbar__menu {
+    display: flex;
+  }
+
+  .c-appbar__label {
+    display: none;
+  }
+
+  .c-nav {
+    position: fixed;
+    left: 0;
+    top: 3.5rem;
+    bottom: 0;
+    z-index: 65;
+    width: min(20rem, 85vw);
+    height: auto;
+    transform: translateX(-100%);
+    transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+    border-right: 1px solid var(--md-sys-color-outline-variant);
+    box-shadow: var(--md-sys-elevation-3);
+  }
+
+  .c-nav.is-open {
+    transform: none;
+  }
+
+  .c-nav-scrim {
+    display: block;
+    position: fixed;
+    inset: 3.5rem 0 0 0;
+    z-index: 60;
+    background: color-mix(in srgb, var(--md-ref-ink) 40%, transparent);
+  }
+
+  .c-nav-scrim[hidden] {
+    display: none;
+  }
 }
 
 /* --------------------------------------------------------------------------
-   Hero — course or lab masthead
+   Page header inside the content column
    -------------------------------------------------------------------------- */
 .c-hero {
-  padding-block: var(--md-sys-space-7) var(--md-sys-space-6);
-}
-
-.c-hero__brand {
-  display: flex;
-  align-items: center;
-  gap: var(--md-sys-space-4);
-  margin-bottom: var(--md-sys-space-5);
-}
-
-.c-hero__logo {
-  height: 3.25rem;
-  width: auto;
-}
-
-.c-hero__divider {
-  width: 1px;
-  align-self: stretch;
-  background: var(--md-sys-color-outline-variant);
+  padding-block: var(--md-sys-space-4) var(--md-sys-space-6);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  margin-bottom: var(--md-sys-space-6);
 }
 
 .c-hero__eyebrow {
   font-size: var(--md-sys-type-label-size);
   font-weight: var(--md-sys-type-weight-bold);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--md-sys-color-primary);
 }
 
 .c-hero__title {
   font-size: var(--md-sys-type-display-size);
-  letter-spacing: -0.015em;
-  margin-top: var(--md-sys-space-2);
-  max-width: 24ch;
+  letter-spacing: -0.01em;
+  margin-top: var(--md-sys-space-3);
+  max-width: 26ch;
 }
 
 .c-hero__title-accent {
@@ -191,13 +349,13 @@
 }
 
 /* --------------------------------------------------------------------------
-   Sidebars — slide-out reference drawers on lab pages
+   Reference drawers (lab pages) — slide out from the right edge
    -------------------------------------------------------------------------- */
 .c-sidebar {
   position: fixed;
-  top: 5.5rem;
+  top: 5rem;
   bottom: var(--md-sys-space-4);
-  z-index: 60;
+  z-index: 55;
   width: min(26rem, calc(100vw - 4rem));
   transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
 }
@@ -237,9 +395,9 @@
 
 .c-sidebar__handle {
   position: absolute;
-  top: 4rem;
+  top: 3.5rem;
   width: 2.1rem;
-  height: 4rem;
+  height: 4.5rem;
   border: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
@@ -259,6 +417,11 @@
   left: -2.1rem;
   border-right: 0;
   border-radius: var(--md-sys-shape-md) 0 0 var(--md-sys-shape-md);
+}
+
+/* A second reference drawer stacks its handle below the first */
+.c-sidebar--right:nth-of-type(2) .c-sidebar__handle {
+  top: 8.5rem;
 }
 
 .c-sidebar__handle-icon {
@@ -286,21 +449,28 @@
    -------------------------------------------------------------------------- */
 .c-footer {
   border-top: 1px solid var(--md-sys-color-outline-variant);
-  padding: var(--md-sys-space-6) 0;
+  padding: var(--md-sys-space-5);
   text-align: center;
   font-size: var(--md-sys-type-body-sm-size);
   color: var(--md-sys-color-on-surface-variant);
 }
 
-/* Print: drop fixed chrome, reveal all content */
+/* Print: drop the fixed chrome, keep the content */
 @media print {
-  .c-topbar,
+  .c-appbar,
+  .c-nav,
+  .c-nav-scrim,
   .c-sidebar,
   .c-skip-link {
     display: none;
   }
 
-  .c-page {
+  .l-shell {
     padding-top: 0;
+  }
+
+  .l-content {
+    max-width: none;
+    padding: 0;
   }
 }

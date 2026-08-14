@@ -59,6 +59,7 @@ class Checkpoints {
       link.classList.toggle('is-active', active);
       link.setAttribute('aria-current', active ? 'step' : 'false');
     }
+    SeptLabs.navigation?.revealActive();
     SeptLabs.store.update((state) => {
       state.currentCheckpoint = id;
     });
@@ -153,8 +154,8 @@ class Checkpoints {
     const index = this.definitions.findIndex((candidate) => candidate.id === id);
     const last = index === this.definitions.length - 1;
     Dom.status(message, last
-      ? 'Lab complete. Download your progress file below and keep it with your course records.'
-      : 'Checkpoint complete — progress saved in this browser.', 'success');
+      ? 'Laboratory complete. Download the progress file below and keep it with your course records.'
+      : 'Checkpoint complete. Progress is saved in this browser.', 'success');
     if (!last) this.#step(id, 1);
   }
 

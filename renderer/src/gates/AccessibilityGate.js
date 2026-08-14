@@ -38,6 +38,10 @@ export class AccessibilityGate extends Gate {
     const browser = await AccessibilityGate.#launch(chromium);
     try {
       const browserContext = await browser.newContext();
+      // The scan runs offline: external requests (the font service) would
+      // otherwise hold each page's load event open until a network
+      // timeout. Fallback fonts do not change any axe result.
+      await browserContext.route(/^https?:/, (route) => route.abort());
       const browserPage = await browserContext.newPage();
       for (const page of context.pages) {
         const url = pathToFileURL(path.join(context.outputDir, page.relativePath)).href;

@@ -1,13 +1,21 @@
 import { Html } from '../lib/Html.js';
 
 /**
- * Base template for every rendered page: document shell, head, fixed top
- * bar, footer, and the runtime config island. Subclasses provide the
- * page's main content and its topbar items.
+ * Base template for every rendered page.
  *
- * Pages link exactly one stylesheet and one script — the versioned design
- * system copies carried inside the output — and reference nothing outside
- * the bundle. No CDN, no fonts service, no analytics.
+ * The shell has three regions:
+ *
+ *   - a slim fixed app bar with the course identity, a mobile navigation
+ *     toggle, and an optional progress indicator;
+ *   - a persistent left navigation rail (the "explorer"), whose entries
+ *     each page defines — checkpoints on a lab page, topics on a
+ *     knowledge page, sections on the course home page. On narrow
+ *     screens the rail collapses behind the app-bar toggle;
+ *   - a centred content column.
+ *
+ * Pages reference one stylesheet and one script — the versioned design
+ * system copies carried inside the output — plus the Google Sans font
+ * service. No other external resource is referenced.
  */
 export class Page {
   /**
@@ -31,24 +39,46 @@ export class Page {
     throw new Error(`${this.constructor.name} must implement description()`);
   }
 
-  /** @returns {object} The runtime config island for this page. */
+  /** @returns {object} The runtime configuration for this page. */
   runtimeConfig() {
     throw new Error(`${this.constructor.name} must implement runtimeConfig()`);
   }
 
-  /** @returns {string} Topbar content after the standard links. */
-  topbarItems() {
+  /** @returns {string} Entries for the navigation rail. */
+  navigation() {
+    throw new Error(`${this.constructor.name} must implement navigation()`);
+  }
+
+  /** @returns {string} Short label shown beside the brand in the app bar. */
+  appBarLabel() {
     return '';
   }
 
-  /** @returns {string} The page's <main> content. */
+  /** @returns {string} Optional app-bar content after the label (e.g. progress). */
+  appBarItems() {
+    return '';
+  }
+
+  /** @returns {string} The page's main content. */
   main() {
     throw new Error(`${this.constructor.name} must implement main()`);
   }
 
-  /** @returns {string} Content rendered outside <main> (e.g. sidebars). */
+  /** @returns {string} Content rendered outside the shell (e.g. reference drawers). */
   asides() {
     return '';
+  }
+
+  /**
+   * A standard navigation group: a small heading followed by entries.
+   * @param {string} label
+   * @param {string | string[]} entries
+   * @returns {string}
+   */
+  navGroup(label, entries) {
+    return Html.el('div', { class: 'c-nav__group' },
+      Html.el('p', { class: 'c-nav__label' }, Html.escape(label)),
+      entries);
   }
 
   /** @returns {string} The complete HTML document. */
@@ -57,10 +87,12 @@ export class Page {
 
     // Content renders first: block templates register quiz answers, field
     // rules, calculators, and checkpoint requirements on the context as
-    // they render, and the config island must capture the finished state.
+    // they render, and the configuration island must capture that state.
     const mainHtml = this.main();
     const asidesHtml = this.asides();
-    const topbarHtml = this.topbarItems();
+    const navigationHtml = this.navigation();
+    const appBarLabelHtml = this.appBarLabel();
+    const appBarItemsHtml = this.appBarItems();
     const configJson = JSON.stringify(this.runtimeConfig())
       .replaceAll('<', '\\u003c');
 
@@ -73,20 +105,47 @@ export class Page {
         Html.el('meta', { name: 'description', content: this.description() }),
         Html.el('title', {}, Html.escape(this.title())),
         Html.el('link', { rel: 'icon', href: `${root}assets/McMaster-logo.png` }),
+        Html.el('link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }),
+        Html.el('link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }),
+        Html.el('link', {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap',
+        }),
         Html.el('link', { rel: 'stylesheet', href: `${root}assets/sept-labs.css` }),
       ),
       Html.el('body', {},
         Html.el('a', { class: 'c-skip-link', href: '#main' }, 'Skip to content'),
-        Html.el('nav', { class: 'c-topbar', 'aria-label': 'Course navigation' },
-          Html.el('div', { class: 'c-topbar__inner' },
-            Html.el('span', { class: 'c-topbar__label' }, 'Student space'),
-            Html.el('a', { class: 'c-topbar__link', href: `${root}index.html` }, 'Home'),
-            topbarHtml,
-          )),
+        Html.el('header', { class: 'c-appbar' },
+          Html.el('button', {
+            class: 'c-appbar__menu',
+            type: 'button',
+            'data-nav-toggle': true,
+            'aria-controls': 'site-nav',
+            'aria-expanded': 'false',
+            'aria-label': 'Open navigation',
+          },
+          Html.el('span', { class: 'c-appbar__menu-icon', 'aria-hidden': 'true' }, ''),
+          ),
+          Html.el('a', { class: 'c-appbar__brand', href: `${root}index.html` },
+            Html.el('img', { class: 'c-appbar__logo', src: `${root}assets/McMaster-logo.png`, alt: 'McMaster University' }),
+            Html.el('span', { class: 'c-appbar__course' }, Html.escape(this.course.code)),
+          ),
+          appBarLabelHtml
+            ? Html.el('span', { class: 'c-appbar__label' }, appBarLabelHtml)
+            : null,
+          Html.el('span', { class: 'c-appbar__spacer' }),
+          appBarItemsHtml,
+        ),
+        Html.el('div', { class: 'l-shell' },
+          Html.el('div', { class: 'c-nav-scrim', 'data-nav-scrim': true, hidden: true }),
+          Html.el('nav', { class: 'c-nav', id: 'site-nav', 'aria-label': 'Site navigation' },
+            navigationHtml),
+          Html.el('div', { class: 'l-main' },
+            Html.el('main', { id: 'main', class: 'l-content' }, mainHtml),
+            Html.el('footer', { class: 'c-footer' }, this.context.rich(this.course.footer)),
+          ),
+        ),
         asidesHtml,
-        Html.el('main', { id: 'main', class: 'c-page' }, mainHtml),
-        Html.el('footer', { class: 'c-footer' },
-          Html.el('div', { class: 'o-container' }, this.context.rich(this.course.footer))),
         `<script type="application/json" id="sept-lab-config">${configJson}</script>`,
         `<script src="${root}assets/sept-labs.js" defer></script>`,
       ),

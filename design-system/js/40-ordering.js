@@ -49,7 +49,7 @@ class Ordering {
     } else {
       this.root.classList.remove('is-solved');
       Dom.status(this.feedback, this.definition.failureMessage
-        ?? 'Not in order yet — reconsider the sequence and check again.', 'error');
+        ?? 'The sequence is not correct yet. Review the order and check again.', 'error');
     }
   }
 

@@ -4,8 +4,9 @@ import { RichText } from '../lib/RichText.js';
 import { Page } from './Page.js';
 
 /**
- * A laboratory page: hero, checkpoint stepper, one panel per checkpoint,
- * optional sidebars, and the progress-file card on the final checkpoint.
+ * A laboratory page: header, one panel per checkpoint, the progress-file
+ * card on the closing checkpoint, and optional reference drawers. The
+ * navigation rail lists the checkpoints with their completion state.
  */
 export class LabPage extends Page {
   /**
@@ -49,25 +50,43 @@ export class LabPage extends Page {
     };
   }
 
-  topbarItems() {
+  appBarLabel() {
+    return Html.escape(this.#shortName());
+  }
+
+  appBarItems() {
+    return Html.el('span', { class: 'c-appbar__chip', 'data-score': true, 'aria-live': 'polite' }, 'Progress');
+  }
+
+  navigation() {
+    const steps = this.lab.checkpoints.map((checkpoint, index) => Html.el('button', {
+      class: 'c-nav__item',
+      type: 'button',
+      'data-checkpoint-link': checkpoint.id,
+    },
+    Html.el('span', { class: 'c-nav__num', 'aria-hidden': 'true' }, String(index + 1)),
+    Html.el('span', { class: 'c-nav__text' }, Html.escape(RichText.plain(checkpoint.navLabel ?? checkpoint.title))),
+    Html.el('span', { class: 'c-nav__check', 'aria-hidden': 'true' }, '✓'),
+    ));
+
+    const root = this.context.relativeRoot;
     return [
-      Html.el('span', { class: 'c-topbar__current' },
-        Html.escape(this.isProject ? 'Design project' : `Lab ${this.lab.number}`)),
-      Html.el('span', { class: 'c-topbar__label' },
-        this.isProject ? 'Phases' : 'Checkpoints'),
-      ...this.lab.checkpoints.map((checkpoint, index) => Html.el('button', {
-        class: 'c-topbar__step',
-        type: 'button',
-        'data-checkpoint-link': checkpoint.id,
-      }, Html.escape(`${index + 1}. ${RichText.plain(checkpoint.navLabel ?? checkpoint.title)}`))),
-      Html.el('span', { class: 'c-topbar__score', 'data-score': true, 'aria-live': 'polite' }, 'Progress'),
+      this.navGroup(this.isProject ? 'Phases' : 'Checkpoints', steps),
+      this.navGroup('Course', [
+        Html.el('a', { class: 'c-nav__item', href: `${root}index.html` },
+          Html.el('span', { class: 'c-nav__text' }, 'Course home')),
+        Html.el('a', { class: 'c-nav__item', href: `${root}knowledge/index.html` },
+          Html.el('span', { class: 'c-nav__text' }, 'Knowledge base')),
+      ].join('')),
     ].join('');
   }
 
   asides() {
-    return (this.lab.sidebars ?? []).map((sidebar) => Html.el('aside', {
-      class: `c-sidebar c-sidebar--${sidebar.side}`,
-      'data-sidebar': `${sidebar.side}-sidebar`,
+    // The navigation rail owns the left edge, so reference drawers always
+    // dock on the right; a second drawer's handle stacks below the first.
+    return (this.lab.sidebars ?? []).map((sidebar, index) => Html.el('aside', {
+      class: 'c-sidebar c-sidebar--right',
+      'data-sidebar': `reference-${index + 1}`,
     },
     Html.el('button', {
       class: 'c-sidebar__handle',
@@ -76,7 +95,7 @@ export class LabPage extends Page {
       'aria-expanded': 'false',
       title: RichText.plain(sidebar.handleLabel ?? sidebar.title),
     },
-    Html.el('span', { class: 'c-sidebar__handle-icon', 'aria-hidden': 'true' }, sidebar.side === 'left' ? '›' : '‹'),
+    Html.el('span', { class: 'c-sidebar__handle-icon', 'aria-hidden': 'true' }, '‹'),
     Html.el('span', { class: 'u-visually-hidden' }, Html.escape(RichText.plain(sidebar.handleLabel ?? sidebar.title))),
     ),
     Html.el('div', { class: 'c-sidebar__body' },
@@ -88,20 +107,16 @@ export class LabPage extends Page {
   }
 
   main() {
-    return Html.el('div', { class: 'o-container' },
+    return [
       this.#hero(),
       Html.el('div', { class: 'o-stack o-stack--loose' },
         this.lab.checkpoints.map((checkpoint, index) => this.#checkpoint(checkpoint, index))),
-    );
+    ].join('');
   }
 
   #hero() {
     return Html.el('header', { class: 'c-hero' },
-      Html.el('div', { class: 'c-hero__brand' },
-        Html.el('img', { class: 'c-hero__logo', src: this.context.assetHref('McMaster-logo.png'), alt: 'McMaster University logo' }),
-        Html.el('div', { class: 'c-hero__divider' }),
-        Html.el('p', { class: 'c-hero__eyebrow' }, Html.escape(`${this.course.code} · ${this.course.title}`)),
-      ),
+      Html.el('p', { class: 'c-hero__eyebrow' }, Html.escape(`${this.course.code} · ${this.course.title}`)),
       Html.el('h1', { class: 'c-hero__title' },
         this.isProject
           ? Html.el('span', { class: 'c-hero__title-accent' }, Html.escape(this.lab.title))
@@ -181,7 +196,7 @@ export class LabPage extends Page {
     return Html.el('div', { class: 'o-stack' },
       (this.lab.submissionRules?.length ?? 0) > 0
         ? Html.el('aside', { class: 'c-callout c-callout--success' },
-          Html.el('p', { class: 'c-callout__title' }, 'Submission rules'),
+          Html.el('p', { class: 'c-callout__title' }, 'Submission requirements'),
           Html.el('div', { class: 'c-callout__body' },
             Html.el('ol', { class: 'c-steps' },
               this.lab.submissionRules.map((rule) => Html.el('li', {}, this.context.rich(rule))))),
@@ -189,12 +204,12 @@ export class LabPage extends Page {
         : null,
       Html.el('div', { class: 'c-progressfile' },
         Html.el('p', { class: 'c-card__eyebrow' }, 'Your record'),
-        Html.el('h3', { class: 'c-card__title' }, 'Lab progress file'),
+        Html.el('h3', { class: 'c-card__title' }, 'Progress file'),
         Html.el('p', {},
-          'Your work saves automatically in this browser, and the progress file is the durable copy: ',
-          'download it at any point, keep it with your course files, and restore it on any machine to continue where you left off.'),
+          'Work on this page is saved by your browser. The progress file is the permanent copy: ',
+          'download it at any point, keep it with your course files, and restore it on any computer to continue.'),
         Html.el('p', { class: 'c-storage-warning', 'data-storage-warning': true, hidden: true },
-          'This browser is blocking local storage, so work will not persist between visits — download your progress file early and often.'),
+          'This browser is not saving data between visits. Download your progress file often; it is the only copy of your work.'),
         Html.el('div', { class: 'c-progressfile__actions' },
           Html.el('button', { class: 'c-btn c-btn--filled', type: 'button', 'data-progress-download': true }, 'Download my progress'),
           Html.el('button', { class: 'c-btn c-btn--tonal', type: 'button', 'data-progress-restore-button': true }, 'Restore my progress'),

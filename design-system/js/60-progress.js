@@ -58,7 +58,7 @@ class ProgressFile {
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 0);
     Dom.status(this.status,
-      `Progress saved to ${filename}. Keep it with your course files — it restores on any machine.`,
+      `Saved as ${filename}. Keep this file with your course records; it can be restored on any computer.`,
       'success');
   }
 

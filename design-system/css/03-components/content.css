@@ -271,7 +271,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
-  gap: var(--md-sys-space-2);
+  gap: var(--md-sys-space-3);
 }
 
 .c-flow__step {

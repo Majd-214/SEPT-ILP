@@ -3,8 +3,9 @@ import { RichText } from '../lib/RichText.js';
 import { Page } from './Page.js';
 
 /**
- * One knowledge topic as its own static page — deep-linkable from any lab
- * at the moment of need, readable without scripting, printable.
+ * One knowledge topic as its own page, reachable from any laboratory.
+ * The navigation rail lists every topic in the same domain, with the
+ * current topic highlighted.
  */
 export class KnowledgeTopicPage extends Page {
   /**
@@ -33,20 +34,38 @@ export class KnowledgeTopicPage extends Page {
     };
   }
 
-  topbarItems() {
+  appBarLabel() {
+    return Html.escape(`${RichText.plain(this.course.knowledge.title)} · ${this.domain.title}`);
+  }
+
+  navigation() {
+    const topics = this.domain.topics.map((entry) => Html.el('a', {
+      class: Html.classes('c-nav__item', entry.id === this.topic.id && 'is-active'),
+      href: `${entry.id}.html`,
+      'aria-current': entry.id === this.topic.id ? 'page' : null,
+    },
+    Html.el('span', { class: 'c-nav__text' }, Html.escape(entry.name)),
+    ));
+
+    const root = this.context.relativeRoot;
     return [
-      Html.el('a', { class: 'c-topbar__link', href: 'index.html' }, 'Knowledge base'),
-      Html.el('span', { class: 'c-topbar__current' }, Html.escape(this.topic.name)),
+      this.navGroup('Reference', [
+        Html.el('a', { class: 'c-nav__item', href: 'index.html' },
+          Html.el('span', { class: 'c-nav__text' }, 'All domains')),
+        Html.el('a', { class: 'c-nav__item', href: `${root}index.html` },
+          Html.el('span', { class: 'c-nav__text' }, 'Course home')),
+      ].join('')),
+      this.navGroup(this.domain.title, topics),
     ].join('');
   }
 
   main() {
     const topic = this.topic;
-    return Html.el('div', { class: 'o-container' },
+    return [
       Html.el('header', { class: 'c-hero' },
         Html.el('p', { class: 'c-kb-page__breadcrumb' },
           Html.el('a', { href: 'index.html' }, 'Knowledge base'),
-          Html.escape(` › ${this.domain.title} › ${topic.name}`)),
+          Html.escape(` › ${this.domain.title}`)),
         Html.el('span', { class: `c-kb-kind c-kb-kind--${topic.kind}` }, Html.escape(topic.kind)),
         Html.el('h1', { class: 'c-kb-page__name' }, Html.escape(topic.name)),
         topic.question
@@ -70,14 +89,14 @@ export class KnowledgeTopicPage extends Page {
         )),
         topic.hint
           ? Html.el('aside', { class: 'c-callout c-callout--warning' },
-            Html.el('p', { class: 'c-callout__title' }, 'Scenario hint — lab troubleshooting'),
+            Html.el('p', { class: 'c-callout__title' }, 'In the laboratory'),
             Html.el('div', { class: 'c-callout__body' },
               Html.el('p', {}, this.context.rich(topic.hint))),
           )
           : null,
         (topic.related?.length ?? 0) > 0
           ? Html.el('section', { 'aria-label': 'Related topics' },
-            Html.el('h2', { class: 'c-kb-page__section-title' }, 'Connected topics'),
+            Html.el('h2', { class: 'c-kb-page__section-title' }, 'Related topics'),
             Html.el('div', { class: 'c-kb-related' },
               topic.related.map((relatedId) => {
                 const related = this.repository.topicById.get(relatedId);
@@ -92,6 +111,6 @@ export class KnowledgeTopicPage extends Page {
           )
           : null,
       ),
-    );
+    ].join('');
   }
 }

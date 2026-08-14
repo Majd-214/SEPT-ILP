@@ -288,7 +288,7 @@ export class EvidenceRenderer extends BlockRenderer {
       Html.el('span', { class: 'c-evidence__note' },
         block.note
           ? this.context.rich(block.note)
-          : 'Only the filename is recorded here as a memory aid — submit the actual file through Avenue to Learn.'),
+          : 'This records the file name only. Submit the file itself through Avenue to Learn.'),
     );
   }
 }

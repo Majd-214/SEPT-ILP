@@ -101,15 +101,16 @@
   --md-sys-color-focus-ring:         #1B5E9E;
 
   /* ------------------------------------------------------------------
-     Typography — system stack; bundles must load no external fonts.
-     Scale follows the MD3 type roles the platform actually uses.
+     Typography — Google Sans, served by the Google Fonts API, with the
+     system stack as fallback. Scale follows the MD3 type roles the
+     platform actually uses.
      ------------------------------------------------------------------ */
-  --md-sys-font-plain: system-ui, -apple-system, "Segoe UI", Roboto,
-                       "Helvetica Neue", Arial, sans-serif;
+  --md-sys-font-plain: "Google Sans", system-ui, -apple-system, "Segoe UI",
+                       Roboto, "Helvetica Neue", Arial, sans-serif;
   --md-sys-font-mono:  ui-monospace, "Cascadia Code", "SF Mono", Menlo,
                        Consolas, "Liberation Mono", monospace;
 
-  --md-sys-type-display-size:   2.5rem;   /* lab title in hero        */
+  --md-sys-type-display-size:   2.15rem;  /* lab title in hero        */
   --md-sys-type-headline-size:  1.75rem;  /* checkpoint headings      */
   --md-sys-type-title-lg-size:  1.3rem;   /* section headings         */
   --md-sys-type-title-size:     1.075rem; /* card / block headings    */

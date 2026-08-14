@@ -1,51 +1,48 @@
-# Quality gates
+# Quality checks
 
-Publishing has no manual path: every page that reaches a student has
-passed, in order, the gates below. A failure at any gate stops publication
-outright and prints the complete violation list — the build is repaired,
-never overridden. The styling risk this machinery kills — inline styles
-creeping in, invented class names, drift from the design system — stops
-being a policy and becomes a defect class that cannot occur.
+Publication runs through a fixed sequence of automated checks. A finding
+at any check stops the build, and each check reports its complete list of
+findings so problems can be corrected in one pass. There is no override.
 
-| # | Gate | Verifies | Implementation |
+| # | Check | Verifies | Implementation |
 | --- | --- | --- | --- |
-| 1 | Schema validation | Every content document conforms to Lab JSON Schema v1; cross-references (knowledge topics, related topics, lab links, checkpoint ids, asset files) resolve | `SchemaGate` (ajv, strict mode) + `ContentRepository` |
-| 2 | Inline-style lint | No `style` attribute, no embedded `<style>` element anywhere in the output | `InlineStyleGate` |
-| 3 | Class allowlist | Every class in the generated HTML exists in the manifest extracted from the design-system stylesheet itself — a typo'd class fails loudly instead of rendering unstyled | `ClassAllowlistGate` + `DesignSystem.classManifest()` |
-| 4 | Accessibility | axe-core WCAG 2.0 A/AA scan of every rendered page in headless Chromium: contrast, alternative text, form labels, ARIA use, heading order | `AccessibilityGate` |
-| 5 | Link and asset integrity | Every relative `href`/`src` resolves to a file in the output; every fragment link targets a real element id; no insecure `http://` references | `LinkIntegrityGate` |
+| 1 | Schema validation | Every content document conforms to the version-1 schemas; cross-references (knowledge topics, related topics, laboratory links, checkpoint identifiers, image files) resolve | `SchemaGate`, `ContentRepository` |
+| 2 | Inline-style lint | The output contains no `style` attribute and no embedded `<style>` element | `InlineStyleGate` |
+| 3 | Class check | Every class name in the output exists in the manifest extracted from the design-system stylesheet | `ClassAllowlistGate` |
+| 4 | Accessibility scan | Every page passes an axe-core scan against WCAG 2.0 A and AA: contrast, alternative text, form labels, ARIA use, heading order | `AccessibilityGate` |
+| 5 | Link check | Every relative reference resolves to a file in the output; every fragment link targets an existing element; no insecure `http://` references | `LinkIntegrityGate` |
 
-Two structural guarantees sit upstream of the gates and make several
-violation classes impossible rather than detectable:
+Two design decisions sit upstream of the checks and prevent whole classes
+of finding rather than detecting them:
 
-- The `Html` helper — the only way templates produce markup — escapes all
-  text and **throws** on any attempt to emit a `style` attribute.
-- The class-allowlist manifest is derived from the stylesheet at build
-  time, so the allowlist can never drift from the CSS it protects.
+- Templates can only produce markup through the `Html` helper, which
+  escapes all text and rejects any `style` attribute.
+- The class manifest for check 3 is derived from the stylesheet during
+  the build, so the manifest cannot drift from the styles it describes.
 
-## Running the gates
+## Commands
 
 ```sh
 npm run build         # full pipeline on the sample course
-npm run gates         # same, in strict mode: a skipped gate fails the build
-npm run validate      # gate 1 only (content, no rendering)
-node renderer/src/cli.js build <course-dir> --skip-a11y   # local iteration
+npm run gates         # the same, in strict mode: a skipped check fails
+npm run validate      # check 1 only; no rendering
+node renderer/src/cli.js build <course-dir> --skip-a11y   # faster local iteration
 ```
 
-The accessibility gate needs Playwright and a Chromium (`npm install`
-provides the package; CI installs the browser). When the browser is
-unavailable the gate reports itself **skipped, visibly** — and strict mode
-(`npm run gates`, used by CI and any real publish) treats a skipped gate
-as a failure, so the baseline cannot erode silently.
+The accessibility scan requires Playwright and a Chromium browser.
+`npm install` provides the package; continuous integration installs the
+browser. When no browser is available the check reports itself as
+skipped, and strict mode treats a skipped check as a failure, so the
+published standard cannot erode unnoticed.
 
-## Determinism
+## Reproducible output
 
-The same content, design system, and renderer produce byte-identical
-output — pages and bundles. Rendering has no timestamps, no randomness,
-and no environment dependence; bundle zips use fixed timestamps, sorted
-entries, and stored compression. `renderer/test/pipeline.test.js` builds
-the fixture course twice and asserts equal tree hashes on every test run,
-so a determinism regression fails CI the moment it is introduced.
+Identical content, design system, and renderer produce byte-identical
+output. Rendering uses no timestamps, no randomness, and no environment
+state; archives use fixed timestamps and sorted entries. The test suite
+builds the fixture course twice and compares hashes of the two output
+trees, so a regression in reproducibility fails the tests.
 
-Determinism is what makes review meaningful: a content diff is the whole
-diff, and republishing an unchanged lab is provably a no-op.
+Reproducibility makes review reliable: a difference in content is the
+whole difference between two builds, and republishing unchanged content
+verifiably changes nothing.

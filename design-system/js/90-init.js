@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   SeptLabs.config = config;
   document.documentElement.classList.add('js-enabled');
+  SeptLabs.navigation = new Navigation();
 
   if (config.page === 'lab') {
     SeptLabs.store = new Store(config.course.id, config.lab.id, config.lab.contentVersion);

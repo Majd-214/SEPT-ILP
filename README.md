@@ -1,119 +1,109 @@
 # SEPT Interactive Laboratory Platform
 
-A schema-first publishing platform for scenario-based laboratory instruction,
-built for the W Booth School of Engineering Practice and Technology at
-McMaster University. Faculty author structured content; a deterministic
-pipeline renders interactive HTML laboratory manuals to one visual standard;
-students predict, measure, decide, and capture evidence at staged
-checkpoints — with every page passing automated quality gates before it can
-be published.
+A publishing platform for interactive laboratory instruction, developed for
+the W Booth School of Engineering Practice and Technology at McMaster
+University. Laboratory content is stored as structured documents; a build
+pipeline renders those documents into interactive HTML manuals in which
+students predict, measure, record evidence, and check their understanding
+at staged checkpoints. Automated checks verify every page before it can be
+published.
 
-The repository contains the platform and one complete sample course:
-**SMRTTECH 3CC3 — Cloud Computing and the Internet of Things** (eight
-interactive labs, a design project, and a 147-topic knowledge base),
-transcribed from the hand-built portal that piloted this pedagogy.
+The repository contains the platform and one complete course:
+**SMRTTECH 3CC3, Cloud Computing and the Internet of Things** — eight
+laboratories, a design project, and a knowledge base of 147 reference
+topics.
 
-> Course content should outlive the tools that produce it.
+## Design summary
 
-## The architecture in one paragraph
+The platform separates four concerns that hand-written laboratory pages
+combine: what a laboratory says, how it looks, how pages are produced, and
+how instructors write.
 
-Every lab is stored as a **Lab JSON** document conforming to a formal,
-versioned schema — the single source of truth, holding *what the lab says*
-and nothing about how it looks. A governed **design system** (one
-stylesheet, one behaviour runtime; Material Design 3 under OOCSS
-discipline) owns every visual decision. A **deterministic renderer**
-converts validated content into finished static pages: the same input
-produces byte-identical output, and the only markup it can emit carries
-classes from the design system. **Quality gates** make non-compliance
-unpublishable rather than discouraged. The output is deliberately humble —
-a self-contained static bundle per lab that an instructor uploads to the
-LMS, inheriting institutional single sign-on and enrollment gating. Student
-work never leaves the student's browser; the downloadable progress file is
-the durable record.
+1. **Content.** Each laboratory is a JSON document conforming to a formal,
+   versioned schema (`schema/v1/`). The document records structure and
+   wording only; it contains no markup, styling, or code. Validation
+   enforces completeness: a question with no correct answer or an image
+   with no alternative text is rejected before rendering.
+2. **Appearance.** One stylesheet and one script (`design-system/`) define
+   how every laboratory looks and behaves. The stylesheet implements
+   Material Design 3 conventions with the university's colour palette and
+   the Google Sans typeface. Accessibility requirements are implemented in
+   these components once, rather than reviewed page by page.
+3. **Production.** A renderer (`renderer/`) converts validated content into
+   finished pages using a fixed template per block type. The same input
+   always produces identical output. Automated checks then verify the
+   result; a failure at any check stops publication.
+4. **Delivery.** The output is a static site and a set of zip archives that
+   an instructor uploads to the learning management system. Pages transmit
+   no student data. Work in progress is held by the student's browser and
+   in a downloadable progress file, which is the permanent record.
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
-| `schema/v1/` | Lab JSON Schema v1: block vocabulary, lab, course, knowledge-domain, and progress-file schemas |
-| `design-system/` | The governed stylesheet layers (tokens → base → objects → components → utilities) and the behaviour runtime modules |
-| `renderer/` | The deterministic renderer: block templates, page templates, quality gates, build pipeline, CLI, and tests |
-| `content/courses/smrttech-3cc3/` | The sample course: `course.json`, `labs/*.json`, `knowledge/*.json`, and `assets/` |
-| `docs/` | Architecture, authoring guide, and quality-gate reference |
+| `schema/v1/` | The content schemas: block vocabulary, laboratory, course, knowledge domain, and progress file |
+| `design-system/` | Stylesheet layers (tokens, base, layout, components, utilities) and the page runtime |
+| `renderer/` | Block and page templates, quality checks, build pipeline, command-line interface, and tests |
+| `content/courses/smrttech-3cc3/` | The sample course: manifest, laboratories, knowledge domains, and images |
+| `docs/` | Architecture notes, authoring guide, and quality-check reference |
 | `dist/` | Build output (generated; not committed) |
 
-## Quick start
+## Building the sample course
 
-Requires Node.js 20+.
+Node.js 20 or later is required.
 
 ```sh
 npm install
-npm run build      # validate, render, gate, and package the sample course
+npm run build      # validate, render, check, and package the course
 npm run preview    # serve dist/site at http://localhost:4173
-npm test           # renderer unit tests, including determinism checks
+npm test           # renderer unit tests
 ```
 
-`npm run build` refuses to produce output that fails any gate. The build
-emits the complete course site under `dist/site/` and reproducible LMS
-upload bundles under `dist/bundles/` — one zip per lab plus the whole
-course site.
+The build writes the course site to `dist/site/` and the upload archives to
+`dist/bundles/`. It produces no output if any check fails.
 
-## The publishing pipeline
+## Quality checks
 
-Publishing is the pipeline; there is no manual side door. Every build runs,
-in order:
+Every build runs the following checks in order. Each reports its complete
+list of findings, and any finding blocks publication.
 
-1. **Schema validation** — malformed or incomplete content never reaches
-   the renderer. A quiz with no correct answer, an image without
-   alternative text, or a dangling knowledge-topic reference fails here.
-2. **Deterministic rendering** — fixed templates, one per block type in the
-   schema. No generative step, no improvisation, no code path that emits an
-   inline style.
-3. **Inline-style lint** — the output may contain no `style` attribute and
-   no embedded stylesheet.
-4. **Class allowlist** — every class in the generated HTML must exist in
-   the manifest extracted from the design-system stylesheet itself.
-5. **Accessibility scan** — axe-core checks every page against WCAG 2.0
-   A/AA in a headless browser.
-6. **Link and asset integrity** — every internal link, anchor, and asset
-   reference must resolve.
+1. Schema validation of all content documents, including cross-references
+   between laboratories, knowledge topics, and image files.
+2. A lint pass confirming the output contains no inline styles.
+3. A class check confirming every class name in the output exists in the
+   design-system stylesheet.
+4. An axe-core accessibility scan of every page against WCAG 2.0 A and AA.
+5. A link check confirming every internal reference resolves.
 
-A failure at any gate blocks publication outright and reports the complete
-list of violations. See `docs/quality-gates.md`.
+See `docs/quality-gates.md` for details.
 
 ## Authoring
 
-Authors never touch markup. Content is composed from a fixed vocabulary of
-23 typed blocks — scenario framing, learning outcomes, staged checkpoints,
-auto-marked concept checks with hints and retries, student-editable
-measurement tables with declarative validation rules, live formula
-calculators, ordering activities, evidence dropboxes, gated hints, callouts,
-figures, code listings, and deep links into the shared knowledge base
-(`kb:topic-id` — content never hardcodes site structure). The schema is the
-authoritative reference; `docs/authoring-guide.md` is the readable one, and
-`renderer/test/fixtures/mini-course/` is a complete miniature course
-exercising every block type.
+Authors work in plain-language fields, never in markup. Content is composed
+from a fixed vocabulary of 23 block types: procedures, figures, formulas,
+callouts, code listings, multiple-choice questions with hints, measurement
+tables with declared validation rules, calculators with declared formulas,
+ordering activities, evidence records, and cross-references into the
+knowledge base. `docs/authoring-guide.md` describes each; the schemas are
+the precise reference.
 
-## Privacy posture
+## Privacy
 
-Zero PII by design. Rendered labs make no network calls of their own, embed
-no analytics, and transmit nothing. All interaction state lives in the
-student's browser under a namespaced key, and the always-available
-**Download my progress / Restore my progress** controls produce a small,
-human-readable JSON file — the system of record, portable across machines
-and browsers. Actual submission of student work happens exclusively through
-the LMS.
+Rendered pages contain no analytics and make no network requests other
+than loading the Google Sans typeface. Student work is stored by the
+student's browser under a course-specific key and in the downloadable
+progress file. Submission of work for assessment takes place through the
+learning management system only.
 
-## Extending to other courses
+## Adding a course
 
-The sample course is exactly that — a sample. A new course is a new
-directory under `content/courses/` with a `course.json`, its labs, its
-knowledge domains, and its assets; the platform, schemas, design system,
-and pipeline are shared. Nothing in the renderer knows anything about cloud
-computing.
+A course is a directory under `content/courses/` containing a manifest,
+laboratory documents, knowledge domains, and images. The schemas, design
+system, and pipeline are shared; no part of the platform is specific to
+the sample course.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Sample course content was authored for
-SMRTTECH 3CC3 at McMaster University and is included here as the
-platform's reference course.
+MIT. See [LICENSE](LICENSE). The sample course content was written for
+SMRTTECH 3CC3 at McMaster University.
