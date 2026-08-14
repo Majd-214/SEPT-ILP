@@ -1,0 +1,848 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-01",
+  "number": 1,
+  "title": "Introduction to LabVIEW, Tinkercad, Arduino, and Sensors",
+  "summary": [
+    "A guided interactive companion for the Lab 1 sequence: build a LabVIEW voltage-divider VI, simulate a photoresistor circuit, program an automatic lighting system, and verify the real sensor circuit."
+  ],
+  "cardSummary": "Voltage-divider VI, photoresistor resistance, Tinkercad sensor circuit, Arduino threshold logic, and real hardware verification.",
+  "chips": [
+    "Software: LabVIEW + Tinkercad",
+    "Hardware: Arduino + photoresistor",
+    "Core concept: voltage divider",
+    "Deliverables: VI, quiz, tables, demos"
+  ],
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "labview-interface",
+    "controls-indicators",
+    "while-loops",
+    "voltage-divider",
+    "photoresistor",
+    "multimeter",
+    "threshold-control",
+    "systematic-troubleshooting"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Tools & Access",
+      "subtitle": "Course knowledge resources, LabVIEW, Tinkercad, Arduino",
+      "handleLabel": "Open lab tools reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Access Checklist",
+          "items": [
+            "Open the approved LabVIEW topics in the course Master Skill Tree.",
+            "Install LabVIEW using the Avenue to Learn installation guide.",
+            "Join the Tinkercad class and use your McMaster ID as your nickname."
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Sensor Hardware Values",
+          "items": [
+            { "term": "Divider resistor", "description": "4.7 kΩ" },
+            { "term": "LED resistor", "description": "220 Ω" },
+            { "term": "Analog input", "description": "A0" },
+            { "term": "LED output", "description": "D7" },
+            { "term": "Low-light limit", "description": "400" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Real-Bench Measurements",
+          "paragraphs": [
+            "For the real photoresistor exercise, use the trainer board 5 V supply instead of the Arduino 5 V terminals."
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Formula & Code",
+      "subtitle": "Knowledge DB skill map, voltage divider, and automatic lighting reference",
+      "handleLabel": "Open formula and code reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Lab 1 Knowledge Skills",
+          "items": [
+            "[LabVIEW front panel and block diagram](kb:labview-interface)",
+            "[Controls and indicators](kb:controls-indicators)",
+            "[While Loops](kb:while-loops)",
+            "[Voltage divider](kb:voltage-divider)",
+            "[Photoresistor](kb:photoresistor)",
+            "[Multimeter modes](kb:multimeter)",
+            "[Arduino code flow](kb:threshold-control)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)"
+          ]
+        },
+        {
+          "type": "formula",
+          "title": "Voltage Divider",
+          "expression": "Vout = Vin * R2 / (R1 + R2)",
+          "note": "Use this to calculate the theoretical sensor voltage after measuring the photoresistor resistance."
+        },
+        {
+          "type": "code",
+          "language": "arduino",
+          "title": "Arduino Sketch",
+          "code": "// Declare the analog sensor pin, LED pin, reading variable, and threshold.\n\nvoid setup()\n{\n  // Configure the LED pin as an output.\n}\n\nvoid loop()\n{\n  // Read the photoresistor divider voltage from A0.\n  // If the reading is below the low-light threshold, turn the LED on.\n  // Otherwise, turn the LED off.\n}"
+        },
+        {
+          "type": "keyValues",
+          "title": "Pin Map",
+          "items": [
+            { "term": "A0", "description": "Voltage divider output from J7" },
+            { "term": "D7", "description": "LED output through J20" },
+            { "term": "GND", "description": "Common ground at J14" },
+            { "term": "5 V", "description": "Positive rail for divider" }
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "overview",
+      "title": "Readiness and Combined Objectives",
+      "navLabel": "Overview",
+      "eyebrow": "Before the lab sequence",
+      "intro": [
+        "Laboratory 1 introduces the LabVIEW graphical programming environment. Later sections apply the same voltage-divider idea to a photoresistor, Arduino analog input, LED digital output, and real-bench measurement."
+      ],
+      "blocks": [
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Final Evidence",
+          "paragraphs": [
+            "Submit the LabVIEW VI and quiz; show Tables 1-4 and demonstrate Exercises 4 and 5."
+          ]
+        },
+        {
+          "type": "cards",
+          "title": "How to Use This Interactive Page",
+          "items": [
+            {
+              "eyebrow": "Auto checks",
+              "title": "10 points",
+              "body": "Ten concept checks with hints and retry support.",
+              "accent": "success"
+            },
+            {
+              "eyebrow": "Lab record",
+              "title": "Tables 1-4",
+              "body": "Measurement fields save locally in this browser.",
+              "accent": "primary"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "The page preserves the staged format of the original template: complete each checklist, table, and auto-graded question before advancing."
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "Learning Outcomes",
+          "items": [
+            "Recognize LabVIEW fundamentals: controls, indicators, VIs, SubVIs, data types, arrays, clusters, loops, and shift registers.",
+            "Create a LabVIEW VI that calculates voltage-divider output.",
+            "Measure how photoresistor resistance changes as light level changes.",
+            "Use a voltage divider to convert resistance variation into voltage variation.",
+            "Wire a sensor to Arduino A0 and an LED to digital pin 7.",
+            "Program an automatic lighting system using a threshold decision."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, and course resources before beginning the lab.",
+          "items": [
+            { "key": "setup-labview", "label": "LabVIEW is installed using the Avenue to Learn guide." },
+            { "key": "setup-tinkercad", "label": "Tinkercad class access is ready, using your McMaster ID nickname." },
+            { "key": "material-arduino", "label": "Arduino and USB data cable are available for the hardware activities." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires are available." },
+            { "key": "material-photoresistor", "label": "Photoresistor and 4.7 kΩ fixed resistor are available." },
+            { "key": "material-led", "label": "LED, 220 Ω resistor, and multimeter are available." }
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Concept Flow",
+          "steps": [
+            { "label": "LABVIEW VI", "detail": "Calculate Vout" },
+            { "label": "PHOTORESISTOR", "detail": "Resistance changes" },
+            { "label": "VOLTAGE DIVIDER", "detail": "Voltage changes" },
+            { "label": "ARDUINO ANALOG INPUT", "detail": "Read analog level" },
+            { "label": "LED", "detail": "React to low light level" }
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "**Auto-Graded Readiness Check.** Answer both questions correctly before moving into the activities."
+          ]
+        },
+        {
+          "type": "quiz",
+          "id": "ready-labview-access",
+          "prompt": "Which pair of requirements is needed for Laboratory 1?",
+          "points": 1,
+          "options": [
+            { "text": "A Tinkercad class link and a trainer board." },
+            { "text": "The approved course knowledge resources and LabVIEW installed on the machine.", "correct": true },
+            { "text": "An Arduino sketch and a 220 Ω resistor." },
+            { "text": "A multimeter set to voltage and a real photoresistor." }
+          ],
+          "hint": "Laboratory 1 starts with the LabVIEW learning material and requires the software locally.",
+          "explanation": "Laboratory 1 uses the approved course knowledge resources and requires LabVIEW to be installed on the machine."
+        },
+        {
+          "type": "quiz",
+          "id": "ready-tinkercad-nickname",
+          "prompt": "What nickname should be used when joining the Tinkercad class?",
+          "points": 1,
+          "options": [
+            { "text": "Your full email address including @mcmaster.ca." },
+            { "text": "A random nickname selected by Tinkercad." },
+            { "text": "Your McMaster ID, which is the email address without @mcmaster.ca.", "correct": true },
+            { "text": "Your lab partner's name." }
+          ],
+          "hint": "Use your student email address without the McMaster domain.",
+          "explanation": "Use your McMaster ID, which is your email address without @mcmaster.ca."
+        }
+      ]
+    },
+    {
+      "id": "labview",
+      "title": "Introduction to LabVIEW",
+      "navLabel": "LabVIEW",
+      "context": "LabVIEW foundations",
+      "blocks": [
+        {
+          "type": "tabs",
+          "key": "labview",
+          "tabs": [
+            {
+              "key": "course",
+              "label": "Course Videos",
+              "blocks": [
+                {
+                  "type": "callout",
+                  "variant": "note",
+                  "title": "Approved Learning Resources",
+                  "paragraphs": [
+                    "Begin with the linked Master Skill Tree topics. They explain the LabVIEW workspace and the reusable skills needed for this activity."
+                  ],
+                  "items": [
+                    "[LabVIEW interface](kb:labview-interface)",
+                    "[Front panel](kb:front-panel) and [block diagram](kb:block-diagram)",
+                    "[Controls and indicators](kb:controls-indicators)",
+                    "[While Loops](kb:while-loops)"
+                  ]
+                }
+              ]
+            },
+            {
+              "key": "divider",
+              "label": "Voltage Divider VI",
+              "blocks": [
+                {
+                  "type": "formula",
+                  "title": "Voltage Divider Equation",
+                  "expression": "Vout = Vin * R2 / (R1 + R2)"
+                },
+                {
+                  "type": "calculator",
+                  "inputs": [
+                    { "key": "vin", "label": "Vin", "min": 0, "step": 0.01, "placeholder": "e.g., 5.0" },
+                    { "key": "r1", "label": "R1", "min": 0, "step": 0.01, "placeholder": "e.g., 4.7" },
+                    { "key": "r2", "label": "R2", "min": 0, "step": 0.01, "placeholder": "e.g., 10" }
+                  ],
+                  "outputs": [
+                    {
+                      "label": "Calculated Vout",
+                      "expression": "vin * r2 / (r1 + r2)",
+                      "precision": 3,
+                      "unit": "V",
+                      "emptyText": "Enter values"
+                    }
+                  ]
+                },
+                {
+                  "type": "figure",
+                  "src": "lab1-voltage-divider.png",
+                  "alt": "Voltage divider circuit from Laboratory 1"
+                }
+              ]
+            },
+            {
+              "key": "build",
+              "label": "Build Checklist",
+              "blocks": [
+                {
+                  "type": "callout",
+                  "variant": "note",
+                  "title": "Build the Voltage-Divider VI",
+                  "paragraphs": [
+                    "Build a [LabVIEW VI](kb:vi-subvi) that represents and evaluates a [voltage-divider circuit](kb:voltage-divider). Create an appropriate [front-panel interface](kb:front-panel), add the required [controls and indicators](kb:controls-indicators), and construct the corresponding [block-diagram logic](kb:block-diagram)."
+                  ]
+                },
+                {
+                  "type": "figure",
+                  "src": "lab1-front-panel.png",
+                  "alt": "Completed LabVIEW voltage-divider front panel with Vin, R1, R2, Vout, Stop, student name, and student ID",
+                  "caption": "Example completed front panel. Keep controls, indicators, labels, and wiring guides arranged clearly."
+                },
+                {
+                  "type": "steps",
+                  "title": "Beginner Build Sequence",
+                  "items": [
+                    "Start a blank VI. A VI is the LabVIEW program file; it has a front panel for the user interface and a block diagram for program logic.",
+                    "On the front panel, place three **numeric controls** named `Vin`, `R1`, and `R2`. A control supplies a value to the program.",
+                    "To create the boxes and arrows shown in the image, use the **Controls >> Decorations** tab.",
+                    "Place one **numeric indicator** named `Vout`. An indicator displays a value calculated by the program.",
+                    "Open the block diagram and use [arithmetic functions and wires](kb:program-elements) to implement `Vout = Vin × R2 ÷ (R1 + R2)`. Wires carry data from controls through functions to the indicator.",
+                    "Place the calculation inside a [While Loop](kb:while-loops), add a Boolean `Stop` control, and wire it to the loop Stop terminal.",
+                    "Run the VI, change the three inputs, and confirm that `Vout` updates. End the program with the Stop control, not the Abort button.",
+                    "Add your name and student number to the front panel, then save the file with the `.vi` extension."
+                  ]
+                },
+                {
+                  "type": "callout",
+                  "variant": "success",
+                  "title": "Why the While Loop is used",
+                  "paragraphs": [
+                    "The While Loop repeatedly updates the voltage-divider calculation and keeps the front panel responsive while the VI runs. It continues until the programmed Stop condition is met, so the student can change inputs without pressing Run again. Stop the VI with its Stop control rather than the Abort button."
+                  ]
+                },
+                {
+                  "type": "figure",
+                  "src": "lab1-labview-while-loop.png",
+                  "alt": "LabVIEW block diagram showing an empty While Loop and the Functions palette path to the While Loop structure",
+                  "caption": "Place the While Loop from the Programming > Structures palette, then build the repeated calculation inside its border and connect a Stop control to the loop condition."
+                }
+              ]
+            },
+            {
+              "key": "submit",
+              "label": "Submission",
+              "blocks": [
+                {
+                  "type": "callout",
+                  "variant": "success",
+                  "title": "Submit the LabVIEW VI",
+                  "ordered": true,
+                  "items": [
+                    "Select your completed `.vi` file in the evidence dropbox below.",
+                    "The portal records the filename locally in this browser and in the completion JSON; it does not upload or embed the VI contents.",
+                    "Submit the actual `.vi` file through the Lab 1 Avenue to Learn submission location identified by your instructor.",
+                    "Complete the Lab 1 quiz on Avenue to Learn."
+                  ]
+                },
+                {
+                  "type": "callout",
+                  "variant": "warning",
+                  "paragraphs": [
+                    "Your submitted VI front panel must contain your student name and ID."
+                  ]
+                },
+                {
+                  "type": "evidence",
+                  "key": "lab1-vi-file",
+                  "label": "Completed LabVIEW VI evidence dropbox",
+                  "accept": [".vi"],
+                  "note": "Accepted type: .vi"
+                },
+                {
+                  "type": "quiz",
+                  "id": "labview-divider-equation",
+                  "prompt": "Which formula should the VI implement?",
+                  "points": 1,
+                  "options": [
+                    { "text": "Vout = Vin * R1 / (R1 + R2)" },
+                    { "text": "Vout = Vin * R2 / (R1 + R2)", "correct": true },
+                    { "text": "Vout = R1 + R2 / Vin" },
+                    { "text": "Vout = Vin / (R1 * R2)" }
+                  ],
+                  "hint": "The output is the input voltage multiplied by the lower resistor fraction.",
+                  "explanation": "The VI should calculate Vout = Vin * R2 / (R1 + R2)."
+                },
+                {
+                  "type": "quiz",
+                  "id": "labview-front-panel-id",
+                  "prompt": "What information must appear on the VI front panel?",
+                  "points": 1,
+                  "options": [
+                    { "text": "The instructor's office hours." },
+                    { "text": "Your student name and ID.", "correct": true },
+                    { "text": "The Tinkercad class code." },
+                    { "text": "The Arduino serial monitor output." }
+                  ],
+                  "hint": "Include this requirement in the completed VI exercise.",
+                  "explanation": "The VI front panel must include your student name and ID."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pr-resistance",
+      "title": "Measure Photoresistor Resistance",
+      "navLabel": "PR Resistance",
+      "context": "Tinkercad simulation",
+      "blocks": [
+        {
+          "type": "steps",
+          "title": "Build Steps",
+          "items": [
+            "In Tinkercad, select New, then Circuit.",
+            "Find a photoresistor in the component list.",
+            "Place it so its two legs are in separate breadboard rows.",
+            "Add a multimeter and connect the meter leads across the two photoresistor legs.",
+            "Set the [multimeter mode](kb:multimeter) to Resistance.",
+            "Record measurements at 0%, 25%, 50%, 75%, and 100% light."
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab2-photoresistor-resistance.png",
+          "alt": "Tinkercad photoresistor with multimeter resistance setup"
+        },
+        {
+          "type": "measurementTable",
+          "title": "Table 1 - Photoresistor Resistance",
+          "columns": ["Light", "0%", "25%", "50%", "75%", "100%"],
+          "rows": [
+            {
+              "label": "PR resistance",
+              "unit": "Ω",
+              "cells": [
+                { "control": "number", "key": "t1-r-0", "min": 100, "max": 2000000, "step": 0.01, "placeholder": "e.g., 200000", "rangeMessage": "Photoresistor resistance should be between 100 and 2000000 Ω. If you used kΩ, convert to Ω before completing this checkpoint." },
+                { "control": "number", "key": "t1-r-25", "min": 100, "max": 2000000, "step": 0.01, "placeholder": "e.g., 200000", "rangeMessage": "Photoresistor resistance should be between 100 and 2000000 Ω. If you used kΩ, convert to Ω before completing this checkpoint." },
+                { "control": "number", "key": "t1-r-50", "min": 100, "max": 2000000, "step": 0.01, "placeholder": "e.g., 200000", "rangeMessage": "Photoresistor resistance should be between 100 and 2000000 Ω. If you used kΩ, convert to Ω before completing this checkpoint." },
+                { "control": "number", "key": "t1-r-75", "min": 100, "max": 2000000, "step": 0.01, "placeholder": "e.g., 200000", "rangeMessage": "Photoresistor resistance should be between 100 and 2000000 Ω. If you used kΩ, convert to Ω before completing this checkpoint." },
+                { "control": "number", "key": "t1-r-100", "min": 100, "max": 2000000, "step": 0.01, "placeholder": "e.g., 200000", "rangeMessage": "Photoresistor resistance should be between 100 and 2000000 Ω. If you used kΩ, convert to Ω before completing this checkpoint." }
+              ]
+            }
+          ],
+          "note": "Record photoresistor resistance in Ω so the checkpoint validation can check for likely measurement-entry errors."
+        },
+        {
+          "type": "quiz",
+          "id": "pr-meter-mode",
+          "prompt": "Which multimeter mode is used in Exercise 1?",
+          "points": 1,
+          "options": [
+            { "text": "Voltage" },
+            { "text": "Current" },
+            { "text": "Resistance", "correct": true },
+            { "text": "Continuity only" }
+          ],
+          "hint": "Exercise 1 measures the sensor before it is converted to a voltage.",
+          "explanation": "The multimeter is set to Resistance for the photoresistor-only measurement."
+        },
+        {
+          "type": "quiz",
+          "id": "pr-light-levels",
+          "prompt": "Which light levels are recorded in Table 1?",
+          "points": 1,
+          "options": [
+            { "text": "Dark, normal, flashlight only." },
+            { "text": "0%, 25%, 50%, 75%, and 100% light.", "correct": true },
+            { "text": "10%, 20%, 30%, 40%, and 50% light." },
+            { "text": "Only no light and full light." }
+          ],
+          "hint": "Table 1 uses five percentage-based light settings.",
+          "explanation": "Table 1 records 0%, 25%, 50%, 75%, and 100% light."
+        }
+      ]
+    },
+    {
+      "id": "voltage-divider",
+      "title": "Simulate the Voltage Divider",
+      "navLabel": "Voltage Divider",
+      "context": "4.7 kΩ resistor",
+      "blocks": [
+        {
+          "type": "tabs",
+          "key": "divider",
+          "tabs": [
+            {
+              "key": "purpose",
+              "label": "Purpose",
+              "blocks": [
+                {
+                  "type": "callout",
+                  "variant": "note",
+                  "title": "[Why the Divider Matters](kb:voltage-divider)",
+                  "paragraphs": [
+                    "The [photoresistor](kb:photoresistor) changes resistance with light. The [Arduino analog input](kb:analog-input) reads voltage, so the divider converts resistance variation into a measurable sensor voltage."
+                  ]
+                },
+                {
+                  "type": "formula",
+                  "title": "Divider Rule",
+                  "expression": "Vout = Vin * R2 / (R1 + R2)",
+                  "note": "In this sensor sequence, the fixed resistor is 4.7 kΩ and the photoresistor changes with light."
+                }
+              ]
+            },
+            {
+              "key": "build",
+              "label": "Build",
+              "blocks": [
+                {
+                  "type": "steps",
+                  "title": "Circuit Steps",
+                  "items": [
+                    "Add the fixed resistor so it shares one row with the photoresistor junction.",
+                    "Set the resistor value to 4.7 kΩ.",
+                    "Connect one end of the divider to 5 V and the other end to GND.",
+                    "Connect Arduino 5 V and GND to the same power rails used by the divider.",
+                    "Measure the divider junction voltage relative to ground.",
+                    "Set the multimeter mode to Voltage."
+                  ]
+                },
+                {
+                  "type": "figure",
+                  "src": "lab2-voltage-divider.png",
+                  "alt": "Tinkercad Arduino voltage divider circuit"
+                }
+              ]
+            },
+            {
+              "key": "table",
+              "label": "Table 2",
+              "blocks": [
+                {
+                  "type": "measurementTable",
+                  "title": "Table 2 - Divider Voltage",
+                  "columns": ["Light", "0%", "25%", "50%", "75%", "100%"],
+                  "rows": [
+                    {
+                      "label": "Voltage",
+                      "unit": "V",
+                      "cells": [
+                        { "control": "number", "key": "t2-v-0", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                        { "control": "number", "key": "t2-v-25", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                        { "control": "number", "key": "t2-v-50", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                        { "control": "number", "key": "t2-v-75", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                        { "control": "number", "key": "t2-v-100", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" }
+                      ]
+                    }
+                  ],
+                  "note": "Record measured voltage at the same light levels used in Table 1."
+                }
+              ]
+            },
+            {
+              "key": "submit",
+              "label": "Submission",
+              "blocks": [
+                {
+                  "type": "quiz",
+                  "id": "divider-fixed-resistor",
+                  "prompt": "What resistor value is used in the simulated divider?",
+                  "points": 1,
+                  "options": [
+                    { "text": "220 Ω" },
+                    { "text": "1 kΩ" },
+                    { "text": "4.7 kΩ", "correct": true },
+                    { "text": "10 kΩ" }
+                  ],
+                  "hint": "This value appears in both the Tinkercad divider and real hardware exercise.",
+                  "explanation": "The divider uses a 4.7 kΩ resistor."
+                },
+                {
+                  "type": "quiz",
+                  "id": "divider-conversion",
+                  "prompt": "Why add the voltage divider before Arduino sensing?",
+                  "points": 1,
+                  "options": [
+                    { "text": "It turns photoresistor resistance changes into voltage changes the Arduino can read.", "correct": true },
+                    { "text": "It prevents the LED from using digital pin 7." },
+                    { "text": "It replaces the need for ground." },
+                    { "text": "It makes the photoresistor resistance constant." }
+                  ],
+                  "hint": "Arduino analog inputs measure voltage, not resistance directly.",
+                  "explanation": "The divider converts photoresistor resistance variation into a voltage variation."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "exercise-4-automatic-lighting",
+      "title": "Connect and Program the Automatic Lighting System",
+      "navLabel": "Arduino",
+      "eyebrow": "Source Manual Exercise 4",
+      "context": "A0 sensor + D7 LED",
+      "blocks": [
+        {
+          "type": "tabs",
+          "key": "arduino",
+          "tabs": [
+            {
+              "key": "wiring",
+              "label": "Wiring",
+              "blocks": [
+                {
+                  "type": "figure",
+                  "src": "lab2-arduino-led.png",
+                  "alt": "Photoresistor and LED connected to Arduino"
+                },
+                {
+                  "type": "steps",
+                  "title": "Connection Steps",
+                  "items": [
+                    "Delete the multimeter.",
+                    "Connect the divider junction to Arduino Analog Input A0.",
+                    "Add the LED and a 220 Ω current-limiting resistor in series.",
+                    "Connect the LED circuit between Arduino digital output pin 7 and ground, using the correct LED polarity.",
+                    "Before running code, confirm common ground is shared by the divider and LED circuit."
+                  ]
+                },
+                {
+                  "type": "keyValues",
+                  "title": "Pin Map",
+                  "items": [
+                    { "term": "A0", "description": "Voltage divider output from J7" },
+                    { "term": "D7", "description": "LED output through J20" },
+                    { "term": "GND", "description": "Common ground at J14" },
+                    { "term": "5 V", "description": "Positive rail for divider" }
+                  ]
+                }
+              ]
+            },
+            {
+              "key": "code",
+              "label": "Code",
+              "blocks": [
+                {
+                  "type": "code",
+                  "language": "arduino",
+                  "code": "// Add variables for the photoresistor input, LED output, sensor reading, and threshold.\n\nvoid setup()\n{\n  // Set the LED pin mode.\n}\n\nvoid loop()\n{\n  // Read the analog value from A0.\n  // Compare the value against the low-light threshold.\n  // Write HIGH or LOW to the LED pin based on that comparison.\n}"
+                }
+              ]
+            },
+            {
+              "key": "test",
+              "label": "Test",
+              "blocks": [
+                {
+                  "type": "figure",
+                  "src": "lab2-code-mode.png",
+                  "alt": "Tinkercad code mode interface"
+                },
+                {
+                  "type": "steps",
+                  "title": "Program and Verify",
+                  "items": [
+                    "Click Code at the top right of [Tinkercad](kb:tinkercad).",
+                    "Change edit mode from Blocks to Text.",
+                    "Enter the automatic lighting sketch.",
+                    "Start the simulation and change light level.",
+                    "Confirm the LED turns on when the sensor reading is below 400."
+                  ]
+                },
+                {
+                  "type": "fields",
+                  "fields": [
+                    {
+                      "key": "arduino-dark-reading",
+                      "label": "Dark PR reading (0-1023)",
+                      "control": "number",
+                      "min": 0,
+                      "max": 1023,
+                      "step": 1,
+                      "placeholder": "e.g., 250"
+                    },
+                    {
+                      "key": "arduino-bright-reading",
+                      "label": "Bright PR reading (0-1023)",
+                      "control": "number",
+                      "min": 0,
+                      "max": 1023,
+                      "step": 1,
+                      "placeholder": "e.g., 800"
+                    },
+                    {
+                      "key": "arduino-led-state",
+                      "label": "LED turns on below 400?",
+                      "control": "select",
+                      "options": ["Yes", "No"],
+                      "expected": {
+                        "value": "Yes",
+                        "message": "Confirm the LED turns on below the low-light threshold before completing this stage."
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "key": "submit",
+              "label": "Submission",
+              "blocks": [
+                {
+                  "type": "quiz",
+                  "id": "arduino-pin-map",
+                  "prompt": "Which pin map matches Exercise 3?",
+                  "points": 1,
+                  "options": [
+                    { "text": "J7 to A0, LED output to digital pin 7.", "correct": true },
+                    { "text": "J7 to D7, LED output to A0." },
+                    { "text": "Photoresistor to digital pin 13, LED to A5." },
+                    { "text": "Both photoresistor and LED to GND only." }
+                  ],
+                  "hint": "The sensor voltage goes to an analog input; the LED is controlled by a digital output.",
+                  "explanation": "J7 connects to A0, and the LED is controlled from digital output pin 7."
+                },
+                {
+                  "type": "quiz",
+                  "id": "arduino-low-light",
+                  "prompt": "What does the provided code do when PR is below lowLightLim?",
+                  "points": 1,
+                  "options": [
+                    { "text": "It turns the LED on by writing HIGH.", "correct": true },
+                    { "text": "It turns the LED off by writing LOW." },
+                    { "text": "It changes PRPin from A0 to A1." },
+                    { "text": "It changes the threshold to 0." }
+                  ],
+                  "hint": "Read the if statement: PR below the limit enters the first branch.",
+                  "explanation": "When PR is below lowLightLim, the code writes HIGH to the LED pin."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "exercise-5-real-photoresistor-divider",
+      "title": "Real Photoresistor Divider",
+      "navLabel": "Hardware & Submit",
+      "eyebrow": "Source Manual Exercise 5",
+      "submission": true,
+      "intro": [
+        "Build the real circuit, compare calculated and measured voltage, then show the required demonstrations."
+      ],
+      "blocks": [
+        {
+          "type": "flow",
+          "steps": [
+            { "label": "Trainer 5 V" },
+            { "label": "Photoresistor" },
+            { "label": "4.7 kΩ" },
+            { "label": "Multimeter" },
+            { "label": "Dark / normal / flashlight" }
+          ]
+        },
+        {
+          "type": "equipment",
+          "title": "Equipment Required",
+          "items": [
+            { "item": "Trainer board with internal power supply", "quantity": 1 },
+            { "item": "Photoresistor", "quantity": 1 },
+            { "item": "4.7 kΩ resistor", "quantity": 1, "note": "0.25 Watt" },
+            { "item": "Multimeter", "quantity": 1 }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Measurement Conditions",
+          "ordered": true,
+          "items": [
+            "Dark: cover the top surface of the sensor with your finger.",
+            "Normal light: use the ambient room condition.",
+            "Flashlight: shine your phone flashlight on the sensor surface."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "Table 3 - Total Resistance",
+          "columns": ["Light", "Dark", "Normal", "Flashlight"],
+          "rows": [
+            {
+              "label": "Total resistance",
+              "unit": "kΩ",
+              "cells": [
+                { "control": "number", "key": "t3-r-dark", "min": 0, "step": 0.01, "placeholder": "e.g., 200" },
+                { "control": "number", "key": "t3-r-normal", "min": 0, "step": 0.01, "placeholder": "e.g., 200" },
+                { "control": "number", "key": "t3-r-flash", "min": 0, "step": 0.01, "placeholder": "e.g., 200" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "Table 4 - Calculated and Measured Voltage",
+          "columns": ["Light", "Dark", "Normal", "Flashlight"],
+          "rows": [
+            {
+              "label": "Voltage calculated",
+              "unit": "V",
+              "cells": [
+                { "control": "number", "key": "t4-vcalc-dark", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                { "control": "number", "key": "t4-vcalc-normal", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                { "control": "number", "key": "t4-vcalc-flash", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" }
+              ]
+            },
+            {
+              "label": "Voltage measured",
+              "unit": "V",
+              "cells": [
+                { "control": "number", "key": "t4-vmeas-dark", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                { "control": "number", "key": "t4-vmeas-normal", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
+                { "control": "number", "key": "t4-vmeas-flash", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" }
+              ]
+            }
+          ],
+          "note": "Use the [voltage-divider rule](kb:voltage-divider) for calculated values, then use a [voltmeter](kb:multimeter) to measure sensor voltage under the same conditions and compare the evidence."
+        },
+        {
+          "type": "checklist",
+          "role": "confirmations",
+          "title": "Final External Confirmations",
+          "description": "Use these only for requirements the portal cannot verify automatically.",
+          "items": [
+            { "key": "submit-lab1-quiz", "label": "Lab 1 quiz is complete on Avenue to Learn." },
+            { "key": "submit-ex4-demo", "label": "I demonstrated Checkpoint 4: Automatic Lighting System (source Exercise 4) to the lab instructor or TA." },
+            { "key": "submit-ex5-demo", "label": "I demonstrated Checkpoint 5: Real Photoresistor Divider (source Exercise 5) and showed Tables 1-4 to the lab instructor or TA." }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Learning Outcomes Achieved",
+          "items": [
+            "Built and tested a LabVIEW VI with front-panel controls, an indicator, block-diagram arithmetic, and a responsive While Loop.",
+            "Measured photoresistor resistance and used a voltage divider to convert changing resistance into a measurable voltage.",
+            "Connected Arduino analog input A0 and digital output D7, then tested threshold-based automatic lighting.",
+            "Compared calculated and measured real-circuit values and presented traceable evidence for instructor review."
+          ]
+        }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Laboratory 1: select the `.vi` evidence on the [Submission subpage](#labview), submit the actual VI through the instructor-identified Avenue to Learn location, and complete the Lab 1 quiz.",
+    "No separate report is required for the photoresistor demonstration sequence unless your instructor requests one.",
+    "Show Tables 1-4 to the lab instructor.",
+    "Demonstrate [Checkpoint 4: Automatic Lighting System](#exercise-4-automatic-lighting) and [Checkpoint 5: Real Photoresistor Divider](#exercise-5-real-photoresistor-divider) to the lab instructor."
+  ]
+}
