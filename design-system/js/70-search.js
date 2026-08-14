@@ -16,6 +16,9 @@ class KnowledgeSearch {
     this.topics = Dom.all('[data-kb-topic]');
     this.domains = Dom.all('[data-kb-domain]');
     this.empty = document.querySelector('[data-kb-empty]');
+    this.root = document.querySelector('[data-kb-root]');
+    this.viewButtons = Dom.all('[data-kb-view]');
+    this.viewKey = `sept-ilp:${SeptLabs.config.course.id}:kb-view`;
     this.kind = 'all';
 
     if (!this.input || this.topics.length === 0) return;
@@ -30,6 +33,40 @@ class KnowledgeSearch {
         }
         this.apply();
       });
+    }
+
+    for (const button of this.viewButtons) {
+      button.addEventListener('click', () => this.setView(button.dataset.kbView));
+    }
+    try {
+      const saved = window.localStorage.getItem(this.viewKey);
+      if (saved === 'tree') this.setView('tree');
+    } catch {
+      /* no storage; keep the default view */
+    }
+
+    // Press "/" anywhere on the page to jump to the search field.
+    document.addEventListener('keydown', (event) => {
+      const typing = /^(input|select|textarea)$/i.test(event.target.tagName);
+      if (event.key === '/' && !typing) {
+        event.preventDefault();
+        this.input.focus();
+      }
+    });
+  }
+
+  /** @param {"list" | "tree"} view */
+  setView(view) {
+    this.root?.classList.toggle('is-tree', view === 'tree');
+    for (const button of this.viewButtons) {
+      const active = button.dataset.kbView === view;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+    try {
+      window.localStorage.setItem(this.viewKey, view);
+    } catch {
+      /* no storage; the choice lasts for this page only */
     }
   }
 

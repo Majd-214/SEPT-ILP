@@ -48,8 +48,6 @@ export class KnowledgeHubPage extends Page {
     const knowledge = this.course.knowledge;
     return [
       Html.el('header', { class: 'c-hero' },
-        Html.el('p', { class: 'c-hero__eyebrow' },
-          knowledge.eyebrow ? this.context.rich(knowledge.eyebrow) : Html.escape(this.course.code)),
         Html.el('h1', { class: 'c-hero__title' },
           Html.el('span', { class: 'c-hero__title-accent' }, this.context.rich(knowledge.title))),
         Html.el('div', { class: 'c-hero__lead' },
@@ -61,7 +59,7 @@ export class KnowledgeHubPage extends Page {
           class: 'c-kb-toolbar__search',
           id: 'kb-search',
           type: 'search',
-          placeholder: 'Search topics, concepts, components…',
+          placeholder: 'Search topics…',
           'data-kb-search': true,
         }),
         ['all', 'theory', 'skill', 'spec'].map((kind) => Html.el('button', {
@@ -70,8 +68,23 @@ export class KnowledgeHubPage extends Page {
           'data-kb-filter': kind,
           'aria-pressed': kind === 'all' ? 'true' : 'false',
         }, Html.escape(kind === 'all' ? 'All' : `${kind[0].toUpperCase()}${kind.slice(1)}`))),
+        Html.el('div', { class: 'c-kb-viewtoggle', role: 'group', 'aria-label': 'View' },
+          Html.el('button', {
+            class: 'c-kb-viewtoggle__btn is-active',
+            type: 'button',
+            'data-kb-view': 'list',
+            'aria-pressed': 'true',
+          }, 'List'),
+          Html.el('button', {
+            class: 'c-kb-viewtoggle__btn',
+            type: 'button',
+            'data-kb-view': 'tree',
+            'aria-pressed': 'false',
+          }, 'Tree'),
+        ),
       ),
-      this.repository.knowledgeDomains.map((domain) => this.#domain(domain)).join(''),
+      Html.el('div', { class: 'c-kb', 'data-kb-root': true },
+        this.repository.knowledgeDomains.map((domain) => this.#domain(domain)).join('')),
       Html.el('p', { class: 'c-kb-empty', 'data-kb-empty': true, hidden: true },
         'No topics match this search.'),
     ].join('');

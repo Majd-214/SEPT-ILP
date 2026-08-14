@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     SeptLabs.store = new Store(config.course.id, config.lab.id, config.lab.contentVersion);
 
     new Fields();
+    for (const element of Dom.all('.c-code')) new CodeCopy(element);
     for (const element of Dom.all('[data-tabs]')) new Tabs(element);
     for (const element of Dom.all('[data-quiz]')) new Quiz(element);
     for (const element of Dom.all('[data-calc]')) new Calculator(element);

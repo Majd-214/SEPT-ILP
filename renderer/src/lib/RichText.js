@@ -88,7 +88,12 @@ export class RichText {
       const resolved = resolveHref ? resolveHref(href) : href;
       if (resolved === null || resolved === undefined) return match;
       if (!RichText.#isSafeHref(resolved)) return match;
-      return `<a href="${resolved}">${label}</a>`;
+      // External links open in a new tab and drop the opener reference,
+      // so a laboratory in progress is never navigated away from.
+      const external = resolved.startsWith('https://')
+        ? ' target="_blank" rel="noopener"'
+        : '';
+      return `<a href="${resolved}"${external}>${label}</a>`;
     });
 
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');

@@ -457,6 +457,21 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
+.c-code__copy {
+  padding: 0.25rem 0.8rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-code__copy:hover {
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
+}
+
 .c-code__pre {
   margin: 0;
   padding: var(--md-sys-space-4) var(--md-sys-space-5);

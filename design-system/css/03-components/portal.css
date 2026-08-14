@@ -9,17 +9,8 @@
   padding-block: var(--md-sys-space-6);
 }
 
-.c-section__eyebrow {
-  font-size: var(--md-sys-type-label-size);
-  font-weight: var(--md-sys-type-weight-bold);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
 .c-section__title {
   font-size: var(--md-sys-type-headline-size);
-  margin-top: var(--md-sys-space-1);
   margin-bottom: var(--md-sys-space-4);
 }
 
@@ -84,11 +75,6 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.c-labcard__cta {
-  font-size: var(--md-sys-type-label-size);
-  font-weight: var(--md-sys-type-weight-bold);
-  color: var(--md-sys-color-primary);
-}
 
 /* --------------------------------------------------------------------------
    Knowledge hub — domain groups and topic rows
@@ -130,9 +116,81 @@
   color: var(--md-sys-color-on-primary);
 }
 
+.c-kb-viewtoggle {
+  display: inline-flex;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  overflow: hidden;
+}
+
+.c-kb-viewtoggle__btn {
+  padding: 0.45rem 1rem;
+  border: 0;
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-kb-viewtoggle__btn:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-kb-viewtoggle__btn.is-active {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
 .c-kb-domain {
   margin-bottom: var(--md-sys-space-6);
 }
+
+/* Tree view: domains become branches with connector guides, and topic
+   rows condense to nodes so the whole base fits in one overview. */
+.c-kb.is-tree .c-kb-domain {
+  position: relative;
+  padding-left: var(--md-sys-space-5);
+  border-left: 2px solid var(--md-sys-color-outline-variant);
+  margin-left: var(--md-sys-space-2);
+}
+
+.c-kb.is-tree .c-kb-domain__title {
+  font-size: var(--md-sys-type-title-size);
+}
+
+.c-kb.is-tree .c-kb-domain__blurb {
+  display: none;
+}
+
+.c-kb.is-tree .o-stack--tight {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--md-sys-space-2);
+}
+
+.c-kb.is-tree .c-kb-topic {
+  position: relative;
+  width: auto;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--md-sys-shape-full);
+  gap: var(--md-sys-space-2);
+}
+
+.c-kb.is-tree .c-kb-topic__summary {
+  display: none;
+}
+
+.c-kb.is-tree .c-kb-kind {
+  padding: 0;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--md-sys-shape-full);
+  font-size: 0;
+}
+
+.c-kb.is-tree .c-kb-kind--theory { background: var(--md-ref-gold); }
+.c-kb.is-tree .c-kb-kind--skill { background: var(--md-sys-color-primary); }
+.c-kb.is-tree .c-kb-kind--spec { background: var(--md-sys-color-secondary); }
 
 .c-kb-domain__title {
   font-size: var(--md-sys-type-title-lg-size);
@@ -211,12 +269,6 @@
 /* --------------------------------------------------------------------------
    Knowledge topic page
    -------------------------------------------------------------------------- */
-.c-kb-page__breadcrumb {
-  font-size: var(--md-sys-type-body-sm-size);
-  color: var(--md-sys-color-on-surface-variant);
-  margin-bottom: var(--md-sys-space-4);
-}
-
 .c-kb-page__name {
   font-size: var(--md-sys-type-display-size);
   letter-spacing: -0.015em;

@@ -54,7 +54,7 @@ export class PortalPage extends Page {
     ];
 
     return [
-      this.navGroup('This page', sections),
+      Html.el('div', { class: 'c-nav__group' }, sections),
       this.navGroup('Laboratories', labs),
     ].join('');
   }
@@ -63,8 +63,6 @@ export class PortalPage extends Page {
     const portal = this.course.portal;
     return [
       Html.el('header', { class: 'c-hero', id: 'overview' },
-        Html.el('p', { class: 'c-hero__eyebrow' },
-          Html.escape(`${this.course.institution}${this.course.school ? ` · ${this.course.school}` : ''}`)),
         Html.el('h1', { class: 'c-hero__title' }, this.#headline(portal.headline)),
         Html.el('div', { class: 'c-hero__lead' }, this.context.richParagraphs(portal.lead)),
         Html.el('div', { class: 'o-cluster c-hero__chips' },
@@ -86,7 +84,6 @@ export class PortalPage extends Page {
 
   #about(about) {
     return Html.el('section', { class: 'c-section', 'aria-label': 'How this space is organized' },
-      Html.el('p', { class: 'c-section__eyebrow' }, 'Organization'),
       Html.el('h2', { class: 'c-section__title' },
         about.title ? this.context.rich(about.title) : 'How this space is organized'),
       Html.el('div', { class: 'o-stack' },
@@ -110,7 +107,6 @@ export class PortalPage extends Page {
 
   #labs() {
     return Html.el('section', { class: 'c-section', id: 'labs', 'aria-label': 'Laboratory catalog' },
-      Html.el('p', { class: 'c-section__eyebrow' }, 'Interactive manuals'),
       Html.el('h2', { class: 'c-section__title' }, 'Laboratories'),
       Html.el('div', { class: 'o-grid o-grid--wide' },
         this.repository.labs.map((lab) => this.#labCard(lab)),
@@ -128,14 +124,12 @@ export class PortalPage extends Page {
     Html.el('span', { class: 'c-labcard__badge' }, project ? 'Design project' : `Lab ${lab.number}`),
     Html.el('h3', { class: 'c-labcard__title' }, Html.escape(lab.title)),
     Html.el('p', { class: 'c-labcard__description' }, this.context.rich(lab.cardSummary)),
-    Html.el('span', { class: 'c-labcard__cta' }, project ? 'Open the design project' : `Open Lab ${lab.number}`),
     );
   }
 
   #knowledge() {
     const knowledge = this.course.knowledge;
     return Html.el('section', { class: 'c-section', id: 'knowledge', 'aria-label': 'Knowledge base' },
-      Html.el('p', { class: 'c-section__eyebrow' }, 'Reference'),
       Html.el('h2', { class: 'c-section__title' }, this.context.rich(knowledge.title)),
       Html.el('div', { class: 'c-card' },
         Html.el('p', {}, this.context.rich(knowledge.description)),
@@ -148,7 +142,6 @@ export class PortalPage extends Page {
 
   #reset() {
     return Html.el('section', { class: 'c-section', id: 'reset', 'aria-label': 'Saved progress' },
-      Html.el('p', { class: 'c-section__eyebrow' }, 'Browser data'),
       Html.el('h2', { class: 'c-section__title' }, 'Saved progress'),
       Html.el('div', { class: 'c-card' },
         Html.el('p', {},

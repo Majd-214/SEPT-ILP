@@ -35,7 +35,7 @@ export class KnowledgeTopicPage extends Page {
   }
 
   appBarLabel() {
-    return Html.escape(`${RichText.plain(this.course.knowledge.title)} · ${this.domain.title}`);
+    return Html.escape(this.domain.title);
   }
 
   navigation() {
@@ -63,9 +63,6 @@ export class KnowledgeTopicPage extends Page {
     const topic = this.topic;
     return [
       Html.el('header', { class: 'c-hero' },
-        Html.el('p', { class: 'c-kb-page__breadcrumb' },
-          Html.el('a', { href: 'index.html' }, 'Knowledge base'),
-          Html.escape(` › ${this.domain.title}`)),
         Html.el('span', { class: `c-kb-kind c-kb-kind--${topic.kind}` }, Html.escape(topic.kind)),
         Html.el('h1', { class: 'c-kb-page__name' }, Html.escape(topic.name)),
         topic.question

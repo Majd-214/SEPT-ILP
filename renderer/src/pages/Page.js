@@ -14,8 +14,8 @@ import { Html } from '../lib/Html.js';
  *   - a centred content column.
  *
  * Pages reference one stylesheet and one script — the versioned design
- * system copies carried inside the output — plus the Google Sans font
- * service. No other external resource is referenced.
+ * system copies carried inside the output. The Google Sans font files
+ * travel inside the output too; pages reference nothing external.
  */
 export class Page {
   /**
@@ -104,13 +104,7 @@ export class Page {
         Html.el('meta', { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }),
         Html.el('meta', { name: 'description', content: this.description() }),
         Html.el('title', {}, Html.escape(this.title())),
-        Html.el('link', { rel: 'icon', href: `${root}assets/McMaster-logo.png` }),
-        Html.el('link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }),
-        Html.el('link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }),
-        Html.el('link', {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap',
-        }),
+        Html.el('link', { rel: 'icon', href: `${root}assets/favicon.png` }),
         Html.el('link', { rel: 'stylesheet', href: `${root}assets/sept-labs.css` }),
       ),
       Html.el('body', {},

@@ -81,6 +81,7 @@ export class Pipeline {
     fs.cpSync(repository.assetsDir, assetsDir, { recursive: true });
     fs.writeFileSync(path.join(assetsDir, 'sept-labs.css'), this.designSystem.buildStylesheet());
     fs.writeFileSync(path.join(assetsDir, 'sept-labs.js'), this.designSystem.buildRuntime());
+    fs.cpSync(path.join(this.designSystem.rootDir, 'fonts'), path.join(assetsDir, 'fonts'), { recursive: true });
   }
 
   /**
@@ -213,6 +214,8 @@ export class Pipeline {
         ...knowledgePaths,
         'assets/sept-labs.css',
         'assets/sept-labs.js',
+        // Font files are referenced from the stylesheet, not from any page.
+        ...sitePaths.filter((relative) => relative.startsWith('assets/fonts/')),
       ]);
       for (const pagePath of [...included].filter((relative) => relative.endsWith('.html'))) {
         for (const asset of Pipeline.#referencedAssets(siteDir, pagePath)) {

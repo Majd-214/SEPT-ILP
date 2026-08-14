@@ -42,7 +42,7 @@ test('RichText escapes rather than parses author-supplied HTML', () => {
 test('RichText refuses unsafe link protocols', () => {
   const rendered = RichText.render('[x](javascript:alert(1)) and [y](https://mcmaster.ca)');
   assert.ok(!rendered.includes('href="javascript:'));
-  assert.ok(rendered.includes('<a href="https://mcmaster.ca">y</a>'));
+  assert.ok(rendered.includes('<a href="https://mcmaster.ca" target="_blank" rel="noopener">y</a>'));
 });
 
 test('RichText code spans suppress inner formatting', () => {

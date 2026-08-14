@@ -116,7 +116,6 @@ export class LabPage extends Page {
 
   #hero() {
     return Html.el('header', { class: 'c-hero' },
-      Html.el('p', { class: 'c-hero__eyebrow' }, Html.escape(`${this.course.code} · ${this.course.title}`)),
       Html.el('h1', { class: 'c-hero__title' },
         this.isProject
           ? Html.el('span', { class: 'c-hero__title-accent' }, Html.escape(this.lab.title))
@@ -163,10 +162,9 @@ export class LabPage extends Page {
     Html.el('div', { class: 'c-card c-card--accent' },
       Html.el('div', { class: 'c-checkpoint__header' },
         Html.el('div', {},
-          Html.el('p', { class: 'c-checkpoint__eyebrow' },
-            checkpoint.eyebrow
-              ? this.context.rich(checkpoint.eyebrow)
-              : Html.escape(`${this.isProject ? 'Phase' : 'Checkpoint'} ${index + 1}`)),
+          checkpoint.eyebrow
+            ? Html.el('p', { class: 'c-checkpoint__eyebrow' }, this.context.rich(checkpoint.eyebrow))
+            : null,
           Html.el('h2', { class: 'c-checkpoint__title' }, this.context.rich(checkpoint.title)),
         ),
         checkpoint.context
@@ -185,8 +183,8 @@ export class LabPage extends Page {
           : Html.el('span', {}),
         Html.el('button', { class: 'c-btn c-btn--filled', type: 'button', 'data-checkpoint-complete': true },
           last
-            ? (this.isProject ? 'Complete final phase' : 'Complete final checkpoint')
-            : (this.isProject ? 'Complete phase and continue' : 'Complete checkpoint and continue')),
+            ? (this.isProject ? 'Complete project' : 'Complete lab')
+            : (this.isProject ? 'Complete phase' : 'Complete checkpoint')),
       ),
     ),
     );
@@ -203,11 +201,10 @@ export class LabPage extends Page {
         )
         : null,
       Html.el('div', { class: 'c-progressfile' },
-        Html.el('p', { class: 'c-card__eyebrow' }, 'Your record'),
         Html.el('h3', { class: 'c-card__title' }, 'Progress file'),
         Html.el('p', {},
           'Work on this page is saved by your browser. The progress file is the permanent copy: ',
-          'download it at any point, keep it with your course files, and restore it on any computer to continue.'),
+          'download it at any point and restore it on any computer to continue.'),
         Html.el('p', { class: 'c-storage-warning', 'data-storage-warning': true, hidden: true },
           'This browser is not saving data between visits. Download your progress file often; it is the only copy of your work.'),
         Html.el('div', { class: 'c-progressfile__actions' },
