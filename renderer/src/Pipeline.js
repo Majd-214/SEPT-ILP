@@ -103,10 +103,11 @@ export class Pipeline {
         problems.push(`${relativePath}: ${error.message}`);
       }
     };
-    const contextFor = (relativeRoot) => new RenderContext({
+    const contextFor = (relativeRoot, options = {}) => new RenderContext({
       relativeRoot,
       knownTopics: repository.knownTopics,
       knownLabs: repository.knownLabs,
+      ...options,
     });
 
     write('index.html', new PortalPage({
@@ -117,7 +118,7 @@ export class Pipeline {
     for (const lab of repository.allLabs) {
       write(path.join('labs', lab.id, 'index.html'), new LabPage({
         repository,
-        context: contextFor('../../'),
+        context: contextFor('../../', { kbPanel: true }),
         lab,
       }));
     }

@@ -19,6 +19,7 @@ class Tabs {
       tab.addEventListener('click', () => this.select(tab.dataset.tab));
       tab.addEventListener('keydown', (event) => this.#onKeydown(event, index));
     });
+    SeptLabs.tabs.push(this);
 
     const saved = SeptLabs.store.state.tabs[this.group];
     const initial = this.tabs.some((tab) => tab.dataset.tab === saved)
@@ -45,14 +46,42 @@ class Tabs {
     if (persist) {
       SeptLabs.store.update((state) => {
         state.tabs[this.group] = key;
-      });
+      }, { activity: false });
     }
   }
 
   /** Reveal the tab containing an element (used by anchor navigation). */
   revealPanelFor(element) {
     const panel = element.closest('.c-tabs__panel');
-    if (panel && panel.hidden) this.select(panel.dataset.tabPanel);
+    if (panel && panel.hidden && this.panels.includes(panel)) {
+      this.select(panel.dataset.tabPanel);
+    }
+  }
+
+  /**
+   * Show a count of unfinished required items on each tab, so work
+   * hiding behind an unselected tab is never a surprise at confirm time.
+   * @param {Map<HTMLElement, number>} countsByPanel
+   */
+  renderBadges(countsByPanel) {
+    this.tabs.forEach((tab) => {
+      const panel = this.panels.find((candidate) => candidate.dataset.tabPanel === tab.dataset.tab);
+      const count = countsByPanel.get(panel) ?? 0;
+      let badge = tab.querySelector('.c-tabs__badge');
+      if (count === 0) {
+        badge?.remove();
+        return;
+      }
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'c-tabs__badge';
+        tab.appendChild(badge);
+      }
+      const label = document.createElement('span');
+      label.className = 'u-visually-hidden';
+      label.textContent = count === 1 ? ' required item remaining' : ' required items remaining';
+      badge.replaceChildren(String(count), label);
+    });
   }
 
   /**

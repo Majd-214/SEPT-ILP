@@ -32,6 +32,18 @@ class Quiz {
     this.#restore();
   }
 
+  /** @param {string} value @returns {HTMLElement | null} The option row. */
+  #optionFor(value) {
+    return this.inputs.find((input) => input.value === value)?.closest('.c-quiz__option') ?? null;
+  }
+
+  #clearOptionMarks() {
+    for (const input of this.inputs) {
+      const option = input.closest('.c-quiz__option');
+      option?.classList.remove('is-wrong', 'is-right', 'is-shake');
+    }
+  }
+
   get record() {
     return SeptLabs.store.state.quizzes[this.id] ?? { selection: null, correct: false, attempts: 0 };
   }
@@ -50,11 +62,16 @@ class Quiz {
       record.correct = correct;
       state.quizzes[this.id] = record;
     });
-    this.#render(correct ? 'correct' : 'incorrect');
+    this.#render(correct ? 'correct' : 'incorrect', { animate: true });
   }
 
   #persistSelection(value) {
     if (this.record.correct) return;
+    // Choosing a fresh answer retires the previous "not yet" feedback so
+    // the card reads as a clean attempt, not a lingering mistake.
+    this.root.classList.remove('is-incorrect');
+    this.#clearOptionMarks();
+    Dom.status(this.feedback, '', '');
     SeptLabs.store.update((state) => {
       const record = state.quizzes[this.id] ?? { selection: null, correct: false, attempts: 0 };
       record.selection = value;
@@ -73,23 +90,39 @@ class Quiz {
     else if (attempts > 0) this.#render('incorrect');
   }
 
-  /** @param {"correct" | "incorrect"} outcome */
-  #render(outcome) {
+  /**
+   * @param {"correct" | "incorrect"} outcome
+   * @param {{ animate?: boolean }} [options] Animate only on a live check,
+   *   never when restoring saved state on page load.
+   */
+  #render(outcome, { animate = false } = {}) {
     const solved = outcome === 'correct';
     this.root.classList.toggle('is-correct', solved);
     this.root.classList.toggle('is-incorrect', !solved);
     this.#renderAttempts(this.record.attempts);
+    this.#clearOptionMarks();
+    const selectedOption = this.record.selection ? this.#optionFor(this.record.selection) : null;
 
     if (solved) {
       const explanation = this.explanationText ? ` ${this.explanationText}` : '';
       Dom.status(this.feedback, `Correct.${explanation}`, 'success');
+      selectedOption?.classList.add('is-right');
       for (const input of this.inputs) input.disabled = true;
       if (this.checkButton) {
         this.checkButton.disabled = true;
-        this.checkButton.textContent = 'Correct';
+        this.checkButton.textContent = 'Correct ✓';
       }
     } else {
-      Dom.status(this.feedback, `Not yet. ${this.hintText}`, 'error');
+      const hint = this.hintText ? ` Hint: ${this.hintText}` : ' Try another answer.';
+      Dom.status(this.feedback, `Not yet.${hint}`, 'error');
+      if (selectedOption) {
+        selectedOption.classList.add('is-wrong');
+        if (animate) {
+          selectedOption.classList.add('is-shake');
+          selectedOption.addEventListener('animationend',
+            () => selectedOption.classList.remove('is-shake'), { once: true });
+        }
+      }
     }
   }
 

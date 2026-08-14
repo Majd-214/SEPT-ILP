@@ -55,6 +55,8 @@ class Ordering {
 
   #renderSolved() {
     this.root.classList.add('is-solved');
+    for (const item of this.items) item.draggable = false;
+    for (const button of Dom.all('.c-ordering__move', this.list)) button.disabled = true;
     Dom.status(this.feedback, this.definition.successMessage
       ?? 'Correct order confirmed.', 'success');
   }
@@ -64,6 +66,8 @@ class Ordering {
       state.ordering[this.key] = { arrangement: this.arrangement, solved: false };
     });
     this.root.classList.remove('is-solved');
+    for (const item of this.items) item.draggable = true;
+    for (const button of Dom.all('.c-ordering__move', this.list)) button.disabled = false;
     Dom.status(this.feedback, '', '');
   }
 

@@ -501,6 +501,112 @@
 .c-code__preproc { color: #56B6C2; }
 
 /* --------------------------------------------------------------------------
+   Knowledge links — concept references inside laboratory prose
+   --------------------------------------------------------------------------
+   These open the in-page reference panel rather than navigating away, so
+   they look like what they are: a small concept chip, not a hyperlink
+   that will cost the student their place.
+   -------------------------------------------------------------------------- */
+.c-kb-link {
+  display: inline-block;
+  padding: 0 0.4em;
+  border-radius: var(--md-sys-shape-sm);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-weight: var(--md-sys-type-weight-medium);
+  text-decoration: none;
+  transition: background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-kb-link:hover {
+  background: color-mix(in srgb, var(--md-sys-color-primary-container) 88%, var(--md-sys-color-primary));
+}
+
+/* --------------------------------------------------------------------------
+   Knowledge article — one topic, rendered identically on its own page
+   and inside the laboratory reference panel
+   -------------------------------------------------------------------------- */
+.c-kb-article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-5);
+}
+
+.c-kb-article__header {
+  padding-bottom: var(--md-sys-space-5);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-kb-article__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+}
+
+.c-kb-article__domain {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-kb-article__name {
+  font-size: var(--md-sys-type-display-size);
+  letter-spacing: -0.015em;
+  margin-top: var(--md-sys-space-3);
+}
+
+.c-kb-article__question {
+  font-size: var(--md-sys-type-title-lg-size);
+  font-weight: var(--md-sys-type-weight-regular);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-kb-article__section {
+  background: var(--md-sys-color-surface-container-lowest);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-lg);
+  box-shadow: var(--md-sys-elevation-1);
+  padding: var(--md-sys-space-6);
+}
+
+.c-kb-article__section-title {
+  font-size: var(--md-sys-type-title-lg-size);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+.c-kb-article__related {
+  margin-top: var(--md-sys-space-2);
+}
+
+/* The compact register the reference panel uses */
+.c-kb-article--panel {
+  gap: var(--md-sys-space-4);
+}
+
+.c-kb-article--panel .c-kb-article__header {
+  padding-bottom: var(--md-sys-space-4);
+}
+
+.c-kb-article--panel .c-kb-article__name {
+  font-size: var(--md-sys-type-title-lg-size);
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-kb-article--panel .c-kb-article__question {
+  font-size: var(--md-sys-type-body-size);
+}
+
+.c-kb-article--panel .c-kb-article__section {
+  box-shadow: none;
+  padding: var(--md-sys-space-4);
+}
+
+.c-kb-article--panel .c-kb-article__section-title {
+  font-size: var(--md-sys-type-title-size);
+}
+
+/* --------------------------------------------------------------------------
    Details — disclosures and gated hints
    -------------------------------------------------------------------------- */
 .c-details {
@@ -511,10 +617,33 @@
 
 .c-details > summary {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-2);
   padding: var(--md-sys-space-3) var(--md-sys-space-4);
   font-weight: var(--md-sys-type-weight-medium);
   color: var(--md-sys-color-primary);
   border-radius: var(--md-sys-shape-md);
+  list-style: none;
+}
+
+.c-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.c-details > summary::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-details[open] > summary::before {
+  transform: rotate(45deg);
 }
 
 .c-details[open] > summary {

@@ -27,6 +27,20 @@ export class Icons {
     bolt: 'M13 3 5 13.5h5L11 21l8-10.5h-5z',
     /* pin — location and reference points */
     push_pin: 'M9 4h6v6l2 3H7l2-3z M12 13v7',
+    /* bookmark ribbon — concepts referenced by this laboratory */
+    bookmarks: 'M7 4.5h10a1 1 0 0 1 1 1V20l-6-3.5L6 20V5.5a1 1 0 0 1 1-1z',
+    /* arrow into tray — save and download progress */
+    save: 'M12 3.5v10 M8 9.5l4 4 4-4 M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3',
+    /* arrow out of tray — restore from a progress file */
+    upload: 'M12 13.5v-10 M8 7.5l4-4 4 4 M4.5 15.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3',
+    /* cross — close a panel */
+    close: 'M6 6l12 12 M18 6 6 18',
+    /* chevron left — back within a panel */
+    arrow_back: 'M14.5 6.5 9 12l5.5 5.5',
+    /* magnifier — search */
+    search: 'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z M15.3 15.3 20 20',
+    /* arrow out of box — open the full page */
+    open_in_new: 'M14 4.5h5.5V10 M19.5 4.5 11 13 M9 5.5H6.5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V15',
   };
 
   /**

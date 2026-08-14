@@ -65,6 +65,13 @@ structure belongs to blocks. Link targets:
 File paths never appear in content; the renderer determines site
 structure.
 
+On a laboratory page, a `kb:` link opens its topic in the page's
+Concepts panel, so students read the reference without leaving the lab;
+the topic's article is embedded in the page at build time. The same link
+navigates to the topic's own page when scripting is unavailable. Every
+topic a laboratory links to is also listed in the panel's index
+automatically — no extra authoring step exists or is needed.
+
 ## Selecting blocks
 
 Presentation blocks: `text`, `callout` (note, success, warning, danger),

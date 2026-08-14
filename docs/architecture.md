@@ -56,9 +56,8 @@ css/04-utilities.css     single-purpose helpers
 js/*.js                  runtime modules, concatenated in order
 ```
 
-The typeface is Google Sans, served by the Google Fonts API with the
-platform-native system stack as fallback. This is the one external
-resource a rendered page references.
+The typeface is Google Sans, carried inside the output as font files, so
+a rendered page references nothing outside its own bundle.
 
 The runtime reads a JSON configuration element that the renderer embeds
 in each page. It maintains student state as a single document per
@@ -66,14 +65,34 @@ laboratory under a namespaced browser-storage key, and treats that
 storage as a cache: the downloadable progress file is the permanent
 record, and the download and restore controls are always available.
 Storage availability is tested at load, and students are warned when
-their work will not persist.
+their work will not persist. Each accepted write pulses a saved
+indicator in the application bar, and the course home page reads the
+same storage to offer "continue where you left off" and per-laboratory
+progress — all in the student's browser, nothing transmitted.
 
 The page shell places a navigation rail at the left — checkpoints on a
 laboratory page, topics on a knowledge page, sections and laboratories on
 the course home page — beside a centred content column, with a fixed
 application bar above. On narrow screens the rail collapses behind a
-toggle in the bar. Reference drawers defined by laboratory content dock
-at the right edge.
+toggle in the bar.
+
+Laboratory pages carry a dock of reference drawers at the right edge (a
+bottom bar with rising sheets on narrow screens). Two drawers are always
+present. **Concepts** holds every knowledge topic the laboratory links
+to: the articles are embedded in the page at build time as inert
+templates, and every `kb:` link on the page opens its topic in this
+panel instead of navigating away, so a student's place in the laboratory
+— scroll position, open tabs, half-typed answers — is never disturbed.
+Without scripting the same links degrade to ordinary navigation, and
+every topic remains a real page in the knowledge base. **Progress**
+holds the download, restore, and reset controls with a live map of
+checkpoint completion — the always-visible progress-file control the
+proposal commits to. Laboratory content may define further reference
+drawers.
+
+Checkpoint confirmation reports outstanding requirements as jump links:
+each one scrolls to, reveals (switching tabs or opening disclosures as
+needed), and highlights the control it names.
 
 ## Layer 3: the renderer (`renderer/`)
 
