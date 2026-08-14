@@ -1,0 +1,878 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-04",
+  "number": 4,
+  "title": "Load Cells, Strain Gauges, and Signal Amplification",
+  "summary": [
+    "From mechanical strain to amplified voltage to LabVIEW data."
+  ],
+  "cardSummary": "Load-cell bridge output, raw differential voltage, LMC6484 amplifier stages, gain calculations, Arduino A0 reading, LabVIEW voltage display, and gain-halving redesign.",
+  "chips": [
+    "Software: LabVIEW + LINX",
+    "Hardware: load cell + LMC6484",
+    "Core concept: tiny differential voltage",
+    "Deliverables: measurements, VI, gain redesign"
+  ],
+  "duration": {
+    "prelab": "30-45 minutes",
+    "lab": "3 hours",
+    "postlab": "45-60 minutes",
+    "safety": "Low-voltage electronics with mechanical-force and op-amp wiring caution."
+  },
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "experimental-evidence",
+    "analog-input",
+    "labview-interface",
+    "systematic-troubleshooting"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Tools & Access",
+      "subtitle": "Load cell, LMC6484, voltmeter, Arduino A0",
+      "handleLabel": "Open lab tools reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Setup Checklist",
+          "items": [
+            "Read the load-cell datasheet from Avenue to Learn.",
+            "Read the op-amp datasheet and confirm the correct component with your instructor.",
+            "Confirm LINX firmware is loaded and Arduino Mega appears on the expected port.",
+            "Have a voltmeter ready for SIG+, SIG-, V2, and V3 measurements."
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Key Values",
+          "items": [
+            { "term": "Stage 1 pins", "description": "1, 2, 3" },
+            { "term": "Stage 2 pins", "description": "8, 9, 10" },
+            { "term": "AV1", "description": "100" },
+            { "term": "AV2", "description": "11" },
+            { "term": "Ideal total", "description": "1100" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Component Note",
+          "paragraphs": [
+            "Some component lists identify LMC6482 while the procedure uses LMC6484. Use the component in your kit and confirm the correct datasheet with your instructor."
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Gain & Concepts",
+      "subtitle": "Bridge signal, amplification, LabVIEW voltage",
+      "handleLabel": "Open formula and concept reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Lab 4 Knowledge Skills",
+          "items": [
+            "[Measurement evidence](kb:experimental-evidence)",
+            "[Analog input and ADC](kb:analog-input)",
+            "[LabVIEW interface](kb:labview-interface)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)"
+          ]
+        },
+        {
+          "type": "formula",
+          "title": "Gain Equations",
+          "expression": "AV1 = R3 / R1 = 100"
+        },
+        {
+          "type": "formula",
+          "expression": "AV2 = 1 + R6 / R5 = 11"
+        },
+        {
+          "type": "formula",
+          "expression": "AVtotal = AV1 * AV2 = 1100"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "prepare",
+      "title": "Build the local force-measurement layer",
+      "navLabel": "Prepare",
+      "eyebrow": "Prepare",
+      "blocks": [
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Central question",
+          "paragraphs": [
+            "How does an applied force become a measurable voltage and then a live LabVIEW reading?"
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "You are building a local IoT measurement node that can detect applied force. Before this measurement can be logged or sent to the cloud, the system must safely excite a load cell, amplify its very small voltage output, read the amplified voltage with Arduino, and display a trustworthy live value in LabVIEW.",
+            "This lab focuses on the local sensing and signal-conditioning layer. It does not yet upload force data to the cloud."
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Conceptual signal chain",
+          "steps": [
+            { "label": "Applied force", "detail": "Metal bar bends slightly." },
+            { "label": "Strain gauges", "detail": "Resistance changes in the bridge." },
+            { "label": "SIG+ and SIG-", "detail": "Tiny differential voltage appears." },
+            { "label": "Amplifiers", "detail": "V2 and then V3 increase the signal." },
+            { "label": "A0 and LabVIEW", "detail": "Voltage is displayed live." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "paragraphs": [
+            "LabVIEW does not directly measure force. It reads amplified voltage. Calibration is required to display force units."
+          ]
+        },
+        {
+          "type": "cards",
+          "title": "Time, tools, and prerequisites",
+          "items": [
+            { "title": "Pre-lab", "body": "30-45 minutes" },
+            { "title": "Lab time", "body": "3 hours" },
+            { "title": "Post-lab", "body": "45-60 minutes" },
+            { "title": "Safety", "body": "Low-voltage electronics with mechanical-force and op-amp wiring caution." }
+          ]
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Software", "body": "LabVIEW, NI LabVIEW LINX Toolkit, and LINX firmware loaded to Arduino." },
+            { "title": "Hardware", "body": "Arduino Mega, breadboard, jumper wires, load cell, screw terminals, LMC6484 op-amp, 10 kΩ, 100 kΩ, and 1 MΩ resistors, voltmeter, and USB cable." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "Prerequisite: LabVIEW LINX analog reading from previous labs."
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "By the end of this lab, you should be able to...",
+          "items": [
+            "**Load-cell behavior** — Explain how applied force causes strain in a load cell.",
+            "**Strain gauges** — Explain how deformation becomes resistance change.",
+            "**Bridge output** — Explain why the Wheatstone Bridge produces a small differential voltage.",
+            "**Measurement** — Measure SIG+ to SIG- and compare readings across load conditions.",
+            "**Amplification** — Build and test the first and second op-amp stages.",
+            "**Gain math** — Calculate first-stage, second-stage, and total cascaded gain.",
+            "**LabVIEW readout** — Read amplified voltage using Arduino A0 and LabVIEW LINX.",
+            "**Design revision** — Propose a modification that halves total amplification."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, and measurement tools before beginning the lab.",
+          "items": [
+            { "key": "material-labview", "label": "LabVIEW and the NI LabVIEW LINX Toolkit." },
+            { "key": "material-firmware", "label": "Arduino with LINX firmware loaded." },
+            { "key": "material-arduino", "label": "Arduino Mega and USB cable." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires." },
+            { "key": "material-loadcell", "label": "Load cell and screw terminals." },
+            { "key": "material-opamp", "label": "LMC6484 op-amp." },
+            { "key": "material-r10k", "label": "10 kΩ resistors." },
+            { "key": "material-r100k", "label": "100 kΩ resistors." },
+            { "key": "material-r1m", "label": "1 MΩ resistors." },
+            { "key": "material-meter", "label": "Voltmeter or digital multimeter." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "predict",
+      "title": "Predict before building",
+      "navLabel": "Predict",
+      "eyebrow": "Pre-Lab",
+      "blocks": [
+        {
+          "type": "ordering",
+          "key": "measurement-chain",
+          "title": "Activity A: Arrange the measurement chain",
+          "prompt": "Drag the events into order.",
+          "items": [
+            { "key": "chain-force", "label": "Force is applied" },
+            { "key": "chain-bend", "label": "Load cell bends slightly" },
+            { "key": "chain-strain", "label": "Strain gauges change resistance" },
+            { "key": "chain-bridge", "label": "Bridge output creates SIG+ and SIG-" },
+            { "key": "chain-meter", "label": "Voltmeter measures small differential voltage" },
+            { "key": "chain-stage1", "label": "First op-amp stage amplifies the signal" },
+            { "key": "chain-stage2", "label": "Second op-amp stage amplifies again" },
+            { "key": "chain-a0", "label": "Arduino A0 reads amplified voltage" },
+            { "key": "chain-linx", "label": "LabVIEW LINX receives analog value" },
+            { "key": "chain-display", "label": "LabVIEW displays voltage" }
+          ],
+          "successMessage": "Correct measurement chain.",
+          "failureMessage": "Not yet. Trace the path from applied force to LabVIEW voltage."
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "predict-raw-small",
+              "label": "Why might the raw voltage across SIG+ and SIG- be too small to read accurately with Arduino?",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Hint after you predict",
+          "paragraphs": [
+            "Arduino's analog input has limited resolution. Amplifying a tiny sensor voltage allows more of the input range to be used, improving useful measurement sensitivity."
+          ],
+          "gatedBy": { "field": "predict-raw-small" }
+        },
+        {
+          "type": "fields",
+          "title": "Activity B: Gain calculations",
+          "fields": [
+            {
+              "key": "gain-av1",
+              "label": "AV1 = R3 / R1 (given R3 = 1 MΩ, R1 = 10 kΩ)",
+              "control": "number",
+              "expected": {
+                "value": 100,
+                "tolerance": 0.01,
+                "message": "Check the ratio: AV1 = R3 / R1 = 1 MΩ / 10 kΩ. Convert both resistors to the same unit first."
+              }
+            },
+            {
+              "key": "gain-av2",
+              "label": "AV2 = 1 + R6 / R5 (given R6 = 100 kΩ, R5 = 10 kΩ)",
+              "control": "number",
+              "expected": {
+                "value": 11,
+                "tolerance": 0.01,
+                "message": "Remember the extra 1 in the non-inverting gain: AV2 = 1 + R6 / R5 = 1 + 100 kΩ / 10 kΩ."
+              }
+            },
+            {
+              "key": "gain-total",
+              "label": "AVtotal = AV1 × AV2 (100 × 11)",
+              "control": "number",
+              "expected": {
+                "value": 1100,
+                "tolerance": 0.01,
+                "message": "Cascaded stages multiply: AVtotal = AV1 × AV2 = 100 × 11."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "build-load-cell",
+      "title": "Build the raw load-cell sensing circuit",
+      "navLabel": "Build Load Cell",
+      "intro": [
+        "Use Arduino 5 V and GND, connect the load cell through screw terminals, and construct the initial circuit at the far end of the breadboard because later amplifier stages will be added."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab4-pdf-load-cell-photo.jpg",
+          "alt": "Load cell mounted at the edge of a table.",
+          "caption": "Pin one end of the load cell and apply force gently in the indicated direction."
+        },
+        {
+          "type": "figure",
+          "src": "lab4-pdf-raw-circuit.png",
+          "alt": "Initial load-cell circuit connected to Arduino 5 volts and ground.",
+          "caption": "Arduino 5 V and GND excite the load-cell bridge before amplification."
+        },
+        {
+          "type": "figure",
+          "src": "lab4-pdf-opamp-pinout.png",
+          "alt": "LMC6484 op-amp pinout diagram showing four op-amps and pin numbers.",
+          "caption": "Use the LMC6484 pin reference before wiring the amplifier stages."
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Which wires supply the load cell?",
+            "Which wires carry the measurement signal?",
+            "Why are SIG+ and SIG- measured relative to each other first?",
+            "What would happen if SIG+ or SIG- were loose?",
+            "Why is the load cell placed at the edge of the table?",
+            "Why must force be applied in the indicated direction?"
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Required evidence",
+          "fields": [
+            {
+              "key": "raw-excitation",
+              "label": "Excitation voltage used",
+              "control": "text",
+              "placeholder": "5 V"
+            }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "raw-ground", "label": "Ground reference checked." },
+            { "key": "raw-terminals", "label": "Load-cell screw-terminal connections checked." },
+            { "key": "raw-sig", "label": "SIG+ and SIG- identified." },
+            { "key": "raw-force-direction", "label": "Force direction confirmed." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "raw-signal",
+      "title": "Measure the tiny differential output",
+      "navLabel": "Raw Signal",
+      "intro": [
+        "Put the load cell at the edge of the table, pin one end carefully, and apply force gently to the other end in the indicated direction. Record a range rather than trusting one reading."
+      ],
+      "blocks": [
+        {
+          "type": "measurementTable",
+          "columns": ["Condition", "Measurement point", "Voltage", "Notes"],
+          "rows": [
+            {
+              "label": "No load",
+              "cells": [
+                { "control": "static", "value": "SIG+ to SIG-" },
+                { "control": "text", "key": "raw-no-load" },
+                { "control": "text", "key": "raw-no-load-notes", "optional": true }
+              ]
+            },
+            {
+              "label": "Gentle load",
+              "cells": [
+                { "control": "static", "value": "SIG+ to SIG-" },
+                { "control": "text", "key": "raw-gentle" },
+                { "control": "text", "key": "raw-gentle-notes", "optional": true }
+              ]
+            },
+            {
+              "label": "Maximum safe load",
+              "cells": [
+                { "control": "static", "value": "SIG+ to SIG-" },
+                { "control": "text", "key": "raw-max" },
+                { "control": "text", "key": "raw-max-notes", "optional": true }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Is the raw signal single-ended or differential?",
+            "Is the no-load output exactly zero? Why or why not?",
+            "What might cause the reading to drift?",
+            "Why might hand-applied force produce inconsistent readings?",
+            "Why is this raw signal not yet ideal for direct IoT measurement?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage1",
+      "title": "Amplify the load-cell signal with the first op-amp stage",
+      "navLabel": "First Amplifier",
+      "intro": [
+        "Add the first-stage amplifier using the LMC6484. Use pin 2 for SIG-, pin 3 for SIG+, and pin 1 for output V2. Use R3 = R4 = 1 MΩ and R1 = R2 = 10 kΩ. The ideal gain is AV = R3 / R1 = 100."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab4-pdf-stage1-circuit.png",
+          "alt": "First LMC6484 amplifier stage for the load-cell signal.",
+          "caption": "In the first-stage amplifier, R3/R1 sets the ideal gain of 100 for the V2 output."
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "paragraphs": [
+            "Before connecting V2 to Arduino A0, verify that V2 remains within the Arduino analog input range."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Safe recovery sequence",
+          "paragraphs": [
+            "Disconnect power before changing the circuit. Confirm the LMC6484 orientation and pin numbers, common ground, feedback path, and 10 kΩ/100 kΩ/1 MΩ resistor identities. Measure the output before reconnecting A0, and change one suspected fault at a time."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "columns": ["Condition", "Measurement point", "Expected relationship", "Voltage", "Notes"],
+          "rows": [
+            {
+              "label": "No load",
+              "cells": [
+                { "control": "static", "value": "V2 to GND" },
+                { "control": "static", "value": "Amplified output" },
+                { "control": "text", "key": "v2-no-load" },
+                { "control": "text", "key": "v2-no-load-notes", "optional": true }
+              ]
+            },
+            {
+              "label": "Gentle load",
+              "cells": [
+                { "control": "static", "value": "V2 to GND" },
+                { "control": "static", "value": "Larger or smaller depending on force direction" },
+                { "control": "text", "key": "v2-gentle" },
+                { "control": "text", "key": "v2-gentle-notes", "optional": true }
+              ]
+            },
+            {
+              "label": "Maximum safe load",
+              "cells": [
+                { "control": "static", "value": "V2 to GND" },
+                { "control": "static", "value": "Within Arduino input range" },
+                { "control": "text", "key": "v2-max" },
+                { "control": "text", "key": "v2-max-notes", "optional": true }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why do we amplify the load-cell signal?",
+            "What does the resistor ratio determine?",
+            "Why are R3 and R4 equal?",
+            "Why are R1 and R2 equal?",
+            "What does V2 represent?",
+            "What would happen if SIG+ and SIG- were reversed?",
+            "How can you verify that the gain is approximately correct?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stage2",
+      "title": "Add a non-inverting second-stage amplifier",
+      "navLabel": "Second Amplifier",
+      "intro": [
+        "Add the second-stage amplifier using op-amp number three on the LMC6484 chip, pins 8, 9, and 10. Use R5 = 10 kΩ and R6 = 100 kΩ. The additional ideal gain is AV = 1 + R6 / R5 = 11."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab4-pdf-stage2-circuit.png",
+          "alt": "Complete two-stage LMC6484 amplifier circuit connected to Arduino analog input.",
+          "caption": "The non-inverting second stage increases V2 to V3 before Arduino A0 reads it."
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "paragraphs": [
+            "V3 should be about 11 times greater than V2, subject to supply and saturation limits. Verify V3 is safe before connecting it to Arduino A0."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "columns": ["Condition", "V2 measured", "V3 measured", "V3/V2 ratio", "Notes"],
+          "rows": [
+            {
+              "label": "No load",
+              "cells": [
+                { "control": "text", "key": "ratio-v2-no" },
+                { "control": "text", "key": "ratio-v3-no" },
+                { "control": "text", "key": "ratio-no" },
+                { "control": "text", "key": "ratio-no-notes", "optional": true }
+              ]
+            },
+            {
+              "label": "Gentle load",
+              "cells": [
+                { "control": "text", "key": "ratio-v2-gentle" },
+                { "control": "text", "key": "ratio-v3-gentle" },
+                { "control": "text", "key": "ratio-gentle" },
+                { "control": "text", "key": "ratio-gentle-notes", "optional": true }
+              ]
+            },
+            {
+              "label": "Maximum safe load",
+              "cells": [
+                { "control": "text", "key": "ratio-v2-max" },
+                { "control": "text", "key": "ratio-v3-max" },
+                { "control": "text", "key": "ratio-max" },
+                { "control": "text", "key": "ratio-max-notes", "optional": true }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "stage2-ratio-explain",
+              "label": "Does your measured V3/V2 ratio support the expected gain of 11? Explain using your data.",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why add a second stage instead of changing the first stage?",
+            "What does non-inverting mean?",
+            "Why is the gain 1 + R6/R5 rather than R6/R5?",
+            "What is the ideal total gain of the two stages?",
+            "What is op-amp saturation?",
+            "How could excessive gain make the measurement worse?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "labview",
+      "title": "Display amplified voltage in LabVIEW",
+      "navLabel": "LabVIEW",
+      "intro": [
+        "Create a LabVIEW VI that reads the amplified signal on Arduino A0 and displays it with a numeric indicator named `Voltage Reading`."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab4-pdf-labview-analog-read.png",
+          "alt": "LabVIEW block diagram showing LINX Open, Analog Read channel 0, timing, stop control, and voltage reading indicator.",
+          "caption": "Read Arduino analog channel 0 and display the amplified voltage."
+        },
+        {
+          "type": "flow",
+          "title": "LabVIEW analog read flow",
+          "steps": [
+            { "label": "V3" },
+            { "label": "Arduino A0" },
+            { "label": "LINX Analog Read" },
+            { "label": "LabVIEW Voltage Reading" }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "A. Front Panel",
+          "open": true,
+          "paragraphs": [
+            "Add a numeric indicator named `Voltage Reading`."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "B. Block Diagram",
+          "paragraphs": [
+            "Use LINX Open, LINX Analog Read, While Loop, Wait Until Next ms Multiple, Stop button, and LINX Close."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "C. Analog Read",
+          "paragraphs": [
+            "Set Analog Channel constant to `0`."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "D. Timing",
+          "paragraphs": [
+            "Set Wait Until Next ms Multiple to numeric constant `100`."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "E. Stop And Close",
+          "paragraphs": [
+            "Use Stop for normal shutdown and keep LINX Close after the loop."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "F. Run And Compare",
+          "paragraphs": [
+            "Repeat force application and compare LabVIEW displayed range with voltmeter V3 range."
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "lv-front",
+          "label": "Front panel evidence (PNG, JPG, or PDF)",
+          "accept": [".png", ".jpg", ".jpeg", ".pdf"]
+        },
+        {
+          "type": "evidence",
+          "key": "lv-block",
+          "label": "Block diagram evidence (PNG, JPG, or PDF)",
+          "accept": [".png", ".jpg", ".jpeg", ".pdf"]
+        },
+        {
+          "type": "fields",
+          "title": "Required evidence",
+          "fields": [
+            {
+              "key": "lv-meter-range",
+              "label": "Voltmeter V3 range",
+              "control": "text"
+            },
+            {
+              "key": "lv-display-range",
+              "label": "LabVIEW displayed range",
+              "control": "text"
+            },
+            {
+              "key": "lv-difference",
+              "label": "Difference and possible causes",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "What physical quantity does Arduino A0 actually measure?",
+            "Does LabVIEW display force or voltage in this lab?",
+            "Why should LabVIEW match the voltmeter range?",
+            "Why is the while loop needed?",
+            "Why use a 100 ms wait?",
+            "What is required to display force rather than voltage?"
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "The chooser records the selected filename as local evidence in this browser. It does not upload or submit your VI or report. Accepted formats are PNG, JPG, and PDF."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "title": "Redesign the circuit to halve total amplification",
+      "navLabel": "Extend",
+      "intro": [
+        "The original ideal gains are AV1 = 100, AV2 = 11, and AVtotal = 1100. The halved ideal total gain is 550. Do not change the circuit while powered. Confirm modified resistor values and expected output range before reconnecting Arduino A0."
+      ],
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Valid design paths",
+          "items": [
+            "Reduce first-stage gain while keeping the second stage unchanged.",
+            "Reduce second-stage gain while keeping the first stage unchanged.",
+            "Use available course components if possible.",
+            "Propose theoretical resistor values if the exact resistor is not physically available."
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Required evidence",
+          "fields": [
+            {
+              "key": "extend-original",
+              "label": "Original total gain calculation",
+              "control": "text"
+            },
+            {
+              "key": "extend-target",
+              "label": "New target gain",
+              "control": "text",
+              "placeholder": "550"
+            },
+            {
+              "key": "extend-resistors",
+              "label": "Modified resistor values",
+              "control": "text"
+            },
+            {
+              "key": "extend-schematic",
+              "label": "New schematic or annotated circuit diagram",
+              "control": "text"
+            },
+            {
+              "key": "extend-range",
+              "label": "New measured voltage range",
+              "control": "text"
+            },
+            {
+              "key": "extend-explain",
+              "label": "Explain old versus new range",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Which stage is easier and safer to modify?",
+            "If you halve one stage's gain, what happens to total gain?",
+            "Are the required resistor values available in the lab kit?",
+            "Would the new output still use enough of the Arduino input range?",
+            "Would the new output avoid saturation?",
+            "What measurement would show that your redesign worked?"
+          ]
+        },
+        {
+          "type": "cards",
+          "title": "Optional extensions — try these after required evidence is complete",
+          "items": [
+            { "title": "Calibrate voltage to known weights.", "accent": "gold" },
+            { "title": "Plot voltage versus time.", "accent": "gold" },
+            { "title": "Add a moving average filter.", "accent": "gold" },
+            { "title": "Add a zero/tare button in LabVIEW.", "accent": "gold" },
+            { "title": "Add a threshold indicator for overload.", "accent": "gold" },
+            { "title": "Compare voltmeter and LabVIEW readings.", "accent": "gold" },
+            { "title": "Estimate sensor noise under no load.", "accent": "gold" },
+            { "title": "Investigate op-amp saturation.", "accent": "gold" },
+            { "title": "Add a simulated cloud-upload placeholder.", "accent": "gold" },
+            { "title": "Explain how this force node could later publish data to a cloud dashboard.", "accent": "gold" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Submission checklist and final questions",
+      "navLabel": "Reflect",
+      "eyebrow": "Reflect",
+      "submission": true,
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "confirmations",
+          "title": "Submission checklist",
+          "items": [
+            { "key": "del-raw", "label": "Completed raw load-cell measurement table." },
+            { "key": "del-stage1", "label": "Completed first-stage amplifier measurement table." },
+            { "key": "del-stage2", "label": "Completed second-stage amplifier measurement table." },
+            { "key": "del-vi", "label": "LabVIEW VI displays voltage reading from Arduino A0." },
+            { "key": "del-screens", "label": "Front-panel and block-diagram evidence prepared in PNG, JPG, or PDF format." },
+            { "key": "del-gain", "label": "First-stage, second-stage, and total gain calculations included." },
+            { "key": "del-bridge", "label": "Wheatstone Bridge and load-cell explanations included." },
+            { "key": "del-opamp", "label": "Role of op-amps and pressure transducer strain-gauge explanation included." },
+            { "key": "del-extension", "label": "Gain-halving extension, schematic, and measured range included." },
+            { "key": "del-report", "label": "Report follows REPORT WRITING For IoT.pdf from Avenue to Learn." }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "final-load-cell-vi",
+          "label": "Final load-cell voltage-reading LabVIEW VI file",
+          "accept": [".vi"],
+          "note": "Accepted type: .vi"
+        },
+        {
+          "type": "questions",
+          "title": "Final questions",
+          "items": [
+            { "key": "reflect-1", "prompt": "What physical change occurs in the load cell when force is applied?" },
+            { "key": "reflect-2", "prompt": "What do SIG+ and SIG- represent?" },
+            { "key": "reflect-3", "prompt": "Why is the raw load-cell signal small?" },
+            { "key": "reflect-4", "prompt": "Why is amplification needed before reading the signal with Arduino?" },
+            { "key": "reflect-5", "prompt": "What is the gain of the first amplifier stage?" },
+            { "key": "reflect-6", "prompt": "What is the gain of the second amplifier stage?" },
+            { "key": "reflect-7", "prompt": "What is the ideal total gain?" },
+            { "key": "reflect-8", "prompt": "Why might measured gain differ from ideal calculated gain?" },
+            { "key": "reflect-9", "prompt": "What does Arduino A0 actually measure in this lab?" },
+            { "key": "reflect-10", "prompt": "Does LabVIEW display force or voltage? What would be required to display force?" },
+            { "key": "reflect-11", "prompt": "Why is a Wheatstone Bridge useful for load cells?" },
+            { "key": "reflect-12", "prompt": "What could cause the output to saturate?" },
+            { "key": "reflect-13", "prompt": "Is larger amplification always better? Explain." },
+            { "key": "reflect-14", "prompt": "Does this lab create a complete IoT system? If not, which IoT layer has been completed and what still needs to be added?" },
+            { "key": "reflect-15", "prompt": "What did you initially believe about force measurement that this lab changed or clarified?" }
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "What you can now demonstrate after completing this lab:"
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "Learning Outcomes Achieved",
+          "items": [
+            "**Load-cell behavior** — Explain how applied force produces strain.",
+            "**Strain gauges** — Trace deformation to a resistance change.",
+            "**Bridge output** — Explain the load cell's small differential voltage.",
+            "**Measurement** — Measure SIG+ to SIG- across controlled load conditions.",
+            "**Amplification** — Build and verify both LMC6484 amplifier stages.",
+            "**Gain math** — Calculate and compare first-stage, second-stage, and total gain.",
+            "**LabVIEW readout** — Read the safe amplified voltage through Arduino A0 and LINX.",
+            "**Design revision** — Propose and justify a circuit revision that halves total gain."
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Key terms",
+          "items": [
+            { "term": "Load cell", "description": "A sensor assembly that converts applied force into an electrical signal." },
+            { "term": "Strain gauge", "description": "A resistive element whose resistance changes when stretched or compressed." },
+            { "term": "Force", "description": "A push or pull applied to the load cell." },
+            { "term": "Strain", "description": "Small deformation caused by applied force." },
+            { "term": "Wheatstone Bridge", "description": "A resistor bridge used to convert small resistance changes into a differential voltage." },
+            { "term": "Excitation voltage", "description": "The supply voltage used to power the sensor bridge." },
+            { "term": "SIG+", "description": "Positive side of the differential load-cell signal." },
+            { "term": "SIG-", "description": "Negative side of the differential load-cell signal." },
+            { "term": "Differential voltage", "description": "Voltage measured between two signal nodes." },
+            { "term": "Single-ended voltage", "description": "Voltage measured relative to a common ground reference." },
+            { "term": "Ground reference", "description": "The 0 V reference used by the circuit and measurements." },
+            { "term": "Op-amp", "description": "Operational amplifier used here to amplify sensor voltage." },
+            { "term": "LMC6484", "description": "The op-amp component used in the lab procedure and materials list." },
+            { "term": "Gain", "description": "The ratio between output signal size and input signal size." },
+            { "term": "First-stage amplifier", "description": "The differential amplifier producing V2." },
+            { "term": "Second-stage amplifier", "description": "The non-inverting amplifier producing V3." },
+            { "term": "Non-inverting amplifier", "description": "An amplifier whose output has the same polarity trend as its input." },
+            { "term": "Feedback resistor", "description": "A resistor connected in the amplifier feedback path that helps set gain." },
+            { "term": "Source resistor", "description": "A resistor in the gain-setting network." },
+            { "term": "Saturation", "description": "When the op-amp output cannot increase further because it reaches supply limits." },
+            { "term": "Arduino Analog Pin", "description": "A microcontroller input that measures voltage." },
+            { "term": "A0", "description": "Arduino Analog Pin 0." },
+            { "term": "ADC", "description": "Analog-to-digital converter." },
+            { "term": "LabVIEW", "description": "A graphical programming environment." },
+            { "term": "VI", "description": "Virtual Instrument, a LabVIEW program." },
+            { "term": "Front Panel", "description": "The user-facing controls and indicators of a VI." },
+            { "term": "Block Diagram", "description": "The graphical program logic of a VI." },
+            { "term": "LINX", "description": "LabVIEW toolkit for communicating with Arduino." },
+            { "term": "Analog Read", "description": "A LINX block that reads an analog voltage channel." },
+            { "term": "While Loop", "description": "A repeated LabVIEW structure." },
+            { "term": "Wait Until Next ms Multiple", "description": "Timing function used to pace loop execution." },
+            { "term": "Stop button", "description": "A controlled way to end a VI and allow cleanup logic to run." },
+            { "term": "Abort button", "description": "An emergency interruption that should not be normal operation." },
+            { "term": "Voltage Reading", "description": "The LabVIEW numeric indicator for the amplified voltage." },
+            { "term": "Calibration", "description": "Relating voltage output to known force or weight values." },
+            { "term": "Sensor offset", "description": "Nonzero output when no load is applied." },
+            { "term": "Noise", "description": "Small unwanted variation in measured signal." },
+            { "term": "IoT sensing node", "description": "A local device that senses and conditions data before later cloud connection." }
+          ]
+        }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Submit the completed report through Avenue to Learn, following REPORT WRITING For IoT.pdf.",
+    "Submit the final load-cell voltage-reading LabVIEW VI file (`.vi`).",
+    "Include front-panel and block-diagram evidence in PNG, JPG, or PDF format."
+  ]
+}

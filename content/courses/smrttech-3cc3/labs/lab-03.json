@@ -1,0 +1,835 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-03",
+  "number": 3,
+  "title": "Tilt Sensor Detection with LabVIEW and Arduino",
+  "summary": [
+    "From digital input to audible alert to event counting."
+  ],
+  "cardSummary": "Tilt switch pull-down logic, digital input/output, active buzzer control, shift-register event counting, waveform chart evidence, and inverted-alert extension.",
+  "chips": [
+    "Software: LabVIEW + LINX",
+    "Hardware: Arduino Mega + tilt switch",
+    "Core concept: state versus event",
+    "Deliverables: circuit, VIs, counter, extension"
+  ],
+  "duration": {
+    "prelab": "20-30 minutes",
+    "lab": "2.5-3 hours",
+    "postlab": "30-45 minutes",
+    "safety": "Low-voltage digital electronics with buzzer noise awareness"
+  },
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "labview-interface",
+    "while-loops",
+    "digital-input",
+    "breadboard",
+    "systematic-troubleshooting"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Tools & Access",
+      "subtitle": "LINX, Arduino Mega, tilt switch, buzzer",
+      "handleLabel": "Open lab tools reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Setup Checklist",
+          "items": [
+            "Read the NI documentation on LabVIEW shift registers.",
+            "Confirm LINX firmware is loaded to Arduino.",
+            "Confirm Arduino Mega board type and serial port.",
+            "Use a USB data cable, not a power-only cable."
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Pin Map",
+          "items": [
+            { "term": "Tilt input", "description": "Digital Pin 2" },
+            { "term": "Buzzer output", "description": "Digital Pin 3" },
+            { "term": "Pull-down", "description": "10 kΩ" },
+            { "term": "Loop timing", "description": "100 ms" },
+            { "term": "Final VI", "description": "`lab3_tilt_counter.vi`" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Buzzer Awareness",
+          "paragraphs": [
+            "The active buzzer may be loud. Do not hold it close to your ear and ask for help if it remains on unexpectedly."
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Logic & Concepts",
+      "subtitle": "Digital logic, buzzer command, shift registers",
+      "handleLabel": "Open formula and concept reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Lab 3 Knowledge Skills",
+          "items": [
+            "[LabVIEW interface](kb:labview-interface)",
+            "[Loops and shift registers](kb:while-loops)",
+            "[Digital input and output](kb:digital-input)",
+            "[Breadboard connectivity](kb:breadboard)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)"
+          ]
+        },
+        {
+          "type": "formula",
+          "title": "Core Logic",
+          "expression": "Upright: D2 = HIGH\nTilted: D2 = LOW\nBuzzer command = NOT raw D2",
+          "note": "Count a new event by comparing current state with the previous state stored in a shift register."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "prepare",
+      "title": "Build the local event-detection layer",
+      "navLabel": "Prepare",
+      "eyebrow": "Prepare",
+      "blocks": [
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Central question",
+          "paragraphs": [
+            "How does a physical tilt event become a digital signal, an audible alert, and a counted event in LabVIEW?"
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "You are building a local IoT safety node that detects whether an object has been tilted or disturbed. Before this event can be logged or sent to the cloud, the system must reliably detect a digital input, trigger a local alert, and count each new event without counting the same tilt repeatedly.",
+            "This lab focuses on the local sensing and event-detection layer of an IoT system. It does not yet upload data to the cloud."
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Conceptual signal chain",
+          "steps": [
+            { "label": "Physical tilt", "detail": "The object changes orientation." },
+            { "label": "Switch state", "detail": "The ball switch opens or closes." },
+            { "label": "D2 HIGH/LOW", "detail": "Arduino reads a digital state." },
+            { "label": "LabVIEW LINX", "detail": "LabVIEW receives the value." },
+            { "label": "Alert and count", "detail": "Buzzer command and event counter update." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "LabVIEW does not directly sense tilt. It receives a digital HIGH or LOW value from Arduino and interprets that value based on the circuit logic."
+          ]
+        },
+        {
+          "type": "cards",
+          "title": "Time, tools, and prerequisites",
+          "items": [
+            { "title": "Software", "body": "LabVIEW, NI LabVIEW LINX Toolkit, and LINX firmware loaded to Arduino." },
+            { "title": "Hardware", "body": "Arduino Mega, tilt ball switch, 10 kΩ resistor, active buzzer, breadboard, jumper wires, and USB cable." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "paragraphs": [
+            "Prerequisite: LabVIEW LINX communication from previous labs."
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "By the end of this lab, you should be able to...",
+          "items": [
+            "**Tilt switch:** Explain how the switch behaves electrically when orientation changes.",
+            "**Defined logic:** Explain why pull-down resistors prevent floating digital inputs.",
+            "**Digital states:** Distinguish HIGH, LOW, open circuit, short circuit, and floating input.",
+            "**Hardware build:** Build the tilt sensor on D2 and active buzzer on D3.",
+            "**LINX I/O:** Use LabVIEW LINX Digital Read and Digital Write.",
+            "**Logic inversion:** Explain why the Not function is required for the buzzer behavior.",
+            "**Event counting:** Use shift registers to count new tilt events rather than loop iterations.",
+            "**Troubleshooting:** Diagnose common wiring, LabVIEW, and logic faults."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, and course resources before beginning the lab.",
+          "items": [
+            { "key": "material-labview", "label": "LabVIEW and the NI LabVIEW LINX Toolkit are installed." },
+            { "key": "material-firmware", "label": "Arduino firmware for LINX is available to load." },
+            { "key": "material-arduino", "label": "Arduino Mega and a USB data cable are available." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires are available." },
+            { "key": "material-switch", "label": "Tilt ball switch is available." },
+            { "key": "material-resistor", "label": "10 kΩ resistor is available." },
+            { "key": "material-buzzer", "label": "Active buzzer is available." },
+            { "key": "material-files", "label": "Required course files are downloaded." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "predict",
+      "title": "Predict before wiring",
+      "navLabel": "Predict",
+      "eyebrow": "Predict",
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "title": "Activity A: Shift-register readiness",
+          "items": [
+            { "key": "pre-shift-doc", "label": "I read the [NI documentation on LabVIEW shift registers](https://www.ni.com/docs/en-US/bundle/labview/page/shift-registers.html)." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "pre-shift-answer", "label": "What problem does a shift register solve in a loop?", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "ordering",
+          "key": "digital-signal-chain",
+          "title": "Activity B: Build the digital signal chain",
+          "prompt": "Drag the events into order.",
+          "items": [
+            { "key": "chain-tilt", "label": "Tilt occurs" },
+            { "key": "chain-switch", "label": "Tilt switch changes open/closed state" },
+            { "key": "chain-pulldown", "label": "Pull-down circuit creates defined HIGH or LOW" },
+            { "key": "chain-d2", "label": "Arduino Digital Pin 2 reads the state" },
+            { "key": "chain-linx", "label": "LabVIEW LINX receives the digital value" },
+            { "key": "chain-led", "label": "LabVIEW displays tilt status" },
+            { "key": "chain-d3", "label": "LabVIEW writes a value to Digital Pin 3" },
+            { "key": "chain-buzzer", "label": "Active buzzer turns on or off" },
+            { "key": "chain-shift", "label": "Shift registers compare current and previous states" },
+            { "key": "chain-count", "label": "Tilt count updates" }
+          ],
+          "successMessage": "Correct measurement chain.",
+          "failureMessage": "Not yet. Trace the path from physical tilt to counted event."
+        },
+        {
+          "type": "fields",
+          "title": "Activity C: Predict upright versus tilted readings",
+          "fields": [
+            { "key": "predict-upright", "label": "Sensor upright: predicted Digital Pin 2 value", "control": "select", "options": ["HIGH", "LOW", "Floating"] },
+            { "key": "predict-tilted", "label": "Sensor tilted: predicted Digital Pin 2 value", "control": "select", "options": ["HIGH", "LOW", "Floating"] },
+            { "key": "predict-floating", "label": "Why would the input be unreliable without the pull-down resistor?", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Hint after you predict",
+          "paragraphs": [
+            "A floating input has no defined reference to decide HIGH or LOW. A pull-down resistor gives the input a defined LOW when the switch is open."
+          ],
+          "gatedBy": { "field": "predict-floating" }
+        },
+        {
+          "type": "fields",
+          "title": "Activity D: Input or output?",
+          "fields": [
+            { "key": "class-tilt", "label": "Tilt switch", "control": "select", "options": ["Input", "Output", "Display"] },
+            { "key": "class-buzzer", "label": "Active buzzer", "control": "select", "options": ["Input", "Output", "Display"] },
+            { "key": "class-d2", "label": "Arduino Digital Pin 2", "control": "select", "options": ["Input", "Output"] },
+            { "key": "class-d3", "label": "Arduino Digital Pin 3", "control": "select", "options": ["Input", "Output"] },
+            { "key": "class-led", "label": "Round LED indicator", "control": "select", "options": ["Input", "Output display"] },
+            { "key": "class-chart", "label": "Waveform Chart", "control": "select", "options": ["Input", "Output display"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "title": "Build the digital input and buzzer output circuit",
+      "navLabel": "Build Circuit",
+      "intro": [
+        "Wire the tilt ball switch, 10 kΩ pull-down resistor, active buzzer, Arduino Mega, breadboard, and jumper wires. Use these pin assignments: Digital Pin 2 reads the tilt sensor and Digital Pin 3 drives the active buzzer."
+      ],
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Skill map references",
+          "items": [
+            "[Digital output](kb:digital-output)",
+            "[Common ground](kb:power-rails-common-ground)",
+            "[Breadboard connectivity](kb:breadboard)",
+            "[Systematic troubleshooting](kb:systematic-troubleshooting)"
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Build focus",
+          "paragraphs": [
+            "Use the instructor-provided schematic to place the tilt switch, pull-down resistor, active buzzer, Digital Pin 2, Digital Pin 3, 5 V, and GND."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "paragraphs": [
+            "Before powering, trace the current path for both the input circuit and the buzzer circuit."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "What does the tilt switch physically do when it changes orientation?",
+            "What makes the input HIGH?",
+            "What makes the input LOW?",
+            "Why does the circuit need a defined reference to ground?",
+            "What would happen if the pull-down resistor were removed?",
+            "Why does the active buzzer require correct polarity?",
+            "Is the buzzer sensing or acting?"
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Required evidence",
+          "fields": [
+            { "key": "build-input-pin", "label": "Pin used for tilt input", "control": "text", "placeholder": "Digital Pin 2" },
+            { "key": "build-output-pin", "label": "Pin used for buzzer output", "control": "text", "placeholder": "Digital Pin 3" },
+            { "key": "build-resistor", "label": "Resistor value", "control": "text", "placeholder": "10 kΩ" }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "build-buzzer-polarity", "label": "Buzzer polarity checked." },
+            { "key": "build-pulldown", "label": "Pull-down resistor location checked." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "build-upright", "label": "Predicted upright digital value", "control": "text", "placeholder": "HIGH" },
+            { "key": "build-tilted", "label": "Predicted tilted digital value", "control": "text", "placeholder": "LOW" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Safe recovery sequence",
+          "paragraphs": [
+            "Disconnect USB power before moving wires. Verify the common ground, D2 pull-down connection, D3 buzzer connection and polarity, then confirm LINX firmware, serial port, and channel constants. Test one hypothesis at a time and limit prolonged buzzer exposure."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read",
+      "title": "Display tilt status in LabVIEW",
+      "navLabel": "Read Sensor",
+      "intro": [
+        "Create a VI that opens a LINX connection, reads Digital Pin 2, displays the tilt state using a Round LED labelled `Tilted`, runs inside a while loop, waits 100 ms per loop, stops with a Stop button, and closes LINX after the loop ends."
+      ],
+      "blocks": [
+        {
+          "type": "details",
+          "summary": "A. Front Panel",
+          "paragraphs": ["Add a Round LED labelled `Tilted` and a Stop button."],
+          "open": true
+        },
+        {
+          "type": "details",
+          "summary": "B. Block Diagram",
+          "paragraphs": ["Arrange dataflow left to right: LINX Open, Digital Read, display logic, loop timing, Stop, LINX Close."]
+        },
+        {
+          "type": "details",
+          "summary": "C. LINX Open",
+          "paragraphs": ["Keep LINX Open outside the loop so communication is not reopened every iteration."]
+        },
+        {
+          "type": "details",
+          "summary": "D. Digital Read",
+          "paragraphs": ["Use LINX Digital Read with DI Channel constant set to `2`."]
+        },
+        {
+          "type": "details",
+          "summary": "E. While Loop",
+          "paragraphs": ["Put repeated sensor reading and display logic inside the loop."]
+        },
+        {
+          "type": "details",
+          "summary": "F. Timing Delay",
+          "paragraphs": ["Use Wait Until Next ms Multiple with numeric constant `100`."]
+        },
+        {
+          "type": "details",
+          "summary": "G. Stop And Close",
+          "paragraphs": ["Use the Stop button for normal stopping and place LINX Close after the loop."]
+        },
+        {
+          "type": "details",
+          "summary": "H. Run And Test",
+          "paragraphs": ["Verify the LED display for upright and tilted states."]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Reason through the LED label",
+          "paragraphs": [
+            "If the raw input is HIGH when upright and LOW when tilted, should a front-panel indicator labelled `Tilted` display the raw signal or the inverted signal? Explain your choice."
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "read-led-logic", "label": "Your reasoning", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "What does Digital Read return?",
+            "Does Digital Read measure voltage, resistance, or a logic state?",
+            "Why must the sensor be read repeatedly?",
+            "What is the purpose of the 100 ms wait?",
+            "What might happen if the loop runs as fast as possible?",
+            "Why should LINX Open stay outside the loop?",
+            "Why should LINX Close occur after the loop?"
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Evidence",
+          "fields": [
+            { "key": "read-upright-led", "label": "Upright LED behavior", "control": "text" },
+            { "key": "read-tilted-led", "label": "Tilted LED behavior", "control": "text" }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "read-stop-used", "label": "VI stopped with Stop button, not Abort." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "buzzer",
+      "title": "Turn tilt detection into an audible alert",
+      "navLabel": "Control Buzzer",
+      "intro": [
+        "Add LabVIEW control of the active buzzer using LINX Digital Write with DO Channel constant set to `3`. Because the raw sensor reads HIGH when upright and LOW when tilted, the buzzer command should be the inverse of the raw tilt input."
+      ],
+      "blocks": [
+        {
+          "type": "table",
+          "columns": ["Physical state", "Raw Digital Pin 2 reading", "Desired buzzer state", "Digital Pin 3 command"],
+          "rows": [
+            ["Upright", "HIGH", "OFF", "LOW"],
+            ["Tilted", "LOW", "ON", "HIGH"]
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Buzzer logic",
+          "steps": [
+            { "label": "Raw D2 value" },
+            { "label": "Not function" },
+            { "label": "D3 buzzer command" },
+            { "label": "Active buzzer" }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why does the buzzer need the inverse of the raw sensor signal?",
+            "What would happen if the Not function were removed?",
+            "Is the Round LED showing raw sensor state or interpreted tilt state?",
+            "Should the LED and buzzer always agree?",
+            "What would happen if Digital Pin 2 and Digital Pin 3 were swapped?"
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "buzz-front",
+          "label": "Front panel evidence (PNG, JPG, or PDF)",
+          "accept": [".png", ".jpg", ".jpeg", ".pdf"]
+        },
+        {
+          "type": "evidence",
+          "key": "buzz-block",
+          "label": "Block diagram evidence (PNG, JPG, or PDF)",
+          "accept": [".png", ".jpg", ".jpeg", ".pdf"]
+        },
+        {
+          "type": "fields",
+          "title": "Required evidence",
+          "fields": [
+            { "key": "buzz-upright", "label": "Upright test result", "control": "text" },
+            { "key": "buzz-tilted", "label": "Tilted test result", "control": "text" },
+            { "key": "buzz-not", "label": "Explain the Not function", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "paragraphs": [
+            "The chooser records the selected filename as local evidence in this browser. It does not upload or submit your VI or report. Accepted formats are PNG, JPG, and PDF."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "count",
+      "title": "Count events, not loop iterations",
+      "navLabel": "Count Events",
+      "intro": [
+        "A loop running every 100 ms sees the same tilted state many times. If the program adds 1 every time it sees `tilted`, one physical tilt could be counted many times. To count events properly, compare current state with previous state and count only the desired transition."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab3-shift-register-event-counter.png",
+          "alt": "Annotated LabVIEW block diagram showing an initialized shift register carrying a tilt count between While Loop iterations",
+          "caption": "The left shift-register terminal receives the initialized count, and the right terminal stores the updated value for the next loop iteration."
+        },
+        {
+          "type": "flow",
+          "title": "Shift register event logic",
+          "steps": [
+            { "label": "Loop k-1: previous state" },
+            { "label": "Loop k: current state" },
+            { "label": "previous upright and current tilted?" },
+            { "label": "count = count + 1" }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Required LabVIEW elements",
+          "items": [
+            "Two shift registers",
+            "Numeric constant initialized to 0 for tilt count",
+            "False constant initialized for previous digital state",
+            "Not Equal? function",
+            "And function",
+            "Boolean To (1,0) function",
+            "Add function",
+            "Waveform Chart with digital display"
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "What the shift registers store",
+          "items": [
+            { "term": "Shift register 1", "description": "Stores the current tilt count and carries it into the next loop iteration." },
+            { "term": "Shift register 2", "description": "Stores the previous sensor reading so the current reading can be compared against it." }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why is reading the current sensor value not enough to count tilts?",
+            "What is the difference between a state and an event?",
+            "What transition should count as a new tilt?",
+            "How does Not Equal? detect a change?",
+            "Why is the And function needed?",
+            "Why convert Boolean to 1 or 0?",
+            "What would happen if the sensor bounces between HIGH and LOW quickly?"
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            { "key": "count-transition", "label": "Explain which transition your VI counts.", "control": "textarea" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Visualize events over time",
+          "paragraphs": [
+            "Add a Waveform Chart from Controls - Modern - Graph inside the while loop. Enable digital display, rename it `Number of Tilts vs Time`, change the Y-axis label to `Number of Tilts`, and wire it to the output of the Add function. Save the final VI as `lab3_tilt_counter.vi`."
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab3-pdf-tilt-front-panel.png",
+          "alt": "Final front panel with Stop button, Tilted indicator, Number of Tilts vs Time chart, and count display.",
+          "caption": "The chart and numeric display show the tilt count over time."
+        },
+        {
+          "type": "measurementTable",
+          "columns": ["Test", "Expected result", "Observed result"],
+          "rows": [
+            {
+              "label": "Initial count",
+              "cells": [
+                { "control": "static", "value": "0" },
+                { "control": "text", "key": "chart-initial" }
+              ]
+            },
+            {
+              "label": "After one tilt",
+              "cells": [
+                { "control": "static", "value": "1" },
+                { "control": "text", "key": "chart-one" }
+              ]
+            },
+            {
+              "label": "After three tilts",
+              "cells": [
+                { "control": "static", "value": "3" },
+                { "control": "text", "key": "chart-three" }
+              ]
+            },
+            {
+              "label": "Hold sensor tilted",
+              "cells": [
+                { "control": "static", "value": "No repeated counting" },
+                { "control": "text", "key": "chart-held" }
+              ]
+            },
+            {
+              "label": "Final front panel screenshot",
+              "cells": [
+                { "control": "static", "value": "Included" },
+                { "control": "static", "value": "Attach in the dropbox below" }
+              ]
+            },
+            {
+              "label": "Final block diagram screenshot",
+              "cells": [
+                { "control": "static", "value": "Included" },
+                { "control": "static", "value": "Attach in the dropbox below" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "chart-front",
+          "label": "Final front panel screenshot",
+          "accept": ["image/*"]
+        },
+        {
+          "type": "evidence",
+          "key": "chart-block",
+          "label": "Final block diagram screenshot",
+          "accept": ["image/*"]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why should the graph increase in steps rather than continuously?",
+            "What would a flat line mean?",
+            "What would a rapidly increasing count while the sensor is held still mean?",
+            "How could switch bounce affect the chart?",
+            "Does the chart prove the physical sensor works, or only that the program count changes?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "title": "Add a selectable buzzer mode",
+      "navLabel": "Extend",
+      "intro": [
+        "Add a toggle switch control that inverts active buzzer behaviour. Normal mode activates the buzzer when tilt is detected. Inverted mode activates the buzzer when there is no tilt."
+      ],
+      "blocks": [
+        {
+          "type": "table",
+          "columns": ["Mode", "Upright", "Tilted"],
+          "rows": [
+            ["Normal mode", "Buzzer OFF", "Buzzer ON"],
+            ["Inverted mode", "Buzzer ON", "Buzzer OFF"]
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Implementation options",
+          "items": [
+            "Add a Select function controlled by the toggle switch.",
+            "Add Boolean logic to choose between normal and inverted buzzer command.",
+            "Create a clearly labelled front-panel toggle."
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Do not change the physical sensor reading. Change the buzzer command logic."
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "extend-front",
+          "label": "Modified front panel screenshot",
+          "accept": ["image/*"]
+        },
+        {
+          "type": "evidence",
+          "key": "extend-block",
+          "label": "Modified block diagram screenshot",
+          "accept": ["image/*"]
+        },
+        {
+          "type": "fields",
+          "title": "Required evidence",
+          "fields": [
+            { "key": "extend-logic", "label": "Logic modification explanation", "control": "textarea" },
+            { "key": "extend-normal", "label": "Normal mode test result", "control": "text" },
+            { "key": "extend-inverted", "label": "Inverted mode test result", "control": "text" }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "What signal represents tilt detected?",
+            "What signal represents no tilt?",
+            "Should the toggle switch change the sensor reading or the buzzer command?",
+            "Where is the cleanest place to insert inversion logic?",
+            "What should happen if the toggle is changed while the VI is running?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Deliverables and reflection",
+      "navLabel": "Reflect",
+      "eyebrow": "Reflect",
+      "submission": true,
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "title": "Submission checklist",
+          "items": [
+            { "key": "del-display-buzzer", "label": "Completed LabVIEW VI for tilt display and buzzer control." },
+            { "key": "del-counter", "label": "Completed LabVIEW VI for tilt counting." },
+            { "key": "del-file", "label": "Final VI file named `lab3_tilt_counter.vi` or instructor-approved equivalent." },
+            { "key": "del-circuit", "label": "Evidence of completed physical circuit." },
+            { "key": "del-front", "label": "Front-panel evidence prepared in PNG, JPG, or PDF format." },
+            { "key": "del-block", "label": "Block-diagram evidence prepared in PNG, JPG, or PDF format." },
+            { "key": "del-switch", "label": "Explanation of tilt switch operation and two applications." },
+            { "key": "del-buzzer", "label": "Explanation of active buzzer operation and two applications." },
+            { "key": "del-io", "label": "Classification of tilt switch and buzzer as input/output devices." },
+            { "key": "del-shift", "label": "Explanation of both shift registers and tilt-counting logic." },
+            { "key": "del-extension", "label": "Extension implementation for inverted buzzer behaviour." },
+            { "key": "del-names", "label": "Student names and numbers included as required." }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "final-tilt-buzzer-vi",
+          "label": "Final tilt display and buzzer VI file",
+          "accept": [".vi"]
+        },
+        {
+          "type": "evidence",
+          "key": "final-tilt-counter-vi",
+          "label": "Final `lab3_tilt_counter.vi` file",
+          "accept": [".vi"]
+        },
+        {
+          "type": "questions",
+          "title": "Final questions",
+          "items": [
+            { "key": "reflect-1", "prompt": "What physical change occurs inside the tilt ball switch when it is tilted?" },
+            { "key": "reflect-2", "prompt": "What does Arduino Digital Pin 2 actually read?" },
+            { "key": "reflect-3", "prompt": "Why is the 10 kΩ pull-down resistor necessary?" },
+            { "key": "reflect-4", "prompt": "Why does the buzzer require the inverse of the raw sensor reading in the original circuit?" },
+            { "key": "reflect-5", "prompt": "Is the tilt switch an input or output device? Explain." },
+            { "key": "reflect-6", "prompt": "Is the active buzzer an input or output device? Explain." },
+            { "key": "reflect-7", "prompt": "What is the difference between detecting a tilted state and counting a new tilt event?" },
+            { "key": "reflect-8", "prompt": "Why are shift registers needed for the tilt counter?" },
+            { "key": "reflect-9", "prompt": "What could cause the counter to increase more than once for a single physical tilt?" },
+            { "key": "reflect-10", "prompt": "Does this lab create a complete IoT system? If not, which IoT layer has been completed and what still needs to be added?" },
+            { "key": "reflect-11", "prompt": "What did you initially believe about digital sensors that this lab changed or clarified?" }
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "What you can now demonstrate after completing this lab:"
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "Learning Outcomes Achieved",
+          "items": [
+            "**Tilt switch:** Explain how orientation changes the switch's electrical state.",
+            "**Defined logic:** Use a pull-down resistor to prevent a floating input.",
+            "**Digital states:** Distinguish HIGH, LOW, open, shorted, and floating conditions.",
+            "**Hardware build:** Build and verify the D2 tilt input and D3 buzzer output.",
+            "**LINX I/O:** Use LabVIEW LINX Digital Read and Digital Write.",
+            "**Logic inversion:** Apply the Not function to obtain the intended alert behavior.",
+            "**Event counting:** Use prior state to count transitions rather than loop iterations.",
+            "**Troubleshooting:** Isolate wiring, communication, or logic faults with evidence."
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "**Key terms**"
+          ]
+        },
+        { "type": "details", "summary": "Tilt ball switch", "paragraphs": ["A switch whose open or closed state changes with orientation."] },
+        { "type": "details", "summary": "Active buzzer", "paragraphs": ["A buzzer module that produces sound when powered with the correct polarity."] },
+        { "type": "details", "summary": "Digital input", "paragraphs": ["A pin used to read a logic HIGH or LOW state."] },
+        { "type": "details", "summary": "Digital output", "paragraphs": ["A pin used to command LOW or HIGH."] },
+        { "type": "details", "summary": "HIGH", "paragraphs": ["A digital logic state interpreted as true or on."] },
+        { "type": "details", "summary": "LOW", "paragraphs": ["A digital logic state interpreted as false or off."] },
+        { "type": "details", "summary": "Open circuit", "paragraphs": ["A path that is not electrically connected."] },
+        { "type": "details", "summary": "Short circuit", "paragraphs": ["A very low-resistance connection between two points."] },
+        { "type": "details", "summary": "Floating input", "paragraphs": ["An input with no defined HIGH or LOW reference."] },
+        { "type": "details", "summary": "Pull-down resistor", "paragraphs": ["A resistor that defines an input as LOW when the switch is open."] },
+        { "type": "details", "summary": "Arduino Digital Pin", "paragraphs": ["A microcontroller pin that can read or write digital logic."] },
+        { "type": "details", "summary": "LabVIEW", "paragraphs": ["A graphical programming environment."] },
+        { "type": "details", "summary": "VI", "paragraphs": ["Virtual Instrument, a LabVIEW program."] },
+        { "type": "details", "summary": "Front Panel", "paragraphs": ["The user-facing controls and indicators of a VI."] },
+        { "type": "details", "summary": "Block Diagram", "paragraphs": ["The graphical program logic of a VI."] },
+        { "type": "details", "summary": "LINX", "paragraphs": ["LabVIEW toolkit for communicating with supported hardware such as Arduino."] },
+        { "type": "details", "summary": "Digital Read", "paragraphs": ["A LINX block that reads a digital input channel."] },
+        { "type": "details", "summary": "Digital Write", "paragraphs": ["A LINX block that writes a digital output command."] },
+        { "type": "details", "summary": "While Loop", "paragraphs": ["A repeated LabVIEW structure that continues until a stop condition is met."] },
+        { "type": "details", "summary": "Wait Until Next ms Multiple", "paragraphs": ["A timing function used to pace loop execution."] },
+        { "type": "details", "summary": "Stop button", "paragraphs": ["A controlled way to end a VI and allow cleanup logic to run."] },
+        { "type": "details", "summary": "Abort button", "paragraphs": ["An emergency interruption that should not be normal operation."] },
+        { "type": "details", "summary": "Shift register", "paragraphs": ["A loop feature that carries a value from one iteration to the next."] },
+        { "type": "details", "summary": "Previous state", "paragraphs": ["The sensor value remembered from the prior loop iteration."] },
+        { "type": "details", "summary": "Current state", "paragraphs": ["The sensor value read during the current loop iteration."] },
+        { "type": "details", "summary": "Event", "paragraphs": ["A change or transition that happens at a moment in time."] },
+        { "type": "details", "summary": "State", "paragraphs": ["A condition that may remain true for many loop iterations."] },
+        { "type": "details", "summary": "Transition", "paragraphs": ["A change from one state to another."] },
+        { "type": "details", "summary": "Boolean", "paragraphs": ["A true/false value."] },
+        { "type": "details", "summary": "Not function", "paragraphs": ["A Boolean function that inverts true to false or false to true."] },
+        { "type": "details", "summary": "And function", "paragraphs": ["A Boolean function that is true only when required inputs are true."] },
+        { "type": "details", "summary": "Not Equal?", "paragraphs": ["A comparison function that detects when two values differ."] },
+        { "type": "details", "summary": "Boolean To (1,0)", "paragraphs": ["A conversion that turns true into 1 and false into 0."] },
+        { "type": "details", "summary": "Waveform Chart", "paragraphs": ["A LabVIEW indicator that displays values over time."] },
+        { "type": "details", "summary": "Switch bounce", "paragraphs": ["Rapid electrical changes when a mechanical switch changes state."] },
+        { "type": "details", "summary": "IoT event node", "paragraphs": ["A local device that detects and counts events before later network or cloud connection."] }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Submit both completed LabVIEW VIs: the tilt display and buzzer control VI, and the tilt counter VI named `lab3_tilt_counter.vi` or an instructor-approved equivalent.",
+    "Include front-panel and block-diagram evidence in PNG, JPG, or PDF format, plus evidence of the completed physical circuit.",
+    "Include the written explanations from the submission checklist and student names and numbers as required."
+  ]
+}
