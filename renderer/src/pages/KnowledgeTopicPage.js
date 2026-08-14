@@ -1,11 +1,13 @@
 import { Html } from '../lib/Html.js';
 import { RichText } from '../lib/RichText.js';
+import { TopicArticle } from '../lib/TopicArticle.js';
 import { Page } from './Page.js';
 
 /**
  * One knowledge topic as its own page, reachable from any laboratory.
  * The navigation rail lists every topic in the same domain, with the
- * current topic highlighted.
+ * current topic highlighted. The article body is the same template the
+ * in-laboratory reference panel embeds, so the two can never disagree.
  */
 export class KnowledgeTopicPage extends Page {
   /**
@@ -54,54 +56,34 @@ export class KnowledgeTopicPage extends Page {
   }
 
   main() {
-    const topic = this.topic;
     return [
-      Html.el('header', { class: 'c-hero' },
-        Html.el('span', { class: `c-kb-kind c-kb-kind--${topic.kind}` }, Html.escape(topic.kind)),
-        Html.el('h1', { class: 'c-kb-page__name' }, Html.escape(topic.name)),
-        topic.question
-          ? Html.el('p', { class: 'c-kb-page__question' }, this.context.rich(topic.question))
-          : null,
-      ),
-      Html.el('div', { class: 'o-stack' },
-        topic.asset
-          ? Html.el('figure', { class: 'c-figure' },
-            Html.el('img', {
-              class: 'c-figure__image',
-              src: this.context.assetHref(topic.asset),
-              alt: topic.assetAlt ?? `${topic.name} reference diagram`,
-              loading: 'lazy',
-            }))
-          : null,
-        topic.sections.map((section) => Html.el('section', { class: 'c-card' },
-          Html.el('h2', { class: 'c-kb-page__section-title' }, this.context.rich(section.heading)),
-          Html.el('div', { class: 'o-prose o-stack o-stack--tight' },
-            this.context.richParagraphs(section.paragraphs)),
-        )),
-        topic.hint
-          ? Html.el('aside', { class: 'c-callout c-callout--warning' },
-            Html.el('p', { class: 'c-callout__title' }, 'In the laboratory'),
-            Html.el('div', { class: 'c-callout__body' },
-              Html.el('p', {}, this.context.rich(topic.hint))),
-          )
-          : null,
-        (topic.related?.length ?? 0) > 0
-          ? Html.el('section', { 'aria-label': 'Related topics' },
-            Html.el('h2', { class: 'c-kb-page__section-title' }, 'Related topics'),
-            Html.el('div', { class: 'c-kb-related' },
-              topic.related.map((relatedId) => {
-                const related = this.repository.topicById.get(relatedId);
-                const relatedDomain = this.repository.domainOfTopic.get(relatedId);
-                return Html.el('a', { class: 'c-kb-related__chip', href: `${relatedId}.html` },
-                  Html.escape(related.name),
-                  relatedDomain.id !== this.domain.id
-                    ? Html.el('span', { class: 'c-kb-related__domain' }, Html.escape(` · ${relatedDomain.title}`))
-                    : null,
-                );
-              })),
-          )
-          : null,
-      ),
+      TopicArticle.render({
+        topic: this.topic,
+        domain: this.domain,
+        context: this.context,
+        repository: this.repository,
+        mode: 'page',
+      }),
+      this.#referencedIn(),
     ].join('');
+  }
+
+  /** Which laboratories link here — the way back into the coursework. */
+  #referencedIn() {
+    const labs = this.repository.labsUsingTopic.get(this.topic.id) ?? [];
+    if (labs.length === 0) return '';
+    return Html.el('section', { class: 'c-kb-article__related', 'aria-label': 'Referenced in' },
+      Html.el('h2', { class: 'c-kb-article__section-title' }, 'Referenced in'),
+      Html.el('div', { class: 'c-kb-related' },
+        labs.map((lab) => Html.el('a', {
+          class: 'c-kb-related__chip',
+          href: `${this.context.relativeRoot}labs/${lab.id}/index.html`,
+        },
+        Html.escape(lab.kind === 'project' ? lab.title : `Lab ${lab.number}`),
+        lab.kind === 'project'
+          ? null
+          : Html.el('span', { class: 'c-kb-related__domain' }, Html.escape(` · ${lab.title}`)),
+        ))),
+    );
   }
 }

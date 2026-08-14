@@ -1,12 +1,15 @@
 /* ==========================================================================
  * ProgressFile — download and restore the student's durable record
  * --------------------------------------------------------------------------
- * Markup contract:
+ * Markup contract (controls may appear in several places — the progress
+ * drawer on every page and the submission checkpoint's card — and every
+ * instance works):
  *   [data-progress-download]  always-enabled download control
  *   [data-progress-restore]   hidden file input for restoring
  *   [data-progress-restore-button] visible proxy for the input
  *   [data-progress-reset]     clear saved work for this lab
- *   [data-progress-status]    live status region
+ *   [data-progress-status]    live status regions
+ *   [data-progress-meta]      "saved / last downloaded" summary line
  *   [data-storage-warning]    shown when browser storage is unavailable
  *
  * Browser storage is a convenience cache; the exported file is the system
@@ -16,19 +19,55 @@
 
 class ProgressFile {
   constructor() {
-    this.status = document.querySelector('[data-progress-status]');
-    this.downloadButton = document.querySelector('[data-progress-download]');
+    this.statuses = Dom.all('[data-progress-status]');
+    this.meta = document.querySelector('[data-progress-meta]');
     this.restoreInput = document.querySelector('[data-progress-restore]');
-    this.restoreButton = document.querySelector('[data-progress-restore-button]');
-    this.resetButton = document.querySelector('[data-progress-reset]');
+    this.progressDockButton = document.querySelector('.c-dock__btn[data-sidebar-toggle="progress"]');
 
-    this.downloadButton?.addEventListener('click', () => this.download());
-    this.restoreButton?.addEventListener('click', () => this.restoreInput?.click());
+    for (const button of Dom.all('[data-progress-download]')) {
+      button.addEventListener('click', () => this.download());
+    }
+    for (const button of Dom.all('[data-progress-restore-button]')) {
+      button.addEventListener('click', () => this.restoreInput?.click());
+    }
+    for (const button of Dom.all('[data-progress-reset]')) {
+      button.addEventListener('click', () => this.reset());
+    }
     this.restoreInput?.addEventListener('change', () => this.restore());
-    this.resetButton?.addEventListener('click', () => this.reset());
 
-    const warning = document.querySelector('[data-storage-warning]');
-    if (warning) warning.hidden = SeptLabs.store.available;
+    for (const warning of Dom.all('[data-storage-warning]')) {
+      warning.hidden = SeptLabs.store.available;
+    }
+
+    SeptLabs.store.subscribe(() => this.#renderMeta());
+    this.#renderMeta();
+    // Relative times ("5 minutes ago") drift while the page sits open.
+    setInterval(() => this.#renderMeta(), 60_000);
+  }
+
+  /** @param {string} text @param {"success" | "error"} tone */
+  #announce(text, tone) {
+    for (const status of this.statuses) Dom.status(status, text, tone);
+  }
+
+  /** The drawer's summary line and the dock's unsaved-work alert. */
+  #renderMeta() {
+    const { store } = SeptLabs;
+    if (this.meta) {
+      if (!store.hasWork()) {
+        this.meta.textContent = 'Nothing entered yet — work saves here as you type.';
+      } else {
+        const saved = store.available
+          ? `Saved in this browser ${Dom.timeAgo(store.meta.updatedAt)}.`
+          : 'Browser storage is unavailable.';
+        const exported = store.meta.lastExportedAt
+          ? `Progress file downloaded ${Dom.timeAgo(store.meta.lastExportedAt)}.`
+          : 'No progress file downloaded yet.';
+        this.meta.textContent = `${saved} ${exported}`;
+      }
+    }
+    this.progressDockButton?.classList.toggle('has-alert',
+      store.hasUnexportedWork() || !store.available);
   }
 
   /** Serialize the current state into a schema-conformant progress file. */
@@ -57,7 +96,8 @@ class ProgressFile {
     link.download = filename;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 0);
-    Dom.status(this.status,
+    SeptLabs.store.markExported();
+    this.#announce(
       `Saved as ${filename}. Keep this file with your course records; it can be restored on any computer.`,
       'success');
   }
@@ -71,17 +111,17 @@ class ProgressFile {
     try {
       doc = JSON.parse(await file.text());
     } catch {
-      Dom.status(this.status, 'That file is not a readable progress file.', 'error');
+      this.#announce('That file is not a readable progress file.', 'error');
       return;
     }
 
     const { config } = SeptLabs;
     if (doc.platform !== 'sept-ilp' || doc.progressVersion !== 1 || typeof doc.state !== 'object') {
-      Dom.status(this.status, 'That file is not a SEPT lab progress file.', 'error');
+      this.#announce('That file is not a SEPT lab progress file.', 'error');
       return;
     }
     if (doc.course !== config.course.id || doc.lab !== config.lab.id) {
-      Dom.status(this.status,
+      this.#announce(
         `That progress file belongs to ${doc.lab ?? 'another lab'}, not this one.`, 'error');
       return;
     }
@@ -91,6 +131,7 @@ class ProgressFile {
     }
 
     SeptLabs.store.replace(doc.state);
+    SeptLabs.store.markExported();
     window.location.reload();
   }
 

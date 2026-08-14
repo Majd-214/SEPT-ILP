@@ -101,6 +101,8 @@ function renderField(context, field) {
     control = Html.el('input', {
       ...controlAttributes,
       type: field.control === 'number' ? 'number' : 'text',
+      // Numeric entries raise the decimal keypad on touch keyboards.
+      inputmode: field.control === 'number' ? 'decimal' : null,
       min: field.min !== undefined ? String(field.min) : null,
       max: field.max !== undefined ? String(field.max) : null,
       step: field.step !== undefined ? String(field.step) : null,
@@ -166,6 +168,7 @@ export class MeasurementTableRenderer extends BlockRenderer {
           Html.el('input', {
             class: 'c-mtable__input',
             type: cell.control === 'number' ? 'number' : 'text',
+            inputmode: cell.control === 'number' ? 'decimal' : null,
             'data-field': cell.key,
             'aria-label': label,
             placeholder: cell.placeholder ?? null,
@@ -213,6 +216,7 @@ export class CalculatorRenderer extends BlockRenderer {
             Html.el('input', {
               class: 'c-field__control',
               type: 'number',
+              inputmode: 'decimal',
               'data-calc-input': input.key,
               placeholder: input.placeholder ?? null,
               min: input.min !== undefined ? String(input.min) : null,
@@ -252,6 +256,7 @@ export class OrderingRenderer extends BlockRenderer {
       block.prompt ? Html.el('p', { class: 'c-field__note' }, this.context.rich(block.prompt)) : null,
       Html.el('ol', { class: 'c-ordering__list' },
         presented.map((item) => Html.el('li', { class: 'c-ordering__item', 'data-item': item.key },
+          Html.el('span', { class: 'c-ordering__grip', 'aria-hidden': 'true' }, ''),
           Html.el('span', { class: 'c-ordering__label' }, this.context.rich(item.label)),
           Html.el('span', { class: 'c-ordering__moves' },
             Html.el('button', { class: 'c-ordering__move', type: 'button', 'data-move': 'up', 'aria-label': `Move “${RichText.plain(item.label)}” earlier` }, '↑'),

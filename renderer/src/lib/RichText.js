@@ -21,10 +21,12 @@ export class RichText {
    * The optional resolver maps authored link targets (such as the
    * `kb:<topic-id>` and `lab:<lab-id>` schemes) onto real URLs, so content
    * never hardcodes site structure. A resolver returning null rejects the
-   * link and the markup stays literal text.
+   * link and the markup stays literal text. A resolver may also return
+   * `{ href, attributes }` to decorate the link — this is how lab pages
+   * mark knowledge links for the in-page reference panel.
    *
    * @param {string} text
-   * @param {(href: string) => string | null} [resolveHref]
+   * @param {(href: string) => string | { href: string, attributes?: Record<string, string> } | null} [resolveHref]
    * @returns {string}
    */
   static render(text, resolveHref) {
@@ -85,15 +87,22 @@ export class RichText {
     html = html.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (match, label, href) => {
       // `href` was already escaped with the surrounding segment, so it is
       // attribute-safe as-is; resolvers must return attribute-safe paths.
-      const resolved = resolveHref ? resolveHref(href) : href;
-      if (resolved === null || resolved === undefined) return match;
+      const result = resolveHref ? resolveHref(href) : href;
+      if (result === null || result === undefined) return match;
+      const resolved = typeof result === 'string' ? result : result.href;
+      const attributes = typeof result === 'string' ? {} : (result.attributes ?? {});
       if (!RichText.#isSafeHref(resolved)) return match;
+      let extra = '';
+      for (const [name, value] of Object.entries(attributes)) {
+        if (!/^[a-zA-Z][\w-]*$/.test(name)) continue;
+        extra += ` ${name}="${Html.escape(value)}"`;
+      }
       // External links open in a new tab and drop the opener reference,
       // so a laboratory in progress is never navigated away from.
       const external = resolved.startsWith('https://')
         ? ' target="_blank" rel="noopener"'
         : '';
-      return `<a href="${resolved}"${external}>${label}</a>`;
+      return `<a href="${resolved}"${external}${extra}>${label}</a>`;
     });
 
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');

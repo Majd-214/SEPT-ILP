@@ -82,6 +82,18 @@
   box-shadow: none;
 }
 
+/* Pressed state: a brief, tactile dip */
+.c-btn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.c-btn svg {
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-left: -0.2rem;
+}
+
 /* --------------------------------------------------------------------------
    Checkpoint panel
    -------------------------------------------------------------------------- */
@@ -89,6 +101,25 @@
   position: relative;
   padding-left: var(--md-sys-space-6);
   border-left: 2px solid var(--md-sys-color-outline-variant);
+}
+
+/* Switching checkpoints eases the arriving panel in. The runtime adds
+   is-entering only on interactive navigation — never on first paint, so
+   content is fully legible the moment the page loads. */
+.c-checkpoint.is-entering {
+  animation: checkpoint-in var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-emphasized);
+}
+
+@keyframes checkpoint-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .c-checkpoint__marker {
@@ -106,6 +137,21 @@
   font-weight: var(--md-sys-type-weight-bold);
   line-height: 1;
   box-shadow: 0 0 0 4px var(--md-sys-color-surface);
+}
+
+/* Narrow screens: tighter gutter, smaller marker (this block must follow
+   the base rules above — media queries add no specificity). */
+@media (max-width: 639.98px) {
+  .c-checkpoint {
+    padding-left: var(--md-sys-space-4);
+  }
+
+  .c-checkpoint__marker {
+    left: -1rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: var(--md-sys-type-body-sm-size);
+  }
 }
 
 .c-checkpoint__eyebrow {
@@ -182,6 +228,67 @@
   color: var(--md-sys-color-success);
 }
 
+/* Outstanding requirements render as jump links: each one scrolls to,
+   reveals, and highlights the control it names. */
+.c-checkpoint__problems {
+  list-style: none;
+  margin: var(--md-sys-space-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-1);
+}
+
+.c-checkpoint__problem-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--md-sys-space-2);
+  padding: 0.1rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.c-checkpoint__problem-link:hover {
+  text-decoration-style: solid;
+}
+
+/* Where the flow goes next, shown beside the confirm control */
+.c-checkpoint__next {
+  flex: 1 1 auto;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-checkpoint__nav {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+}
+
+/* The momentary highlight a problem link drops on its target */
+.is-flash {
+  animation: flash-ring 1.4s var(--md-sys-motion-easing-standard);
+}
+
+@keyframes flash-ring {
+  0%, 60% {
+    box-shadow: 0 0 0 3px var(--md-sys-color-focus-ring);
+    border-radius: var(--md-sys-shape-xs);
+  }
+
+  100% {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
 /* --------------------------------------------------------------------------
    Tabs — MD3 secondary tabs with underline indicator
    -------------------------------------------------------------------------- */
@@ -218,6 +325,24 @@
   color: var(--md-sys-color-primary);
   font-weight: var(--md-sys-type-weight-bold);
   border-bottom-color: var(--md-sys-color-primary);
+}
+
+/* Count of unfinished required items inside the tab's panel */
+.c-tabs__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  margin-left: var(--md-sys-space-2);
+  padding-inline: 0.25rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-size: 0.68rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .c-tabs__panel {
@@ -302,6 +427,43 @@
   accent-color: var(--md-sys-color-primary);
 }
 
+/* The checked-and-wrong option owns the error, not the whole card */
+.c-quiz__option.is-wrong,
+.c-quiz__option.is-wrong:has(input:checked) {
+  border-color: var(--md-sys-color-error);
+  background: var(--md-sys-color-error-container);
+}
+
+.c-quiz__option.is-wrong input {
+  accent-color: var(--md-sys-color-error);
+}
+
+.c-quiz__option.is-right,
+.c-quiz__option.is-right:has(input:checked) {
+  border-color: var(--md-sys-color-success);
+  background: var(--md-sys-color-success-container);
+}
+
+.c-quiz__option.is-right input {
+  accent-color: var(--md-sys-color-success);
+}
+
+.c-quiz__option.is-shake {
+  animation: quiz-shake var(--md-sys-motion-duration-long) var(--md-sys-motion-easing-standard);
+}
+
+@keyframes quiz-shake {
+  0%, 100% { transform: none; }
+  20%, 60% { transform: translateX(-0.3rem); }
+  40%, 80% { transform: translateX(0.3rem); }
+}
+
+/* Points chip celebrates quietly once earned */
+.c-quiz.is-correct .c-quiz__points {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-success);
+}
+
 .c-quiz__actions {
   display: flex;
   align-items: center;
@@ -368,6 +530,7 @@
   border-radius: var(--md-sys-shape-sm);
   background: var(--md-sys-color-surface-container-lowest);
   font-size: var(--md-sys-type-body-sm-size);
+  transition: border-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
 }
 
 .c-field__control:hover {
@@ -465,6 +628,12 @@ textarea.c-field__control {
   vertical-align: middle;
 }
 
+/* A faint band under the pointer keeps eyes on the right row of data */
+.c-mtable tbody tr:hover td,
+.c-mtable tbody tr:hover th {
+  background: var(--md-sys-color-surface-container-low);
+}
+
 .c-mtable__rowlabel {
   font-weight: var(--md-sys-type-weight-medium);
   white-space: nowrap;
@@ -560,6 +729,26 @@ textarea.c-field__control {
   border-radius: var(--md-sys-shape-sm);
   background: var(--md-sys-color-surface-container-lowest);
   cursor: grab;
+  transition: box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-ordering__item:hover {
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+/* Grip affordance: four dots that say "drag me" without words */
+.c-ordering__grip {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  align-self: stretch;
+  background-image: radial-gradient(circle, var(--md-sys-color-outline) 1.2px, transparent 1.4px);
+  background-size: 0.5rem 0.45rem;
+  background-position: center;
+  background-repeat: repeat-y;
+}
+
+.c-ordering.is-solved .c-ordering__grip {
+  visibility: hidden;
 }
 
 .c-ordering__item::before {
@@ -661,6 +850,13 @@ textarea.c-field__control {
   background: var(--md-sys-color-surface-container-low);
 }
 
+/* A file held over the dropzone: unmistakable "let go here" feedback */
+.c-evidence.is-dragover {
+  border-color: var(--md-sys-color-primary);
+  border-style: solid;
+  background: var(--md-sys-color-primary-container);
+}
+
 .c-evidence__label {
   display: block;
   font-weight: var(--md-sys-type-weight-medium);
@@ -735,6 +931,85 @@ textarea.c-field__control {
 .c-progressfile__status.is-error {
   background: var(--md-sys-color-error-container);
   color: var(--md-sys-color-error);
+}
+
+/* When and where work was last kept — shown in the progress drawer */
+.c-progressfile__meta {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Checkpoint map inside the progress drawer */
+.c-progress-summary {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.c-progress-summary__item {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  width: 100%;
+  padding: var(--md-sys-space-2) var(--md-sys-space-2);
+  border: 0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--md-sys-type-body-sm-size);
+  text-align: left;
+  cursor: pointer;
+}
+
+.c-progress-summary__item:hover {
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.c-progress-summary__item:last-child {
+  border-bottom: 0;
+}
+
+.c-progress-summary__state {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.c-progress-summary__item.is-complete .c-progress-summary__state {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-success);
+}
+
+.c-progress-summary__item.is-current .c-progress-summary__state {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.c-progress-summary__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.c-progress-summary__count {
+  flex: 0 0 auto;
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
 }
 
 /* Storage availability warning */

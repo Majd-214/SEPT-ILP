@@ -90,11 +90,11 @@ the precise reference.
 
 ## Privacy
 
-Rendered pages contain no analytics and make no network requests other
-than loading the Google Sans typeface. Student work is stored by the
-student's browser under a course-specific key and in the downloadable
-progress file. Submission of work for assessment takes place through the
-learning management system only.
+Rendered pages contain no analytics and make no network requests: every
+asset, including the typeface, travels inside the output. Student work
+is stored by the student's browser under a course-specific key and in
+the downloadable progress file. Submission of work for assessment takes
+place through the learning management system only.
 
 ## Adding a course
 

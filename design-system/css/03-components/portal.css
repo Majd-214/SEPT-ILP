@@ -84,6 +84,68 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
+/* Saved-work indicator, revealed by the runtime when this browser holds
+   progress for the lab */
+.c-labcard__progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+  margin-top: var(--md-sys-space-1);
+}
+
+.c-labcard__bar {
+  appearance: none;
+  width: 100%;
+  height: 0.4rem;
+  border: 0;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-high);
+  overflow: hidden;
+}
+
+.c-labcard__bar::-webkit-progress-bar {
+  background: var(--md-sys-color-surface-container-high);
+  border-radius: var(--md-sys-shape-full);
+}
+
+.c-labcard__bar::-webkit-progress-value {
+  background: var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-full);
+  transition: width var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+.c-labcard__bar::-moz-progress-bar {
+  background: var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-full);
+}
+
+.c-labcard__progress-text {
+  font-size: 0.78rem;
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.c-labcard__progress.is-complete .c-labcard__progress-text {
+  color: var(--md-sys-color-success);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+/* --------------------------------------------------------------------------
+   "Continue where you left off" on the course home
+   -------------------------------------------------------------------------- */
+.c-hero__resume {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-sys-space-4);
+  margin-top: var(--md-sys-space-5);
+}
+
+.c-hero__resume-note {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
 
 /* --------------------------------------------------------------------------
    Knowledge hub — domain groups and topic rows
@@ -96,13 +158,49 @@
   margin-bottom: var(--md-sys-space-6);
 }
 
-.c-kb-toolbar__search {
+.c-kb-toolbar__field {
+  position: relative;
   flex: 1 1 16rem;
-  padding: 0.65rem 1rem;
+  display: flex;
+}
+
+.c-kb-toolbar__search {
+  flex: 1 1 auto;
+  padding: 0.65rem 2.4rem 0.65rem 1rem;
   border: 1px solid var(--md-sys-color-outline);
   border-radius: var(--md-sys-shape-full);
   background: var(--md-sys-color-surface-container-lowest);
   font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-kb-toolbar__clear {
+  position: absolute;
+  top: 50%;
+  right: 0.45rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: var(--md-sys-shape-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.8rem;
+}
+
+.c-kb-toolbar__clear:hover {
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-kb-toolbar__count {
+  flex: 0 0 auto;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .c-kb-filter {
@@ -450,26 +548,8 @@
 }
 
 /* --------------------------------------------------------------------------
-   Knowledge topic page
+   Related-topic chips (topic pages and the reference panel)
    -------------------------------------------------------------------------- */
-.c-kb-page__name {
-  font-size: var(--md-sys-type-display-size);
-  letter-spacing: -0.015em;
-  margin-top: var(--md-sys-space-2);
-}
-
-.c-kb-page__question {
-  font-size: var(--md-sys-type-title-lg-size);
-  font-weight: var(--md-sys-type-weight-regular);
-  color: var(--md-sys-color-on-surface-variant);
-  margin-top: var(--md-sys-space-2);
-}
-
-.c-kb-page__section-title {
-  font-size: var(--md-sys-type-title-lg-size);
-  margin-bottom: var(--md-sys-space-2);
-}
-
 .c-kb-related {
   display: flex;
   flex-wrap: wrap;
@@ -498,4 +578,107 @@
 .c-kb-related__domain {
   color: var(--md-sys-color-on-surface-variant);
   font-weight: var(--md-sys-type-weight-regular);
+}
+
+/* --------------------------------------------------------------------------
+   Concepts panel — the in-laboratory knowledge reference
+   --------------------------------------------------------------------------
+   Lives inside the "knowledge" drawer on every laboratory page. The index
+   lists each concept the lab links to; the article view shows one topic
+   without leaving the page.
+   -------------------------------------------------------------------------- */
+.c-kb-panel__index {
+  padding-bottom: var(--md-sys-space-2);
+}
+
+.c-kb-panel__filterrow {
+  margin-bottom: var(--md-sys-space-3);
+}
+
+.c-kb-panel__filter {
+  border-radius: var(--md-sys-shape-full);
+  padding-inline: var(--md-sys-space-4);
+}
+
+.c-kb-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-1);
+}
+
+.c-kb-panel__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-2) var(--md-sys-space-3);
+  border-radius: var(--md-sys-shape-md);
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-kb-panel__item:hover {
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.c-kb-panel__item .c-kb-kind {
+  margin-top: 0.15rem;
+}
+
+.c-kb-panel__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.c-kb-panel__name {
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-kb-panel__summary {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.c-kb-panel__hublink {
+  margin-top: var(--md-sys-space-4);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-kb-panel__articlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-sys-space-2);
+  margin-bottom: var(--md-sys-space-4);
+  /* Clear the drawer's corner close control */
+  padding-right: var(--md-sys-space-6);
+}
+
+.c-kb-panel__article {
+  animation: kb-article-in var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-emphasized);
+}
+
+.c-kb-panel__slot {
+  padding-bottom: var(--md-sys-space-5);
+}
+
+@keyframes kb-article-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

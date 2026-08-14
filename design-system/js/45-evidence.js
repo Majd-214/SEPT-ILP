@@ -15,6 +15,7 @@ class Evidence {
     this.input = input;
     this.key = input.dataset.evidence;
     this.nameSlot = document.querySelector(`[data-evidence-name-for="${this.key}"]`);
+    this.zone = input.closest('.c-evidence');
 
     const saved = SeptLabs.store.state.evidence[this.key];
     if (saved) {
@@ -22,6 +23,59 @@ class Evidence {
     }
 
     input.addEventListener('change', () => this.#onChange());
+    this.#wireDropzone();
+  }
+
+  /** @type {boolean} Whether the page-level drop guard is installed. */
+  static #windowGuarded = false;
+
+  /**
+   * A page that invites file drags must also survive a missed drop:
+   * without this guard, dropping a file outside the dropzone makes the
+   * browser navigate away from the laboratory to display the file.
+   */
+  static #guardWindow() {
+    if (Evidence.#windowGuarded) return;
+    Evidence.#windowGuarded = true;
+    document.addEventListener('dragover', (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('.c-evidence')) {
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
+      }
+    });
+    document.addEventListener('drop', (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('.c-evidence')) {
+        event.preventDefault();
+      }
+    });
+  }
+
+  /** The card looks like a dropzone, so it must be one. */
+  #wireDropzone() {
+    if (!this.zone) return;
+    Evidence.#guardWindow();
+    let depth = 0;
+    this.zone.addEventListener('dragenter', (event) => {
+      event.preventDefault();
+      depth += 1;
+      this.zone.classList.add('is-dragover');
+    });
+    this.zone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+    });
+    this.zone.addEventListener('dragleave', () => {
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) this.zone.classList.remove('is-dragover');
+    });
+    this.zone.addEventListener('drop', (event) => {
+      event.preventDefault();
+      depth = 0;
+      this.zone.classList.remove('is-dragover');
+      const files = event.dataTransfer?.files;
+      if (!files || files.length === 0) return;
+      this.input.files = files;
+      this.#onChange();
+    });
   }
 
   #onChange() {
