@@ -1,5 +1,6 @@
 import { BlockRegistry } from '../blocks/BlockRegistry.js';
 import { Html } from '../lib/Html.js';
+import { Icons } from '../lib/Icons.js';
 import { RichText } from '../lib/RichText.js';
 import { Page } from './Page.js';
 
@@ -50,8 +51,8 @@ export class LabPage extends Page {
     };
   }
 
-  appBarLabel() {
-    return Html.escape(this.#shortName());
+  appBarActive() {
+    return this.isProject ? 'project' : null;
   }
 
   appBarItems() {
@@ -76,28 +77,38 @@ export class LabPage extends Page {
   }
 
   asides() {
-    // The navigation rail owns the left edge, so reference drawers always
-    // dock on the right; a second drawer's handle stacks below the first.
-    return (this.lab.sidebars ?? []).map((sidebar, index) => Html.el('aside', {
-      class: 'c-sidebar c-sidebar--right',
+    const sidebars = this.lab.sidebars ?? [];
+    if (sidebars.length === 0) return '';
+    const defaultIcons = ['build', 'code'];
+
+    // A fixed dock of icon buttons at the right edge opens the reference
+    // drawers. The dock never moves, so every drawer stays reachable
+    // while another is open.
+    const dock = Html.el('div', { class: 'c-dock', role: 'toolbar', 'aria-label': 'Reference panels' },
+      sidebars.map((sidebar, index) => Html.el('button', {
+        class: 'c-dock__btn',
+        type: 'button',
+        'data-sidebar-toggle': `reference-${index + 1}`,
+        'aria-expanded': 'false',
+        title: RichText.plain(sidebar.handleLabel ?? sidebar.title),
+      },
+      Icons.render(sidebar.icon, defaultIcons[index] ?? 'info'),
+      Html.el('span', { class: 'u-visually-hidden' }, Html.escape(RichText.plain(sidebar.title))),
+      )));
+
+    const drawers = sidebars.map((sidebar, index) => Html.el('aside', {
+      class: 'c-sidebar',
       'data-sidebar': `reference-${index + 1}`,
+      'aria-label': RichText.plain(sidebar.title),
     },
-    Html.el('button', {
-      class: 'c-sidebar__handle',
-      type: 'button',
-      'data-sidebar-toggle': true,
-      'aria-expanded': 'false',
-      title: RichText.plain(sidebar.handleLabel ?? sidebar.title),
-    },
-    Html.el('span', { class: 'c-sidebar__handle-icon', 'aria-hidden': 'true' }, '‹'),
-    Html.el('span', { class: 'u-visually-hidden' }, Html.escape(RichText.plain(sidebar.handleLabel ?? sidebar.title))),
-    ),
     Html.el('div', { class: 'c-sidebar__body' },
       Html.el('h2', { class: 'c-sidebar__title' }, this.context.rich(sidebar.title)),
       sidebar.subtitle ? Html.el('p', { class: 'c-sidebar__subtitle' }, this.context.rich(sidebar.subtitle)) : null,
       Html.el('div', { class: 'o-stack' }, this.registry.renderAll(sidebar.blocks)),
     ),
-    )).join('');
+    ));
+
+    return dock + drawers.join('');
   }
 
   main() {

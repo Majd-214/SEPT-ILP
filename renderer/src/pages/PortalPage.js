@@ -24,8 +24,8 @@ export class PortalPage extends Page {
     };
   }
 
-  appBarLabel() {
-    return Html.escape(this.course.title);
+  appBarActive() {
+    return 'home';
   }
 
   navigation() {
@@ -58,12 +58,14 @@ export class PortalPage extends Page {
         Html.el('h1', { class: 'c-hero__title' }, this.#headline(portal.headline)),
         Html.el('div', { class: 'c-hero__lead' }, this.context.richParagraphs(portal.lead)),
         Html.el('div', { class: 'o-cluster c-hero__chips' },
-          Html.el('span', { class: 'c-chip c-chip--tonal' }, Html.escape(this.course.term)),
+          Html.el('span', { class: 'c-chip c-chip--tonal' }, Html.escape(this.course.code)),
+          Html.el('span', { class: 'c-chip' }, Html.escape(this.course.term)),
           (portal.chips ?? []).map((chip) => Html.el('span', { class: 'c-chip' }, this.context.rich(chip))),
         ),
       ),
       portal.about ? this.#about(portal.about) : null,
       this.#labs(),
+      this.course.team ? this.#team(this.course.team) : null,
       this.#knowledge(),
       this.#reset(),
     ].join('');
@@ -116,6 +118,20 @@ export class PortalPage extends Page {
     Html.el('span', { class: 'c-labcard__badge' }, project ? 'Design project' : `Lab ${lab.number}`),
     Html.el('h3', { class: 'c-labcard__title' }, Html.escape(lab.title)),
     Html.el('p', { class: 'c-labcard__description' }, this.context.rich(lab.cardSummary)),
+    );
+  }
+
+  #team(team) {
+    return Html.el('section', { class: 'c-section', id: 'team', 'aria-label': 'Instructional team' },
+      Html.el('h2', { class: 'c-section__title' },
+        team.title ? this.context.rich(team.title) : 'Instructional team'),
+      Html.el('div', { class: 'o-grid' },
+        team.members.map((member) => Html.el('div', { class: 'c-tile c-tile--neutral' },
+          Html.el('p', { class: 'c-tile__eyebrow' }, Html.escape(member.role)),
+          Html.el('p', { class: 'c-tile__title' }, Html.escape(member.name)),
+          member.contact ? Html.el('p', { class: 'c-tile__body' }, this.context.rich(member.contact)) : null,
+          member.note ? Html.el('p', { class: 'c-tile__body' }, this.context.rich(member.note)) : null,
+        ))),
     );
   }
 

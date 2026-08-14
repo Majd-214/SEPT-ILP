@@ -191,15 +191,16 @@
    domain title; elbow connectors join the kind groups, and each group
    draws its own trunk and elbows to its topic leaves.
    -------------------------------------------------------------------------- */
+/* Column-based masonry: cards pack under one another regardless of
+   height, so short and tall domains leave no row gaps. */
 .c-kb.is-tree {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
-  gap: var(--md-sys-space-5);
-  align-items: start;
+  columns: 21rem;
+  column-gap: var(--md-sys-space-5);
 }
 
 .c-kb.is-tree .c-kb-domain {
-  margin-bottom: 0;
+  break-inside: avoid;
+  margin-bottom: var(--md-sys-space-5);
   padding: var(--md-sys-space-4) var(--md-sys-space-5);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-lg);

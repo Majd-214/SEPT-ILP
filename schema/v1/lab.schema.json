@@ -71,6 +71,11 @@
           "title": { "$ref": "blocks.schema.json#/$defs/richText" },
           "subtitle": { "$ref": "blocks.schema.json#/$defs/richText" },
           "handleLabel": { "$ref": "blocks.schema.json#/$defs/richText" },
+          "icon": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Icon shown on the drawer's dock button, by Material Symbols name (build, code, menu_book, functions, science, info, bolt, push_pin). An unknown name falls back to a default."
+          },
           "blocks": { "$ref": "blocks.schema.json#/$defs/blocks" }
         },
         "required": ["side", "title", "blocks"],

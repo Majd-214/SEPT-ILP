@@ -8,69 +8,24 @@
   "school": "W Booth School of Engineering Practice and Technology",
   "program": "Automation Engineering Technology",
   "portal": {
-    "headline": "Unified *Lab Learning Space*",
+    "headline": "The *Laboratory Space* for Cloud Computing and the Internet of Things",
     "lead": [
-      "A CloudLab-styled course portal where interactive laboratory manuals and the shared knowledge database live together, so students can move from a task to the supporting concept without leaving the course environment."
-    ],
-    "chips": [
-      "Automation Engineering Technology",
-      "Single student entry point",
-      "Shared knowledge database",
-      "Reusable lab architecture",
-      "Static-site friendly"
-    ],
-    "about": {
-      "title": "Labs and knowledge live in the same student space",
-      "cards": [
-        {
-          "eyebrow": "Entry",
-          "title": "Course Hub",
-          "body": "Start page, lab catalog, architecture overview, and student orientation."
-        },
-        {
-          "eyebrow": "Work",
-          "title": "Lab Manuals",
-          "body": "Interactive stages, measurements, checks, and evidence capture."
-        },
-        {
-          "eyebrow": "Support",
-          "title": "Knowledge DB",
-          "body": "Short reusable articles for concepts, tools, code, and troubleshooting."
-        },
-        {
-          "eyebrow": "Foundation",
-          "title": "Shared Assets",
-          "body": "McMaster styling, diagrams, lab figures, and course-owned media."
-        },
-        {
-          "eyebrow": "Scale",
-          "title": "Future Labs",
-          "body": "New labs plug into the same shell, reference model, and visual system."
-        },
-        {
-          "eyebrow": "Information Model",
-          "title": "Labs",
-          "body": "Procedures, stages, tables, quizzes, and checklists."
-        },
-        {
-          "eyebrow": "Information Model",
-          "title": "Topics",
-          "body": "Reusable explanations independent of a single lab."
-        },
-        {
-          "eyebrow": "Information Model",
-          "title": "Evidence",
-          "body": "Local student entries, measurements, predictions, and reflections."
-        }
-      ],
-      "flow": [
-        "Open course hub",
-        "Choose lab",
-        "Use just-in-time knowledge",
-        "Record evidence",
-        "Demonstrate or submit"
-      ]
-    }
+      "Interactive laboratory manuals and the course knowledge base, in one place. Work through each laboratory’s checkpoints in the browser, record your measurements as you take them, and keep your downloaded progress file as the record of your work.",
+      "Submissions and grades remain in Avenue to Learn; nothing you enter here leaves your browser."
+    ]
+  },
+  "team": {
+    "members": [
+      {
+        "name": "To be announced",
+        "role": "Instructor"
+      },
+      {
+        "name": "Majd Aburas",
+        "role": "Lab Assistant",
+        "note": "Laboratory sessions and platform support."
+      }
+    ]
   },
   "knowledge": {
     "eyebrow": "McMaster University · SMRTTECH 3CC3",

@@ -40,9 +40,9 @@ class KnowledgeSearch {
     }
     try {
       const saved = window.localStorage.getItem(this.viewKey);
-      if (saved === 'tree') this.setView('tree');
+      if (saved === 'list') this.setView('list');
     } catch {
-      /* no storage; keep the default view */
+      /* no storage; keep the default tree view */
     }
 
     // Press "/" anywhere on the page to jump to the search field.

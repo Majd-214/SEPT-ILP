@@ -22,8 +22,8 @@ export class KnowledgeHubPage extends Page {
     };
   }
 
-  appBarLabel() {
-    return Html.escape(RichText.plain(this.course.knowledge.title));
+  appBarActive() {
+    return 'kb';
   }
 
   navigation() {
@@ -68,18 +68,18 @@ export class KnowledgeHubPage extends Page {
           Html.el('button', {
             class: 'c-kb-viewtoggle__btn is-active',
             type: 'button',
-            'data-kb-view': 'list',
+            'data-kb-view': 'tree',
             'aria-pressed': 'true',
-          }, 'List'),
+          }, 'Tree'),
           Html.el('button', {
             class: 'c-kb-viewtoggle__btn',
             type: 'button',
-            'data-kb-view': 'tree',
+            'data-kb-view': 'list',
             'aria-pressed': 'false',
-          }, 'Tree'),
+          }, 'List'),
         ),
       ),
-      Html.el('div', { class: 'c-kb', 'data-kb-root': true },
+      Html.el('div', { class: 'c-kb is-tree', 'data-kb-root': true },
         this.repository.knowledgeDomains.map((domain) => this.#domain(domain)).join('')),
       Html.el('p', { class: 'c-kb-empty', 'data-kb-empty': true, hidden: true },
         'No topics match this search.'),

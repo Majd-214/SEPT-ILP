@@ -34,8 +34,8 @@ export class KnowledgeTopicPage extends Page {
     };
   }
 
-  appBarLabel() {
-    return Html.escape(this.domain.title);
+  appBarActive() {
+    return 'kb';
   }
 
   navigation() {

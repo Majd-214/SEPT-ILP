@@ -98,15 +98,34 @@
   white-space: nowrap;
 }
 
-.c-appbar__label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.c-appbar__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-1);
+  margin-left: var(--md-sys-space-3);
   padding-left: var(--md-sys-space-3);
   border-left: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-appbar__navlink {
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--md-sys-shape-full);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-type-body-sm-size);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.c-appbar__navlink:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-appbar__navlink.is-active {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-weight: var(--md-sys-type-weight-bold);
 }
 
 .c-appbar__spacer {
@@ -174,8 +193,8 @@
   background: var(--md-sys-color-surface);
 }
 
-/* Constant wayfinding links at the top of the rail, kept visually
-   quieter than the page's own structure below them */
+/* Wayfinding links at the top of the rail. On wide screens the app bar
+   carries the sections, so the cluster appears only in the drawer. */
 .c-nav__top {
   margin-bottom: var(--md-sys-space-4);
   padding-bottom: var(--md-sys-space-4);
@@ -185,6 +204,12 @@
 .c-nav__top .c-nav__item {
   font-size: 0.8rem;
   padding-block: 0.4rem;
+}
+
+@media (min-width: 960px) {
+  .c-nav__top {
+    display: none;
+  }
 }
 
 .c-nav__group {
@@ -283,7 +308,8 @@
     display: flex;
   }
 
-  .c-appbar__label {
+  /* Narrow screens: sections move into the navigation drawer */
+  .c-appbar__nav {
     display: none;
   }
 
@@ -373,25 +399,59 @@
 }
 
 /* --------------------------------------------------------------------------
-   Reference drawers (lab pages) — slide out from the right edge
+   Reference dock and drawers (lab pages)
+   --------------------------------------------------------------------------
+   A fixed column of icon buttons sits at the right edge; each opens its
+   drawer beside the dock. The dock stays above the drawers, so switching
+   between panels is always one click.
    -------------------------------------------------------------------------- */
+.c-dock {
+  position: fixed;
+  top: 5rem;
+  right: 0;
+  z-index: 58;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+  padding: var(--md-sys-space-2);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-right: 0;
+  border-radius: var(--md-sys-shape-md) 0 0 var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface-container-lowest);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+.c-dock__btn {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--md-sys-shape-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-dock__btn:hover {
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-dock__btn.is-open {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
 .c-sidebar {
   position: fixed;
   top: 5rem;
   bottom: var(--md-sys-space-4);
+  right: 3.6rem;
   z-index: 55;
-  width: min(26rem, calc(100vw - 4rem));
+  width: min(26rem, calc(100vw - 7rem));
+  transform: translateX(calc(100% + 3.6rem));
   transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
-}
-
-.c-sidebar--left {
-  left: 0;
-  transform: translateX(-100%);
-}
-
-.c-sidebar--right {
-  right: 0;
-  transform: translateX(100%);
 }
 
 .c-sidebar.is-open {
@@ -404,56 +464,8 @@
   padding: var(--md-sys-space-5);
   background: var(--md-sys-color-surface-container-lowest);
   border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-lg);
   box-shadow: var(--md-sys-elevation-3);
-}
-
-.c-sidebar--left .c-sidebar__body {
-  border-left: 0;
-  border-radius: 0 var(--md-sys-shape-lg) var(--md-sys-shape-lg) 0;
-}
-
-.c-sidebar--right .c-sidebar__body {
-  border-right: 0;
-  border-radius: var(--md-sys-shape-lg) 0 0 var(--md-sys-shape-lg);
-}
-
-.c-sidebar__handle {
-  position: absolute;
-  top: 3.5rem;
-  width: 2.1rem;
-  height: 4.5rem;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.c-sidebar--left .c-sidebar__handle {
-  right: -2.1rem;
-  border-left: 0;
-  border-radius: 0 var(--md-sys-shape-md) var(--md-sys-shape-md) 0;
-}
-
-.c-sidebar--right .c-sidebar__handle {
-  left: -2.1rem;
-  border-right: 0;
-  border-radius: var(--md-sys-shape-md) 0 0 var(--md-sys-shape-md);
-}
-
-/* A second reference drawer stacks its handle below the first */
-.c-sidebar--right:nth-of-type(2) .c-sidebar__handle {
-  top: 8.5rem;
-}
-
-.c-sidebar__handle-icon {
-  transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
-}
-
-.c-sidebar.is-open .c-sidebar__handle-icon {
-  transform: rotate(180deg);
 }
 
 .c-sidebar__title {

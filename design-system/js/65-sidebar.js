@@ -1,10 +1,12 @@
 /* ==========================================================================
- * Sidebar — slide-out reference drawers
+ * Sidebar — reference drawers opened from the fixed icon dock
  * --------------------------------------------------------------------------
  * Markup contract:
- *   aside.c-sidebar[data-sidebar="<id>"][data-side="left|right"]
- *     button.c-sidebar__handle[data-sidebar-toggle]
- *     .c-sidebar__body …
+ *   .c-dock > button[data-sidebar-toggle="<id>"]   one dock button per drawer
+ *   aside.c-sidebar[data-sidebar="<id>"]           the drawer
+ *
+ * One drawer is open at a time; the dock never moves, so every drawer
+ * stays reachable while another is open. Escape closes.
  * ========================================================================== */
 
 class Sidebar {
@@ -14,10 +16,11 @@ class Sidebar {
   /** @param {HTMLElement} root */
   constructor(root) {
     this.root = root;
-    this.handle = root.querySelector('[data-sidebar-toggle]');
+    this.id = root.dataset.sidebar;
+    this.button = document.querySelector(`[data-sidebar-toggle="${this.id}"]`);
     this.body = root.querySelector('.c-sidebar__body');
 
-    this.handle?.addEventListener('click', () => this.toggle());
+    this.button?.addEventListener('click', () => this.toggle());
     Sidebar.instances.push(this);
     this.#render(false);
 
@@ -45,7 +48,8 @@ class Sidebar {
   /** @param {boolean} open */
   #render(open) {
     this.root.classList.toggle('is-open', open);
-    this.handle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+    this.button?.classList.toggle('is-open', open);
+    this.button?.setAttribute('aria-expanded', open ? 'true' : 'false');
     if (this.body) this.body.inert = !open;
   }
 }

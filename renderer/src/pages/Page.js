@@ -49,14 +49,36 @@ export class Page {
     throw new Error(`${this.constructor.name} must implement navigation()`);
   }
 
-  /** @returns {string} Short label shown beside the brand in the app bar. */
-  appBarLabel() {
+  /**
+   * Which app-bar section this page belongs to, for the active state.
+   * @returns {"home" | "kb" | "project" | null}
+   */
+  appBarActive() {
+    return null;
+  }
+
+  /** @returns {string} Optional app-bar content before the spacer (e.g. progress). */
+  appBarItems() {
     return '';
   }
 
-  /** @returns {string} Optional app-bar content after the label (e.g. progress). */
-  appBarItems() {
-    return '';
+  /** The horizontal section links in the app bar. @returns {string} */
+  #appBarNav() {
+    const root = this.context.relativeRoot;
+    const active = this.appBarActive();
+    const link = (href, key, label) => Html.el('a', {
+      class: Html.classes('c-appbar__navlink', active === key && 'is-active'),
+      href,
+      'aria-current': active === key ? 'page' : null,
+    }, label);
+
+    return Html.el('nav', { class: 'c-appbar__nav', 'aria-label': 'Course sections' },
+      link(`${root}index.html`, 'home', 'Home'),
+      link(`${root}knowledge/index.html`, 'kb', 'Knowledge base'),
+      this.repository.project
+        ? link(`${root}labs/${this.repository.project.id}/index.html`, 'project', 'Design project')
+        : null,
+    );
   }
 
   /** @returns {string} The page's main content. */
@@ -108,7 +130,6 @@ export class Page {
     const mainHtml = this.main();
     const asidesHtml = this.asides();
     const navigationHtml = this.navigation();
-    const appBarLabelHtml = this.appBarLabel();
     const appBarItemsHtml = this.appBarItems();
     const configJson = JSON.stringify(this.runtimeConfig())
       .replaceAll('<', '\\u003c');
@@ -141,9 +162,7 @@ export class Page {
             Html.el('img', { class: 'c-appbar__logo', src: `${root}assets/McMaster-logo.png`, alt: 'McMaster University' }),
             Html.el('span', { class: 'c-appbar__course' }, Html.escape(this.course.code)),
           ),
-          appBarLabelHtml
-            ? Html.el('span', { class: 'c-appbar__label' }, appBarLabelHtml)
-            : null,
+          this.#appBarNav(),
           Html.el('span', { class: 'c-appbar__spacer' }),
           appBarItemsHtml,
         ),
