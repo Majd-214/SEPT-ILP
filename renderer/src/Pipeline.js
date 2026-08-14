@@ -88,10 +88,17 @@ export class Pipeline {
    * @param {string} siteDir
    */
   #renderSite(repository, siteDir) {
-    const write = (relativePath, html) => {
-      const filePath = path.join(siteDir, relativePath);
-      fs.mkdirSync(path.dirname(filePath), { recursive: true });
-      fs.writeFileSync(filePath, html);
+    /** @type {string[]} */
+    const problems = [];
+    const write = (relativePath, page) => {
+      try {
+        const html = page.render();
+        const filePath = path.join(siteDir, relativePath);
+        fs.mkdirSync(path.dirname(filePath), { recursive: true });
+        fs.writeFileSync(filePath, html);
+      } catch (error) {
+        problems.push(`${relativePath}: ${error.message}`);
+      }
     };
     const contextFor = (relativeRoot) => new RenderContext({
       relativeRoot,
@@ -102,20 +109,20 @@ export class Pipeline {
     write('index.html', new PortalPage({
       repository,
       context: contextFor(''),
-    }).render());
+    }));
 
     for (const lab of repository.allLabs) {
       write(path.join('labs', lab.id, 'index.html'), new LabPage({
         repository,
         context: contextFor('../../'),
         lab,
-      }).render());
+      }));
     }
 
     write(path.join('knowledge', 'index.html'), new KnowledgeHubPage({
       repository,
       context: contextFor('../'),
-    }).render());
+    }));
 
     for (const domain of repository.knowledgeDomains) {
       for (const topic of domain.topics) {
@@ -124,8 +131,12 @@ export class Pipeline {
           context: contextFor('../'),
           domain,
           topic,
-        }).render());
+        }));
       }
+    }
+
+    if (problems.length > 0) {
+      throw new ContentRepository.ValidationError(problems);
     }
   }
 
