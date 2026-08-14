@@ -54,6 +54,13 @@ export class Page {
   /** @returns {string} The complete HTML document. */
   render() {
     const root = this.context.relativeRoot;
+
+    // Content renders first: block templates register quiz answers, field
+    // rules, calculators, and checkpoint requirements on the context as
+    // they render, and the config island must capture the finished state.
+    const mainHtml = this.main();
+    const asidesHtml = this.asides();
+    const topbarHtml = this.topbarItems();
     const configJson = JSON.stringify(this.runtimeConfig())
       .replaceAll('<', '\\u003c');
 
@@ -74,10 +81,10 @@ export class Page {
           Html.el('div', { class: 'c-topbar__inner' },
             Html.el('span', { class: 'c-topbar__label' }, 'Student space'),
             Html.el('a', { class: 'c-topbar__link', href: `${root}index.html` }, 'Home'),
-            this.topbarItems(),
+            topbarHtml,
           )),
-        this.asides(),
-        Html.el('main', { id: 'main', class: 'c-page' }, this.main()),
+        asidesHtml,
+        Html.el('main', { id: 'main', class: 'c-page' }, mainHtml),
         Html.el('footer', { class: 'c-footer' },
           Html.el('div', { class: 'o-container' }, this.context.rich(this.course.footer))),
         `<script type="application/json" id="sept-lab-config">${configJson}</script>`,
