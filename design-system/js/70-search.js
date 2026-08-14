@@ -35,9 +35,18 @@ class KnowledgeSearch {
       });
     }
 
+    for (const toggle of Dom.all('[data-kb-domain-toggle]')) {
+      toggle.addEventListener('click', () => {
+        const domain = toggle.closest('[data-kb-domain]');
+        const collapsed = domain.classList.toggle('is-collapsed');
+        toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      });
+    }
+
     for (const button of this.viewButtons) {
       button.addEventListener('click', () => this.setView(button.dataset.kbView));
     }
+    this.#collapseAll(true);
     try {
       const saved = window.localStorage.getItem(this.viewKey);
       if (saved === 'list') this.setView('list');
@@ -63,10 +72,22 @@ class KnowledgeSearch {
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
     }
+    // Tree view opens as a uniform overview of collapsed domains; the
+    // list view reads top to bottom, so it opens expanded.
+    this.#collapseAll(view === 'tree');
     try {
       window.localStorage.setItem(this.viewKey, view);
     } catch {
       /* no storage; the choice lasts for this page only */
+    }
+  }
+
+  /** @param {boolean} collapsed */
+  #collapseAll(collapsed) {
+    for (const domain of this.domains) {
+      domain.classList.toggle('is-collapsed', collapsed);
+      domain.querySelector('[data-kb-domain-toggle]')
+        ?.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     }
   }
 
@@ -88,6 +109,11 @@ class KnowledgeSearch {
     for (const domain of this.domains) {
       domain.hidden = Dom.all('[data-kb-topic]', domain).every((topic) => topic.hidden);
     }
+
+    // An active search or filter expands what it found; clearing both
+    // restores the view's resting state.
+    const filtering = query !== '' || this.kind !== 'all';
+    this.#collapseAll(filtering ? false : this.root?.classList.contains('is-tree') ?? false);
 
     if (this.empty) this.empty.hidden = visible > 0;
   }

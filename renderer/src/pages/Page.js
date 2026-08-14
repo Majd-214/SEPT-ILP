@@ -91,6 +91,11 @@ export class Page {
     return '';
   }
 
+  /** @returns {string} Extra class for the body element. */
+  bodyClass() {
+    return '';
+  }
+
   /**
    * A standard navigation group: a small heading followed by entries.
    * @param {string} label
@@ -145,7 +150,7 @@ export class Page {
         Html.el('link', { rel: 'icon', href: `${root}assets/favicon.png` }),
         Html.el('link', { rel: 'stylesheet', href: `${root}assets/sept-labs.css` }),
       ),
-      Html.el('body', {},
+      Html.el('body', { class: this.bodyClass() || null },
         Html.el('a', { class: 'c-skip-link', href: '#main' }, 'Skip to content'),
         Html.el('header', { class: 'c-appbar' },
           Html.el('button', {

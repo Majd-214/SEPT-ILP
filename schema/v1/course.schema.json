@@ -94,11 +94,17 @@
     },
     "knowledge": {
       "type": "object",
-      "description": "Knowledge-base hub metadata; domains are discovered from the course's knowledge directory.",
+      "description": "Knowledge-base hub metadata. Domains come from the course's own knowledge directory plus any shared domains the course includes; shared domains live in content/shared/knowledge and are copied into this course's site and archives at build time.",
       "properties": {
         "eyebrow": { "$ref": "blocks.schema.json#/$defs/richText" },
         "title": { "$ref": "blocks.schema.json#/$defs/richText" },
-        "description": { "$ref": "blocks.schema.json#/$defs/richText" }
+        "description": { "$ref": "blocks.schema.json#/$defs/richText" },
+        "include": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "minItems": 1,
+          "description": "Identifiers of shared knowledge domains this course includes. The build fails if a listed domain does not exist."
+        }
       },
       "required": ["title", "description"],
       "additionalProperties": false

@@ -30,7 +30,16 @@
   "knowledge": {
     "eyebrow": "McMaster University · SMRTTECH 3CC3",
     "title": "Knowledge Database",
-    "description": "Reusable student support organized by concept family: LabVIEW, circuits, measurement, Arduino, simulation, and engineering practice. Every topic offers a short explanation, a practical check, and a relevant lab connection, so students can search or filter concepts and return straight to the lab workflow."
+    "description": "Reusable student support organized by concept family: LabVIEW, circuits, measurement, Arduino, simulation, and engineering practice. Every topic offers a short explanation, a practical check, and a relevant lab connection, so students can search or filter concepts and return straight to the lab workflow.",
+    "include": [
+      "circuit-theory",
+      "sensors",
+      "actuators",
+      "platforms",
+      "bench-skills",
+      "programming",
+      "iot"
+    ]
   },
   "footer": "McMaster University | SMRTTECH 3CC3 · W Booth School of Engineering Practice and Technology",
   "designSystemVersion": "1.0.0"

@@ -90,6 +90,27 @@ ul, ol {
   display: none !important;
 }
 
+/* Optical centring for single-line controls and badges. Google Sans
+   carries more ascent than descent, so a flex-centred line box still
+   shows the glyphs riding high; trimming the text box to the cap height
+   and alphabetic baseline centres what the eye actually sees. Browsers
+   without text-box support keep plain flex centring. */
+.c-btn,
+.c-chip,
+.c-appbar__chip,
+.c-appbar__navlink,
+.c-labcard__badge,
+.c-kb-kind,
+.c-kb-filter,
+.c-kb-viewtoggle__btn,
+.c-kb-domain__count,
+.c-quiz__points,
+.c-checkpoint__context,
+.c-code__copy {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
 /* Keyboard focus — one visible, high-contrast treatment everywhere */
 :focus-visible {
   outline: 3px solid var(--md-sys-color-focus-ring);

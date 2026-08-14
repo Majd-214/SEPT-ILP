@@ -327,6 +327,55 @@
   color: var(--md-sys-color-on-surface);
 }
 
+.c-kb-domain__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-2);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.c-kb-domain__chevron {
+  flex: 0 0 auto;
+  font-size: 0.8em;
+  color: var(--md-sys-color-on-surface-variant);
+  transition: transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+  transform: rotate(90deg);
+}
+
+.c-kb-domain.is-collapsed .c-kb-domain__chevron {
+  transform: none;
+}
+
+.c-kb-domain__name {
+  flex: 1 1 auto;
+}
+
+.c-kb-domain__count {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.c-kb-domain.is-collapsed .c-kb-domain__blurb,
+.c-kb-domain.is-collapsed .c-kb-domain__body {
+  display: none;
+}
+
 .c-kb-domain__blurb {
   font-size: var(--md-sys-type-body-sm-size);
   color: var(--md-sys-color-on-surface-variant);

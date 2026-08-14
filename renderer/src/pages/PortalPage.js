@@ -125,7 +125,7 @@ export class PortalPage extends Page {
     return Html.el('section', { class: 'c-section', id: 'team', 'aria-label': 'Instructional team' },
       Html.el('h2', { class: 'c-section__title' },
         team.title ? this.context.rich(team.title) : 'Instructional team'),
-      Html.el('div', { class: 'o-grid' },
+      Html.el('div', { class: 'o-grid o-grid--start' },
         team.members.map((member) => Html.el('div', { class: 'c-tile c-tile--neutral' },
           Html.el('p', { class: 'c-tile__eyebrow' }, Html.escape(member.role)),
           Html.el('p', { class: 'c-tile__title' }, Html.escape(member.name)),

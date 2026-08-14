@@ -365,7 +365,8 @@
   font-size: var(--md-sys-type-display-size);
   letter-spacing: -0.01em;
   margin-top: var(--md-sys-space-3);
-  max-width: 26ch;
+  max-width: 32ch;
+  text-wrap: balance;
 }
 
 .c-hero__title-accent {
@@ -407,18 +408,23 @@
    -------------------------------------------------------------------------- */
 .c-dock {
   position: fixed;
-  top: 5rem;
+  top: 3.5rem;
   right: 0;
+  bottom: 0;
   z-index: 58;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--md-sys-space-2);
-  padding: var(--md-sys-space-2);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-right: 0;
-  border-radius: var(--md-sys-shape-md) 0 0 var(--md-sys-shape-md);
-  background: var(--md-sys-color-surface-container-lowest);
-  box-shadow: var(--md-sys-elevation-1);
+  width: 3.5rem;
+  padding-block: var(--md-sys-space-3);
+  border-left: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
+}
+
+/* Content leaves room for the dock on pages that have one */
+.has-dock .l-main {
+  padding-right: 3.5rem;
 }
 
 .c-dock__btn {
@@ -445,12 +451,12 @@
 
 .c-sidebar {
   position: fixed;
-  top: 5rem;
-  bottom: var(--md-sys-space-4);
-  right: 3.6rem;
+  top: 3.5rem;
+  bottom: 0;
+  right: 3.5rem;
   z-index: 55;
   width: min(26rem, calc(100vw - 7rem));
-  transform: translateX(calc(100% + 3.6rem));
+  transform: translateX(calc(100% + 3.5rem));
   transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
 }
 
@@ -463,9 +469,8 @@
   overflow-y: auto;
   padding: var(--md-sys-space-5);
   background: var(--md-sys-color-surface-container-lowest);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-lg);
-  box-shadow: var(--md-sys-elevation-3);
+  border-left: 1px solid var(--md-sys-color-outline-variant);
+  box-shadow: var(--md-sys-elevation-2);
 }
 
 .c-sidebar__title {
@@ -497,6 +502,7 @@
   .c-nav,
   .c-nav-scrim,
   .c-sidebar,
+  .c-dock,
   .c-skip-link {
     display: none;
   }

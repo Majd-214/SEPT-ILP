@@ -111,9 +111,20 @@ export class KnowledgeHubPage extends Page {
       'data-kb-domain': true,
       'aria-label': domain.title,
     },
-    Html.el('h2', { class: 'c-kb-domain__title' }, Html.escape(domain.title)),
+    Html.el('h2', { class: 'c-kb-domain__title' },
+      Html.el('button', {
+        class: 'c-kb-domain__toggle',
+        type: 'button',
+        'data-kb-domain-toggle': true,
+        'aria-expanded': 'true',
+        'aria-controls': `domain-${domain.id}-body`,
+      },
+      Html.el('span', { class: 'c-kb-domain__chevron', 'aria-hidden': 'true' }, '▸'),
+      Html.el('span', { class: 'c-kb-domain__name' }, Html.escape(domain.title)),
+      Html.el('span', { class: 'c-kb-domain__count' }, String(domain.topics.length)),
+      )),
     Html.el('p', { class: 'c-kb-domain__blurb' }, this.context.rich(domain.blurb)),
-    Html.el('div', { class: 'c-kb-domain__body' }, groups),
+    Html.el('div', { class: 'c-kb-domain__body', id: `domain-${domain.id}-body` }, groups),
     );
   }
 

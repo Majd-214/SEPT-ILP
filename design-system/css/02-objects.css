@@ -51,6 +51,11 @@
   grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
 }
 
+/* Cards keep their natural height instead of stretching to the row */
+.o-grid--start {
+  align-items: start;
+}
+
 /* Media object: fixed figure beside fluid text; stacks on small screens */
 .o-media {
   display: flex;

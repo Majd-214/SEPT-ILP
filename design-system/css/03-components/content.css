@@ -18,6 +18,11 @@
   border-top: 4px solid var(--md-sys-color-primary);
 }
 
+/* Actions inside a card sit clear of the text above them */
+.c-card > .o-cluster {
+  margin-top: var(--md-sys-space-4);
+}
+
 .c-card__eyebrow {
   font-size: var(--md-sys-type-label-size);
   font-weight: var(--md-sys-type-weight-bold);

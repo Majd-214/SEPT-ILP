@@ -22,7 +22,16 @@ export class ContentRepository {
    */
   constructor(courseDir, schemaGate) {
     this.courseDir = courseDir;
-    this.assetsDir = path.join(courseDir, 'assets');
+    this.sharedDir = path.resolve(courseDir, '..', '..', 'shared');
+    /**
+     * Asset directories in merge order: shared first, then the course,
+     * so a course may override a shared file of the same name.
+     * @type {string[]}
+     */
+    this.assetsDirs = [
+      path.join(this.sharedDir, 'assets'),
+      path.join(courseDir, 'assets'),
+    ].filter((dir) => fs.existsSync(dir));
 
     /** @type {string[]} */
     const violations = [];
@@ -55,11 +64,26 @@ export class ContentRepository {
     /** @type {object[]} */
     this.knowledgeDomains = [];
     const knowledgeDir = path.join(courseDir, 'knowledge');
-    for (const entry of fs.readdirSync(knowledgeDir).sort()) {
-      if (!entry.endsWith('.json')) continue;
-      const domain = readJson(path.join(knowledgeDir, entry));
+    if (fs.existsSync(knowledgeDir)) {
+      for (const entry of fs.readdirSync(knowledgeDir).sort()) {
+        if (!entry.endsWith('.json')) continue;
+        const domain = readJson(path.join(knowledgeDir, entry));
+        if (!domain) continue;
+        violations.push(...schemaGate.validate(`${SCHEMA_BASE}/knowledge.schema.json`, domain, `knowledge/${entry}`));
+        this.knowledgeDomains.push(domain);
+      }
+    }
+
+    // Shared domains the course manifest includes, from content/shared/.
+    for (const domainId of this.course?.knowledge?.include ?? []) {
+      const sharedPath = path.join(this.sharedDir, 'knowledge', `${domainId}.json`);
+      if (!fs.existsSync(sharedPath)) {
+        violations.push(`course.json: included shared knowledge domain "${domainId}" does not exist`);
+        continue;
+      }
+      const domain = readJson(sharedPath);
       if (!domain) continue;
-      violations.push(...schemaGate.validate(`${SCHEMA_BASE}/knowledge.schema.json`, domain, `knowledge/${entry}`));
+      violations.push(...schemaGate.validate(`${SCHEMA_BASE}/knowledge.schema.json`, domain, `shared/knowledge/${domainId}.json`));
       this.knowledgeDomains.push(domain);
     }
 
@@ -130,7 +154,7 @@ export class ContentRepository {
             violations.push(`knowledge/${domain.id}: topic "${topic.id}" relates to unknown topic "${relatedId}"`);
           }
         }
-        if (topic.asset && !fs.existsSync(path.join(this.assetsDir, topic.asset))) {
+        if (topic.asset && !this.assetsDirs.some((dir) => fs.existsSync(path.join(dir, topic.asset)))) {
           violations.push(`knowledge/${domain.id}: topic "${topic.id}" references missing asset "${topic.asset}"`);
         }
       }

@@ -55,6 +55,10 @@ export class LabPage extends Page {
     return this.isProject ? 'project' : null;
   }
 
+  bodyClass() {
+    return (this.lab.sidebars?.length ?? 0) > 0 ? 'has-dock' : '';
+  }
+
   appBarItems() {
     return Html.el('span', { class: 'c-appbar__chip', 'data-score': true, 'aria-live': 'polite' }, 'Progress');
   }

@@ -706,6 +706,10 @@ textarea.c-field__control {
   padding: var(--md-sys-space-6);
 }
 
+.c-progressfile > * + * {
+  margin-top: var(--md-sys-space-3);
+}
+
 .c-progressfile__actions {
   display: flex;
   flex-wrap: wrap;

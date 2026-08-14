@@ -78,7 +78,9 @@ export class Pipeline {
   #writeAssets(repository, siteDir) {
     const assetsDir = path.join(siteDir, 'assets');
     fs.mkdirSync(assetsDir, { recursive: true });
-    fs.cpSync(repository.assetsDir, assetsDir, { recursive: true });
+    for (const sourceDir of repository.assetsDirs) {
+      fs.cpSync(sourceDir, assetsDir, { recursive: true });
+    }
     fs.writeFileSync(path.join(assetsDir, 'sept-labs.css'), this.designSystem.buildStylesheet());
     fs.writeFileSync(path.join(assetsDir, 'sept-labs.js'), this.designSystem.buildRuntime());
     fs.cpSync(path.join(this.designSystem.rootDir, 'fonts'), path.join(assetsDir, 'fonts'), { recursive: true });
