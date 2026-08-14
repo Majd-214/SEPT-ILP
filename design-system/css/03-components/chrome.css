@@ -115,7 +115,9 @@
 
 .c-appbar__chip {
   flex: 0 0 auto;
-  padding: 0.4rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.9rem;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-full);
   background: var(--md-sys-color-surface-container-lowest);
@@ -123,6 +125,7 @@
   font-size: var(--md-sys-type-label-size);
   font-weight: var(--md-sys-type-weight-bold);
   font-variant-numeric: tabular-nums;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -210,6 +213,7 @@
   color: var(--md-sys-color-on-surface-variant);
   font-size: 0.86rem;
   font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1.35;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -237,6 +241,7 @@
   font-size: 0.72rem;
   font-weight: var(--md-sys-type-weight-bold);
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .c-nav__item.is-active .c-nav__num {

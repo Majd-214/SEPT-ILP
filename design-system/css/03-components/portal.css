@@ -49,13 +49,18 @@
 
 .c-labcard__badge {
   align-self: flex-start;
-  padding: 0.25rem 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
   border-radius: var(--md-sys-shape-full);
   background: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
   font-size: 0.72rem;
   font-weight: var(--md-sys-type-weight-bold);
   letter-spacing: 0.06em;
+  /* Balance the trailing letter-space so the text sits centred */
+  text-indent: 0.06em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -101,12 +106,16 @@
 }
 
 .c-kb-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.45rem 1rem;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-full);
   background: var(--md-sys-color-surface-container-lowest);
   font-size: var(--md-sys-type-label-size);
   font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1;
   color: var(--md-sys-color-on-surface-variant);
 }
 
@@ -128,11 +137,15 @@
 }
 
 .c-kb-viewtoggle__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.45rem 1rem;
   border: 0;
   background: var(--md-sys-color-surface-container-lowest);
   font-size: var(--md-sys-type-label-size);
   font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1;
   color: var(--md-sys-color-on-surface-variant);
 }
 
@@ -277,6 +290,9 @@
   padding: 0.2rem 0.5rem;
   gap: var(--md-sys-space-2);
   border-radius: var(--md-sys-shape-sm);
+  /* Rows hold a single line and a text-free dot, so centre alignment
+     replaces the list view's baseline alignment. */
+  align-items: center;
 }
 
 .c-kb.is-tree .c-kb-topic:hover {
@@ -348,11 +364,15 @@
 /* Topic kind badge, shared by hub rows and topic pages */
 .c-kb-kind {
   flex: 0 0 auto;
-  padding: 0.15rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
   border-radius: var(--md-sys-shape-full);
   font-size: 0.72rem;
   font-weight: var(--md-sys-type-weight-bold);
   letter-spacing: 0.05em;
+  text-indent: 0.05em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -410,12 +430,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--md-sys-space-2);
-  padding: 0.4rem 0.9rem;
+  padding: 0.45rem 0.9rem;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-full);
   background: var(--md-sys-color-surface-container-lowest);
   font-size: var(--md-sys-type-label-size);
   font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1.2;
   color: var(--md-sys-color-primary);
   text-decoration: none;
 }

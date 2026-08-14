@@ -130,12 +130,14 @@
 .c-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.4rem 0.85rem;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-full);
   background: var(--md-sys-color-surface-container-lowest);
   font-size: var(--md-sys-type-label-size);
   font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1.2;
   color: var(--md-sys-color-on-surface-variant);
   white-space: nowrap;
 }
@@ -458,12 +460,15 @@
 }
 
 .c-code__copy {
-  padding: 0.25rem 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-full);
   background: var(--md-sys-color-surface-container-lowest);
   font-size: 0.72rem;
   font-weight: var(--md-sys-type-weight-bold);
+  line-height: 1;
   color: var(--md-sys-color-on-surface-variant);
 }
 
