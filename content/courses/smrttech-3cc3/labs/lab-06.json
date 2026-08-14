@@ -1,0 +1,748 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-06",
+  "number": 6,
+  "title": "Introduction to Stepper Motors",
+  "summary": [
+    "From serial commands to stepper motor motion using Arduino IDE, LabVIEW, and VISA.",
+    "**Central question:** How does a typed command from LabVIEW become controlled stepper motor motion through Arduino firmware?"
+  ],
+  "cardSummary": "Stepper motor fundamentals, external power setup, motor driver wiring, Arduino IDE firmware upload, Serial Monitor tests, LabVIEW VISA serial commands, and angle-control extension.",
+  "chips": [
+    "Hardware: external motor power",
+    "Communication: VISA Serial"
+  ],
+  "duration": {
+    "prelab": "Arduino IDE install",
+    "lab": "3 hours"
+  },
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "serial-communication",
+    "labview-interface",
+    "systematic-troubleshooting",
+    "technical-documentation"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Stepper Hardware",
+      "subtitle": "External power, driver, Arduino pins 8-11",
+      "handleLabel": "Open hardware reference",
+      "blocks": [
+        {
+          "type": "keyValues",
+          "title": "Pin Map",
+          "items": [
+            { "term": "D8", "description": "IN1" },
+            { "term": "D9", "description": "IN2" },
+            { "term": "D10", "description": "IN3" },
+            { "term": "D11", "description": "IN4" },
+            { "term": "Serial", "description": "9600 baud" },
+            { "term": "Steps/rev", "description": "2048" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Motor power",
+          "paragraphs": [
+            "Do not power the stepper from Arduino 5 V. Use the external supply and motor-driver circuit specified for this lab."
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Serial Command",
+      "subtitle": "RPM, revolutions, direction",
+      "handleLabel": "Open software reference",
+      "blocks": [
+        {
+          "type": "formula",
+          "title": "Command Format",
+          "expression": "RPM,NumberRevolutions,Direction",
+          "note": "Example: `10,1.5,1`. Direction is `1` for clockwise and `-1` for counter-clockwise."
+        },
+        {
+          "type": "list",
+          "title": "Knowledge Links",
+          "items": [
+            "[Arduino and serial I/O](kb:serial-communication)",
+            "[LabVIEW interface](kb:labview-interface)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)",
+            "[Documentation and source use](kb:technical-documentation)"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "prepare",
+      "title": "Scenario and objectives",
+      "navLabel": "Prepare",
+      "eyebrow": "Prepare",
+      "intro": [
+        "You are building a local motion-control node that receives commands from a LabVIEW HMI, sends those commands over serial to Arduino firmware, and uses a motor driver plus external power supply to move a stepper motor in controlled increments."
+      ],
+      "blocks": [
+        {
+          "type": "flow",
+          "title": "Stepper motor command chain",
+          "steps": [
+            { "label": "LabVIEW HMI", "detail": "RPM, revolutions, direction." },
+            { "label": "Command string", "detail": "Comma-delimited message." },
+            { "label": "VISA serial", "detail": "Write to Arduino COM port." },
+            { "label": "Arduino parser", "detail": "Extract speed, turns, direction." },
+            { "label": "Stepper library", "detail": "Convert to motor steps." },
+            { "label": "Driver and motor", "detail": "External power creates motion." }
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab6-pdf-stepper-model.jpg",
+          "alt": "Stepper motor model with windings and a permanent-magnet rotor.",
+          "caption": "Stepper motor model: energized windings act on the permanent-magnet rotor."
+        },
+        {
+          "type": "figure",
+          "src": "lab6-pdf-step-sequence.jpg",
+          "alt": "Four winding states that produce stepper motor motion.",
+          "caption": "Sequential winding states produce controlled, incremental shaft steps."
+        },
+        {
+          "type": "objectives",
+          "title": "Learning goals",
+          "items": [
+            "Build and drive a stepper motor with Arduino and LabVIEW.",
+            "Compile and upload Arduino firmware.",
+            "Send and parse serial data between LabVIEW and Arduino.",
+            "Explain the motor driver and external power supply."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Warning",
+          "paragraphs": [
+            "The stepper motor may heat up during operation. This can be normal, but use caution before touching the motor after it has been energized."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, and course resources before beginning the lab.",
+          "items": [
+            { "key": "material-ide", "label": "Arduino IDE is installed." },
+            { "key": "material-labview", "label": "LabVIEW and NI-VISA are installed." },
+            { "key": "material-arduino", "label": "Arduino Mega and a USB data cable are available." },
+            { "key": "material-motor", "label": "Stepper motor and compatible motor driver are available." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires are available." },
+            { "key": "material-power", "label": "External power supply and breadboard power board are available." },
+            { "key": "material-firmware", "label": "Course Arduino firmware and required LabVIEW files are downloaded." },
+            { "key": "material-port", "label": "The Arduino serial port can be identified on this computer." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "predict",
+      "title": "Pre-lab reasoning",
+      "navLabel": "Predict",
+      "eyebrow": "Predict",
+      "blocks": [
+        {
+          "type": "ordering",
+          "key": "command-chain",
+          "title": "Order the command path",
+          "prompt": "Drag the command path into order.",
+          "items": [
+            { "key": "chain-hmi", "label": "User enters RPM, revolutions, and direction in LabVIEW" },
+            { "key": "chain-string", "label": "LabVIEW concatenates a comma-delimited command string" },
+            { "key": "chain-visa", "label": "VISA Write sends the string to the Arduino serial port" },
+            { "key": "chain-parse", "label": "Arduino parses speed, revolutions, and direction" },
+            { "key": "chain-steps", "label": "Arduino calculates desired steps" },
+            { "key": "chain-driver", "label": "Stepper driver energizes motor windings" },
+            { "key": "chain-motion", "label": "Stepper motor moves and holds position" }
+          ],
+          "successMessage": "Correct measurement chain.",
+          "failureMessage": "Not yet. Trace the path from LabVIEW HMI command to energized motor windings."
+        },
+        {
+          "type": "formula",
+          "title": "Step calculation",
+          "expression": "Steps = Revolutions * STEPS_PER_REV * Direction",
+          "note": "`STEPS_PER_REV` = 2048 steps per revolution. Direction is `1` for clockwise and `-1` for counter-clockwise."
+        },
+        {
+          "type": "fields",
+          "title": "Predict calculations and concepts",
+          "fields": [
+            {
+              "key": "calc-1rev",
+              "label": "Steps for 1 revolution — given `STEPS_PER_REV = 2048`",
+              "control": "number",
+              "expected": { "value": 2048 }
+            },
+            {
+              "key": "calc-15rev",
+              "label": "Steps for 1.5 revolutions clockwise — given `2048 * 1.5 * 1`",
+              "control": "number",
+              "expected": { "value": 3072 }
+            },
+            {
+              "key": "calc-half-neg",
+              "label": "Steps for 0.5 revolutions counter-clockwise — given `2048 * 0.5 * -1`",
+              "control": "number",
+              "expected": { "value": -1024 }
+            },
+            {
+              "key": "predict-driver",
+              "label": "Why is a motor driver needed instead of connecting the motor directly to Arduino pins?",
+              "control": "textarea"
+            },
+            {
+              "key": "predict-holding",
+              "label": "What do you expect to feel if you try to rotate an energized stepper shaft by hand?",
+              "control": "textarea"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "power-setup",
+      "title": "Prepare the external power system",
+      "navLabel": "Power Setup",
+      "intro": [
+        "Use a screwdriver to adjust the power adaptor output to 9 V. Mount the breadboard power supply board correctly and use its regulated 5 V output to power the motor driver circuit."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab6-pdf-power-adapter.jpg",
+          "alt": "External power adapter with an adjustable voltage selector.",
+          "caption": "Set the external adapter to 9 V before connecting it to the breadboard power board."
+        },
+        {
+          "type": "figure",
+          "src": "lab6-pdf-breadboard-power-board.jpg",
+          "alt": "Breadboard power board with yellow jumper positions shown.",
+          "caption": "Confirm the breadboard power-board orientation and jumper positions."
+        },
+        {
+          "type": "figure",
+          "src": "lab6-pdf-power-board-breadboard.jpg",
+          "alt": "Breadboard power board installed on a breadboard.",
+          "caption": "Align positive pins with the red rail and negative pins with the blue rail."
+        },
+        {
+          "type": "figure",
+          "src": "lab6-pdf-external-power-connected.jpg",
+          "alt": "External power adapter connected to the breadboard power board.",
+          "caption": "Connect the adapter barrel jack to the breadboard power board before motor testing."
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "STOP — verify polarity before powering",
+          "paragraphs": [
+            "Reversing the breadboard power supply board can reverse project power and damage hardware."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "power-adapter-9v", "label": "Adaptor output adjusted to 9 V." },
+            { "key": "power-board-align", "label": "Power board positive and negative pins aligned with breadboard rails." },
+            { "key": "power-jumpers", "label": "Yellow jumpers match the required power-board configuration." },
+            { "key": "power-on-led", "label": "Power board switch and LED behavior understood." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "build-circuit",
+      "title": "Build the stepper motor driver circuit",
+      "navLabel": "Build Circuit",
+      "intro": [
+        "Build the circuit using the stepper motor, stepper motor driver, external power supply, breadboard power supply board, Arduino Mega, and jumper wires."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab6-pdf-stepper-circuit-schematic.png",
+          "alt": "Schematic showing Arduino Mega pins 8 through 11 connected to the stepper driver and external supply.",
+          "caption": "Connect Arduino pins 8–11 to driver inputs IN1–IN4. The driver receives motor power from the external 5 V rail."
+        },
+        {
+          "type": "figure",
+          "src": "lab6-pdf-stepper-circuit-photo.jpg",
+          "alt": "Completed stepper motor, driver, power board, breadboard, and Arduino wiring.",
+          "caption": "Verify the driver wiring, motor connector, supply rails, and Arduino ground."
+        },
+        {
+          "type": "measurementTable",
+          "title": "Pin-map verification",
+          "columns": ["Arduino pin", "Driver pin", "Checked", "Notes"],
+          "rows": [
+            {
+              "label": "Digital 8",
+              "cells": [
+                { "control": "static", "value": "IN1" },
+                { "control": "check", "key": "pin-d8" },
+                { "control": "text", "key": "pin-d8-note", "optional": true }
+              ]
+            },
+            {
+              "label": "Digital 9",
+              "cells": [
+                { "control": "static", "value": "IN2" },
+                { "control": "check", "key": "pin-d9" },
+                { "control": "text", "key": "pin-d9-note", "optional": true }
+              ]
+            },
+            {
+              "label": "Digital 10",
+              "cells": [
+                { "control": "static", "value": "IN3" },
+                { "control": "check", "key": "pin-d10" },
+                { "control": "text", "key": "pin-d10-note", "optional": true }
+              ]
+            },
+            {
+              "label": "Digital 11",
+              "cells": [
+                { "control": "static", "value": "IN4" },
+                { "control": "check", "key": "pin-d11" },
+                { "control": "text", "key": "pin-d11-note", "optional": true }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "build-common-ground", "label": "Arduino GND connected to breadboard GND rail." },
+            { "key": "build-driver-power", "label": "Driver 5-12 V + and - pins connected to correct rails." },
+            { "key": "build-board-on", "label": "Power board is ON only after wiring is checked." },
+            { "key": "build-heat", "label": "I will treat the motor as potentially hot after operation." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "If power or motion is abnormal",
+          "paragraphs": [
+            "Switch off the external supply before touching wiring. Recheck 9 V adaptor selection, power-board polarity, regulated rails, common ground, and the D8-D11 to IN1-IN4 mapping before powering again."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arduino-ide",
+      "title": "Compile and upload the Arduino firmware",
+      "navLabel": "Arduino IDE",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab6-pdf-arduino-ide-code.png",
+          "alt": "Arduino IDE with stepper motor firmware.",
+          "caption": "Create a new sketch, paste the provided firmware, verify it, and upload it to the Arduino Mega."
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "The firmware uses the standard Arduino `Stepper.h` library, initializes serial communication at 9600 baud, reads a command string until newline, parses comma-separated values, and commands the stepper motor."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "arduino",
+          "title": "Provided stepper firmware",
+          "code": "#include <Stepper.h>\nString command;\nString desSpeed;\nString desRevs;\nString desDirection;\n\nint desSteps = 0;\nint firstIndex = 0;\nint secondIndex = 0;\n\nconst int STEPS_PER_REV = 2048;\nStepper myStepper = Stepper(STEPS_PER_REV, 8, 10, 9, 11);\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  command = \"\";\n  if (Serial.available() > 0) {\n    command = Serial.readStringUntil('\\n');\n    firstIndex = command.indexOf(',');\n    secondIndex = command.indexOf(',', firstIndex + 1);\n    desSpeed = command.substring(0, firstIndex);\n    desRevs = command.substring(firstIndex + 1, secondIndex);\n    desDirection = command.substring(secondIndex + 1);\n    desSteps = desRevs.toFloat() * STEPS_PER_REV * desDirection.toInt();\n    myStepper.setSpeed(desSpeed.toInt());\n    myStepper.step(desSteps);\n  }\n}"
+        },
+        {
+          "type": "steps",
+          "title": "Required actions",
+          "items": [
+            "Open Arduino IDE and create a new sketch.",
+            "Paste the provided code.",
+            "Select Tools - Board - Arduino Mega.",
+            "Select the correct Tools - Port.",
+            "Click Verify and resolve compile errors.",
+            "Click Upload to load firmware."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why does the sketch include `Stepper.h`?",
+            "What runs once inside `setup()`?",
+            "What repeats inside `loop()`?",
+            "Why does the program look for commas?",
+            "Why does direction multiply the step count by 1 or -1?"
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "arduino-port",
+              "label": "Arduino board and COM port used",
+              "control": "text",
+              "placeholder": "e.g., Arduino Mega, COM3"
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "arduino-compile-evidence",
+          "label": "Compile/upload screenshot",
+          "accept": ["image/*"],
+          "note": "Add a PNG, JPG/JPEG, WebP, GIF, or other image screenshot showing a successful Verify or Upload result. The completion record stores the filename only."
+        }
+      ]
+    },
+    {
+      "id": "serial-test",
+      "title": "Test command parsing with Arduino Serial Monitor",
+      "navLabel": "Serial Test",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab6-pdf-serial-monitor.png",
+          "alt": "Arduino Serial Monitor for sending stepper motor commands.",
+          "caption": "Set the baud rate to 9600, enter a command such as `10,1.5,1`, and send it to the Arduino."
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Use the syntax `RPM,Number Revolutions,Direction`. For example, `10,1.5,1` requests 10 RPM, 1.5 revolutions, and clockwise direction."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "paragraphs": [
+            "Close the Serial Monitor before running the LabVIEW VI. By default, only one client can use the same serial port at one time."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "Serial Monitor command tests",
+          "columns": ["Test", "Command sent", "Expected motion", "Actual observation", "Motor heat or lock-up?"],
+          "rows": [
+            {
+              "label": "Test 1",
+              "cells": [
+                { "control": "text", "key": "serial-cmd-1", "placeholder": "10,1.5,1" },
+                { "control": "text", "key": "serial-exp-1" },
+                { "control": "text", "key": "serial-act-1" },
+                { "control": "text", "key": "serial-heat-1" }
+              ]
+            },
+            {
+              "label": "Test 2",
+              "cells": [
+                { "control": "text", "key": "serial-cmd-2" },
+                { "control": "text", "key": "serial-exp-2" },
+                { "control": "text", "key": "serial-act-2" },
+                { "control": "text", "key": "serial-heat-2" }
+              ]
+            },
+            {
+              "label": "Test 3",
+              "cells": [
+                { "control": "text", "key": "serial-cmd-3" },
+                { "control": "text", "key": "serial-exp-3" },
+                { "control": "text", "key": "serial-act-3" },
+                { "control": "text", "key": "serial-heat-3" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "If a Serial Monitor command does not produce safe motion",
+          "paragraphs": [
+            "Stop sending commands and switch off motor power if the motor stalls, locks, or becomes hot. Verify 9600 baud, two comma delimiters, the newline setting, direction as 1 or -1, and a conservative RPM before changing one item and retesting."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "labview-hmi",
+      "title": "Build the LabVIEW serial-command HMI",
+      "navLabel": "LabVIEW HMI",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab6-pdf-labview-front-panel.png",
+          "alt": "LabVIEW front panel with RPM meter, Revolutions control, Direction toggle, Message Arduino button, sent-message indicator, and Stop button.",
+          "caption": "The user selects RPM, revolutions, and direction, then sends the command to Arduino."
+        },
+        {
+          "type": "list",
+          "title": "Front-panel elements",
+          "items": [
+            "OK Button named `Message Arduino`.",
+            "Stop button.",
+            "String control named `Revolutions`.",
+            "Vertical toggle named `Direction` with Clockwise and Counter clockwise labels.",
+            "RPM meter with scale 5 to 20.",
+            "Sent Msg indicator for the exact command string."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Reasoning prompts",
+          "items": [
+            "Why should students see the exact string sent to Arduino?",
+            "Why is direction represented as 1 or -1?",
+            "Why does RPM have a practical range?",
+            "What might happen if RPM is too low or too high?"
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "hmi-front-evidence",
+          "label": "Front panel evidence file",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Accepted: PNG, JPG/JPEG, WebP, GIF, or PDF. The completion record stores only the filename; it does not upload or embed the file."
+        }
+      ]
+    },
+    {
+      "id": "visa-write",
+      "title": "Use LabVIEW VISA Serial to write commands",
+      "navLabel": "VISA Write",
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab6-pdf-labview-basic-block.png",
+          "alt": "LabVIEW block diagram with serial configuration, buffer, write, close, while loop, wait, and case structure.",
+          "caption": "Configure the serial port, use a loop and Case Structure, and close VISA after the loop."
+        },
+        {
+          "type": "figure",
+          "src": "lab6-pdf-labview-complete-block.png",
+          "alt": "Complete LabVIEW block diagram with string concatenation, number conversion, direction selection, sent-message indicator, VISA Write, and close functions.",
+          "caption": "Concatenate RPM, a comma, revolutions, a comma, and direction into the string written to Arduino."
+        },
+        {
+          "type": "details",
+          "summary": "A. Serial functions",
+          "open": true,
+          "paragraphs": [
+            "Add Configure Port, Set Buffer Size, Write, and Close from Data Communication - Protocols - Serial. Set VISA Resource Name to the Arduino serial port."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "B. Case Structure",
+          "paragraphs": [
+            "Use the Message Arduino button to decide whether to build and send a command string. In the false case, carry wires through."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "C. Concatenate Strings",
+          "paragraphs": [
+            "Use five inputs: RPM string, comma, Revolutions, comma, Direction string."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "D. Convert RPM",
+          "paragraphs": [
+            "Change the RPM meter from Indicator to Control and wire it through Number to Decimal String."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "E. Select direction",
+          "paragraphs": [
+            "Use Select to output string constant `1` for clockwise and `-1` for counter-clockwise."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "F. Test",
+          "paragraphs": [
+            "Close Arduino Serial Monitor, run the VI, send commands, and observe motor motion."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "VISA command tests",
+          "columns": ["Test", "RPM", "Revolutions", "Direction", "Expected sent string", "Actual sent string", "Observed motion"],
+          "rows": [
+            {
+              "label": "Test 1",
+              "cells": [
+                { "control": "text", "key": "visa-rpm-1" },
+                { "control": "text", "key": "visa-rev-1" },
+                { "control": "text", "key": "visa-dir-1" },
+                { "control": "text", "key": "visa-exp-1" },
+                { "control": "text", "key": "visa-msg-1" },
+                { "control": "text", "key": "visa-motion-1" }
+              ]
+            },
+            {
+              "label": "Test 2",
+              "cells": [
+                { "control": "text", "key": "visa-rpm-2" },
+                { "control": "text", "key": "visa-rev-2" },
+                { "control": "text", "key": "visa-dir-2" },
+                { "control": "text", "key": "visa-exp-2" },
+                { "control": "text", "key": "visa-msg-2" },
+                { "control": "text", "key": "visa-motion-2" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "If Serial Monitor works but LabVIEW VISA does not",
+          "paragraphs": [
+            "Close Serial Monitor, verify the VISA Resource Name, confirm the command contains both commas and the required line ending, and check that VISA Write is in the True case. Keep the proven firmware and hardware unchanged while testing one LabVIEW correction at a time."
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "visa-block-evidence",
+          "label": "Block diagram evidence file",
+          "accept": [".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"],
+          "note": "Accepted: PNG, JPG/JPEG, WebP, GIF, or PDF. The completion record stores only the filename; it does not upload or embed the file."
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "title": "Replace revolutions with an angle command",
+      "navLabel": "Extend",
+      "eyebrow": "Extend",
+      "intro": [
+        "Replace the Revolutions control with an Angle control. Instead of entering 0.5, 1, or 2 revolutions, the user enters 180, 360, or 720 degrees."
+      ],
+      "blocks": [
+        {
+          "type": "measurementTable",
+          "title": "Angle command tests",
+          "columns": ["Angle command", "Equivalent revolutions", "Expected steps at 2048 steps/rev", "How you modified LabVIEW"],
+          "rows": [
+            {
+              "label": "180 degrees",
+              "cells": [
+                { "control": "static", "value": "0.5" },
+                { "control": "static", "value": "1024" },
+                { "control": "text", "key": "ext-180" }
+              ]
+            },
+            {
+              "label": "360 degrees",
+              "cells": [
+                { "control": "static", "value": "1" },
+                { "control": "static", "value": "2048" },
+                { "control": "text", "key": "ext-360" }
+              ]
+            },
+            {
+              "label": "720 degrees",
+              "cells": [
+                { "control": "static", "value": "2" },
+                { "control": "static", "value": "4096" },
+                { "control": "text", "key": "ext-720" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "Convert angle to revolutions in LabVIEW before concatenating the serial string."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Deliverables and assessment",
+      "navLabel": "Reflect",
+      "eyebrow": "Reflect",
+      "submission": true,
+      "blocks": [
+        {
+          "type": "objectives",
+          "title": "Learning Outcomes Achieved",
+          "items": [
+            "Power a stepper motor safely through its driver using an external supply and common ground.",
+            "Upload Arduino firmware and verify comma-delimited motion commands through Serial Monitor.",
+            "Build a LabVIEW HMI that formats and sends motor commands with VISA Serial.",
+            "Convert angle requests into motion commands and evaluate speed, direction, holding, and recovery evidence."
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "final-vi-file",
+          "label": "Final LabVIEW VI file",
+          "accept": [".vi"],
+          "note": "Select the final LabVIEW VI before finishing. The completion record stores the filename only; submit the actual file through the course submission location."
+        },
+        {
+          "type": "questions",
+          "title": "Reflection questions",
+          "items": [
+            { "key": "reflect-1", "prompt": "Explain the provided Arduino code in detail." },
+            { "key": "reflect-2", "prompt": "How did you modify the code or LabVIEW design for the angle-control extension?" },
+            { "key": "reflect-3", "prompt": "What is the maximum speed that your motor can use reliably? What evidence supports that answer?" },
+            { "key": "reflect-4", "prompt": "When the motor is energized but not moving, what happens when you try to move the shaft by hand? Why?" },
+            { "key": "reflect-5", "prompt": "What is the purpose of the motor driver?" },
+            { "key": "reflect-6", "prompt": "Why is an external power supply used instead of Arduino 5 V?" },
+            { "key": "reflect-7", "prompt": "What are advantages and disadvantages of Arduino IDE plus VISA Serial compared with the LINX approach used in [Lab 5](lab:lab-05)?" }
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Glossary",
+          "items": [
+            { "term": "Stepper motor", "description": "A motor that moves in discrete angular increments called steps." },
+            { "term": "Holding torque", "description": "Torque available when the shaft is not rotating but energized coils resist movement." },
+            { "term": "Motor driver", "description": "Interface circuit that supplies motor current and switches coils based on Arduino control signals." },
+            { "term": "External power supply", "description": "Separate power source used because the motor needs more current than Arduino should supply." },
+            { "term": "Breadboard power supply board", "description": "Regulated board that provides the 5 V rail used by the motor driver in this lab." },
+            { "term": "Common ground", "description": "Shared 0 V reference between Arduino and motor driver circuit." },
+            { "term": "`Stepper.h`", "description": "Arduino library used to command stepper motor speed and steps." },
+            { "term": "`STEPS_PER_REV`", "description": "Number of motor steps used in the sketch for one full revolution: 2048." },
+            { "term": "Serial Monitor", "description": "Arduino IDE tool used to send typed serial commands to Arduino." },
+            { "term": "VISA Serial", "description": "LabVIEW communication functions used to configure, write to, and close a serial port." },
+            { "term": "Delimiter", "description": "A character such as a comma used to separate fields in a command string." },
+            { "term": "RPM", "description": "Revolutions per minute, used as the stepper speed command." },
+            { "term": "Direction", "description": "Command field where 1 indicates clockwise and -1 indicates counter-clockwise." },
+            { "term": "Firmware", "description": "Program uploaded to Arduino to parse commands and actuate the motor." },
+            { "term": "Micro-stepping", "description": "Finer step control achieved by partially energizing the windings; it is included here for optional exploration." }
+          ]
+        }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Completed stepper motor, driver, power supply, and Arduino circuit.",
+    "Arduino IDE sketch with provided firmware uploaded.",
+    "Serial Monitor tests using several command strings.",
+    "LabVIEW front panel screenshot/export.",
+    "LabVIEW block diagram screenshot/export.",
+    "Evidence of VISA serial command sent to Arduino.",
+    "Explanation of Arduino code and parsing logic.",
+    "Extension showing revolutions replaced by angle control.",
+    "Answers to the reflection questions."
+  ]
+}

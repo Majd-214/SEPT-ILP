@@ -1,0 +1,1252 @@
+{
+  "schemaVersion": 1,
+  "id": "bench-skills",
+  "title": "Bench Skills",
+  "blurb": "Hands-on procedures at the lab bench.",
+  "order": 5,
+  "topics": [
+    {
+      "id": "measure-voltage",
+      "kind": "skill",
+      "name": "Measuring Voltage",
+      "question": "How do I measure voltage across a node with a multimeter",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Reading a powered node against ground.",
+      "keywords": [
+        "multimeter",
+        "dmm",
+        "voltage",
+        "probe",
+        "dc volts"
+      ],
+      "sections": [
+        {
+          "heading": "Set up the meter",
+          "paragraphs": [
+            "Select DC volts, plug the black lead into COM and the red lead into the V/Ω jack. Voltage is measured *in parallel* — across a component or between a node and ground, with the circuit powered."
+          ]
+        },
+        {
+          "heading": "Take the reading",
+          "paragraphs": [
+            "Put the black probe on the common ground and the red probe on the node of interest. Start on a range above your expected value (or use autorange) and read once the value settles."
+          ]
+        }
+      ],
+      "hint": "A wildly wrong or negative voltage usually means the probes are on the wrong nodes or your ground reference is floating — re-confirm the black probe is on the same ground as the circuit.",
+      "related": [
+        "measure-resistance",
+        "common-ground",
+        "voltage-divider"
+      ]
+    },
+    {
+      "id": "measure-resistance",
+      "kind": "skill",
+      "name": "Measuring Resistance",
+      "question": "How do I measure resistance safely without damaging the meter",
+      "asset": "DMM_Resistance_Measurement.jpg",
+      "assetAlt": "Right and wrong ways to measure resistance: an ohmmeter across a resistor still wired into a powered circuit is crossed out; measuring the resistor after isolating it from the circuit is marked correct.",
+      "summary": "Reading resistance in Ω on an unpowered part.",
+      "keywords": [
+        "resistance",
+        "Ω",
+        "unpowered",
+        "continuity"
+      ],
+      "sections": [
+        {
+          "heading": "Power off first",
+          "paragraphs": [
+            "Resistance is measured on an *unpowered* circuit or an isolated component. Measuring a live circuit gives meaningless readings and can damage the meter. Set the dial to Ω."
+          ]
+        },
+        {
+          "heading": "Isolate the component",
+          "paragraphs": [
+            "For an accurate value, lift one leg of the component out of the circuit so parallel paths don't skew the reading. Use this to confirm resistor values and identify stepper coil pairs."
+          ]
+        }
+      ],
+      "hint": "A resistance reading lower than the marked value usually means another path is in parallel — lift one leg of the component out of the circuit and measure again.",
+      "related": [
+        "measure-voltage",
+        "stepper",
+        "ohms-law"
+      ]
+    },
+    {
+      "id": "build-divider",
+      "kind": "skill",
+      "name": "Building a Divider",
+      "question": "How do I build a sensor voltage divider on a breadboard",
+      "asset": "Breadboard_Voltage_Divider.jpg",
+      "assetAlt": "Breadboard build of a voltage divider: battery packs feed the power rails, two series resistors meet at a middle node, and jumper wires tap the output, annotated with the measured Vout.",
+      "summary": "Wiring a sensor + resistor to an analog pin.",
+      "keywords": [
+        "breadboard",
+        "divider",
+        "wiring",
+        "a0"
+      ],
+      "sections": [
+        {
+          "heading": "The layout",
+          "paragraphs": [
+            "Run 5 V to one end, ground to the other, and place the sensor and fixed resistor in series between them. The junction between the two parts is your output — wire it to an analog pin such as A0."
+          ]
+        },
+        {
+          "heading": "Sanity check",
+          "paragraphs": [
+            "Before trusting code, measure the junction with a multimeter as you change the sensed quantity. The voltage should move smoothly between roughly 0 V and 5 V."
+          ]
+        }
+      ],
+      "hint": "If the analog pin reads flat, probe the divider junction directly — no movement there means a wiring break or a fixed resistor that swamps the sensor.",
+      "related": [
+        "voltage-divider",
+        "measure-voltage",
+        "photoresistor"
+      ]
+    },
+    {
+      "id": "wire-bridge",
+      "kind": "skill",
+      "name": "Wiring a Bridge",
+      "question": "How do I wire and null a Wheatstone bridge before amplifying",
+      "asset": "Wheatstone_Bridge_Wiring.jpg",
+      "assetAlt": "Simulated wiring of a Wheatstone bridge: four resistors on a breadboard powered by a 9 V battery, with a multimeter connected across the two bridge midpoints to read the differential output.",
+      "summary": "Balancing a bridge to ≈0 V at rest.",
+      "keywords": [
+        "bridge",
+        "null",
+        "offset",
+        "trim",
+        "balance"
+      ],
+      "sections": [
+        {
+          "heading": "Build and excite",
+          "paragraphs": [
+            "Wire the four arms into the diamond, apply a stable excitation voltage across one diagonal, and take the differential output from the other. With the active element at rest the output should sit near zero."
+          ]
+        },
+        {
+          "heading": "Null the offset",
+          "paragraphs": [
+            "Real resistors never match exactly, so trim one arm (or subtract the offset in software) until the resting output reads ≈0 V. Only then does the amplified signal represent the change you care about."
+          ]
+        }
+      ],
+      "hint": "A bridge whose amplified output saturates immediately was never nulled — bring the resting differential to ≈0 V before the gain stage, not after.",
+      "related": [
+        "wheatstone",
+        "opamp-gain",
+        "strain-gauge",
+        "measure-voltage"
+      ]
+    },
+    {
+      "id": "calibrate-sensor",
+      "kind": "skill",
+      "name": "Calibrating Sensors",
+      "question": "How do I calibrate an analog sensor to a real-world value",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Mapping raw counts to meaning.",
+      "keywords": [
+        "calibrate",
+        "map",
+        "threshold",
+        "two-point"
+      ],
+      "sections": [
+        {
+          "heading": "Capture two anchors",
+          "paragraphs": [
+            "Record the raw ADC value at two known conditions — for a moisture probe, fully dry and fully wet; for an LDR, dark and bright. These anchor the range your sensor actually uses."
+          ]
+        },
+        {
+          "heading": "Map and threshold",
+          "paragraphs": [
+            "Use `map()` between the anchors to convert raw counts to a meaningful scale, and pick any control threshold from real measured readings rather than a guessed number."
+          ]
+        }
+      ],
+      "hint": "A sensor that reads \"correct\" indoors but fails in the real setting was calibrated against the wrong anchors — re-capture the extremes in the actual environment.",
+      "related": [
+        "photoresistor",
+        "thermistor",
+        "soil-moisture",
+        "arduino-threshold"
+      ]
+    },
+    {
+      "id": "common-ground",
+      "kind": "skill",
+      "name": "Power & Ground",
+      "question": "How do I set up power rails and a common ground",
+      "asset": "Breadboard_Power_Rails.jpg",
+      "assetAlt": "Isometric breadboard illustration outlining the red and blue power rails that distribute supply and ground along the board — the common reference every measurement and signal in the circuit shares.",
+      "summary": "A shared reference for every part.",
+      "keywords": [
+        "ground",
+        "rails",
+        "common",
+        "supply"
+      ],
+      "sections": [
+        {
+          "heading": "Shared reference",
+          "paragraphs": [
+            "Every measurement and signal is relative to ground. When a sensor, the Arduino, and an external supply all share a single common ground, voltages mean the same thing everywhere."
+          ]
+        },
+        {
+          "heading": "Separate supplies",
+          "paragraphs": [
+            "Motors and servos should draw from their own supply, but that supply's ground must still be tied to the Arduino ground — otherwise signals and readings drift unpredictably."
+          ]
+        }
+      ],
+      "hint": "Signals that drift once an external supply is added almost always mean the grounds were never tied together — bond every ground to one common rail.",
+      "related": [
+        "servo",
+        "arduino",
+        "measure-voltage"
+      ]
+    },
+    {
+      "id": "multimeter",
+      "kind": "spec",
+      "name": "Multimeter setup",
+      "question": "How does multimeter setup support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Select the correct meter mode and lead placement before measuring.",
+      "keywords": [
+        "meter",
+        "DMM",
+        "Lab 1",
+        "Measurement and instrumentation",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Select the correct meter mode and lead placement before measuring."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: dc-circuits."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Select the correct meter mode and lead placement before measuring.",
+      "related": [
+        "measuring-resistance",
+        "measuring-voltage",
+        "dc-circuits"
+      ]
+    },
+    {
+      "id": "measuring-resistance",
+      "kind": "skill",
+      "name": "Measuring resistance safely",
+      "question": "How does measuring resistance safely support the 3CC3 lab workflow",
+      "asset": "DMM_Resistance_Measurement.jpg",
+      "assetAlt": "Right and wrong ways to measure resistance: an ohmmeter across a resistor still wired into a powered circuit is crossed out; measuring the resistor after isolating it from the circuit is marked correct.",
+      "summary": "Measure resistance on an unpowered circuit or isolated component.",
+      "keywords": [
+        "Ω",
+        "unpowered",
+        "Lab 1",
+        "Measurement and instrumentation",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Measure resistance on an unpowered circuit or isolated component."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: multimeter."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Measure resistance on an unpowered circuit or isolated component.",
+      "related": [
+        "photoresistor",
+        "safe-bench-practice",
+        "multimeter"
+      ]
+    },
+    {
+      "id": "measuring-voltage",
+      "kind": "skill",
+      "name": "Measuring voltage",
+      "question": "How does measuring voltage support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of correct voltmeter placement: the meter sits in parallel across resistor R1 in a powered DC circuit, measuring the potential difference between its two nodes.",
+      "summary": "Measure powered circuit voltage between nodes or between a node and reference ground.",
+      "keywords": [
+        "volts",
+        "Vout",
+        "wiper voltage",
+        "SIG+",
+        "SIG-",
+        "V2",
+        "V3",
+        "A0",
+        "V_dry",
+        "V_wet",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 8",
+        "Measurement and instrumentation",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Measure powered circuit voltage between nodes or between a node and reference ground."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 8. Prerequisites: multimeter, power-rails-common-ground."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Measure powered circuit voltage between nodes or between a node and reference ground.",
+      "related": [
+        "analog-input",
+        "sampled-data",
+        "signal-amplification",
+        "moisture-calibration",
+        "multimeter",
+        "power-rails-common-ground"
+      ]
+    },
+    {
+      "id": "meter-lead-placement",
+      "kind": "skill",
+      "name": "Meter lead placement",
+      "question": "How does meter lead placement support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic showing where meter leads belong for a voltage reading: the voltmeter’s + and − leads land on either side of resistor R1, in parallel with the component, while the circuit stays powered.",
+      "summary": "Place meter leads according to the quantity being measured.",
+      "keywords": [
+        "red lead",
+        "black lead",
+        "Lab 1",
+        "Measurement and instrumentation",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Place meter leads according to the quantity being measured."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: multimeter."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Place meter leads according to the quantity being measured.",
+      "related": [
+        "systematic-troubleshooting",
+        "multimeter"
+      ]
+    },
+    {
+      "id": "trainer-board-power",
+      "kind": "spec",
+      "name": "Trainer-board power supply",
+      "question": "How does trainer-board power supply support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Use the trainer-board 5 V supply for real hardware verification.",
+      "keywords": [
+        "trainer board",
+        "5 V",
+        "Lab 1",
+        "Measurement and instrumentation",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use the trainer-board 5 V supply for real hardware verification."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: power-rails-common-ground."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use the trainer-board 5 V supply for real hardware verification.",
+      "related": [
+        "safe-bench-practice",
+        "power-rails-common-ground"
+      ]
+    },
+    {
+      "id": "measurement-units",
+      "kind": "spec",
+      "name": "Measurement units",
+      "question": "How does measurement units support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Record values with clear units so comparisons are meaningful.",
+      "keywords": [
+        "units",
+        "degrees",
+        "microseconds",
+        "percent moisture",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 8",
+        "Measurement and instrumentation",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Record values with clear units so comparisons are meaningful."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 8. Prerequisites: resistor-values."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Record values with clear units so comparisons are meaningful.",
+      "related": [
+        "significant-figures",
+        "resistor-values"
+      ]
+    },
+    {
+      "id": "significant-figures",
+      "kind": "spec",
+      "name": "Significant figures",
+      "question": "How does significant figures support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Report values with reasonable precision for the instrument and experiment.",
+      "keywords": [
+        "precision",
+        "Lab 1",
+        "Measurement and instrumentation",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Report values with reasonable precision for the instrument and experiment."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: measurement-units."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Report values with reasonable precision for the instrument and experiment.",
+      "related": [
+        "measurement-uncertainty",
+        "measurement-units"
+      ]
+    },
+    {
+      "id": "calculated-measured",
+      "kind": "theory",
+      "name": "Calculated versus measured values",
+      "question": "How does calculated versus measured values support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Compare ideal calculations with physical measurements and explain disagreement.",
+      "keywords": [
+        "calculation",
+        "measurement",
+        "Lab 1",
+        "Measurement and instrumentation",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Compare ideal calculations with physical measurements and explain disagreement."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: voltage-divider, measuring-voltage."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Compare ideal calculations with physical measurements and explain disagreement.",
+      "related": [
+        "percent-difference",
+        "measurement-uncertainty",
+        "voltage-divider",
+        "measuring-voltage"
+      ]
+    },
+    {
+      "id": "percent-difference",
+      "kind": "skill",
+      "name": "Percent difference",
+      "question": "How does percent difference support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Quantify the difference between a measured and calculated value.",
+      "keywords": [
+        "percent error",
+        "Lab 1",
+        "Measurement and instrumentation",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Quantify the difference between a measured and calculated value."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: calculated-measured."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Quantify the difference between a measured and calculated value.",
+      "related": [
+        "experimental-evidence",
+        "calculated-measured"
+      ]
+    },
+    {
+      "id": "measurement-uncertainty",
+      "kind": "theory",
+      "name": "Measurement uncertainty",
+      "question": "How does measurement uncertainty support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Recognize tolerance, sensor variability, and instrument limits in experimental evidence.",
+      "keywords": [
+        "uncertainty",
+        "tolerance",
+        "noise",
+        "offset",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Measurement and instrumentation",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Recognize tolerance, sensor variability, and instrument limits in experimental evidence."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4. Prerequisites: calculated-measured, significant-figures."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Recognize tolerance, sensor variability, and instrument limits in experimental evidence.",
+      "related": [
+        "source-evaluation",
+        "calculated-measured",
+        "significant-figures"
+      ]
+    },
+    {
+      "id": "sampled-data",
+      "kind": "theory",
+      "name": "Sampled data in time",
+      "question": "How does sampled data in time support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Record physical signals as timestamped data so rate, duration, and observed change can be interpreted.",
+      "keywords": [
+        "LabVIEW",
+        "LINX",
+        "timestamp",
+        "sample rate",
+        "time vector",
+        "Lab 2",
+        "Measurement and instrumentation",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Record physical signals as timestamped data so rate, duration, and observed change can be interpreted."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 2. Prerequisites: measuring-voltage, analog-to-digital."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Record physical signals as timestamped data so rate, duration, and observed change can be interpreted.",
+      "related": [
+        "experimental-evidence",
+        "sensor-calibration",
+        "measuring-voltage",
+        "analog-to-digital"
+      ]
+    },
+    {
+      "id": "predict-build-observe",
+      "kind": "skill",
+      "name": "Predict, build, observe, explain, verify",
+      "question": "How does predict, build, observe, explain, verify support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Use a repeatable learning cycle for software, simulation, and hardware work.",
+      "keywords": [
+        "learning cycle",
+        "predict build measure explain revise",
+        "Lab 1",
+        "Lab 2",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use a repeatable learning cycle for software, simulation, and hardware work."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2. Use this as a reusable reference when the lab does not give a step-by-step reminder."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use a repeatable learning cycle for software, simulation, and hardware work.",
+      "related": [
+        "experimental-evidence"
+      ]
+    },
+    {
+      "id": "reading-circuit-diagrams",
+      "kind": "skill",
+      "name": "Reading circuit diagrams",
+      "question": "How does reading circuit diagrams support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Translate a schematic into components, nodes, and a physical wiring plan.",
+      "keywords": [
+        "schematic",
+        "Lab 1",
+        "Engineering practice",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Translate a schematic into components, nodes, and a physical wiring plan."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: dc-circuits."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Translate a schematic into components, nodes, and a physical wiring plan.",
+      "related": [
+        "wiring-map",
+        "dc-circuits"
+      ]
+    },
+    {
+      "id": "wiring-map",
+      "kind": "skill",
+      "name": "Following a wiring map",
+      "question": "How does following a wiring map support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Translate breadboard coordinates into physical connections.",
+      "keywords": [
+        "G8",
+        "J7",
+        "A0",
+        "Lab 1",
+        "Engineering practice",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Translate breadboard coordinates into physical connections."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: breadboard, reading-circuit-diagrams."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Translate breadboard coordinates into physical connections.",
+      "related": [
+        "systematic-troubleshooting",
+        "breadboard",
+        "reading-circuit-diagrams"
+      ]
+    },
+    {
+      "id": "boundary-testing",
+      "kind": "skill",
+      "name": "Boundary-condition testing",
+      "question": "How does boundary-condition testing support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Test behavior around a threshold or limit rather than only at obvious cases.",
+      "keywords": [
+        "testing",
+        "Lab 1",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Test behavior around a threshold or limit rather than only at obvious cases."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: threshold-control."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Test behavior around a threshold or limit rather than only at obvious cases.",
+      "related": [
+        "experimental-evidence",
+        "threshold-control"
+      ]
+    },
+    {
+      "id": "systematic-troubleshooting",
+      "kind": "skill",
+      "name": "Systematic troubleshooting",
+      "question": "How does systematic troubleshooting support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Use a safe, repeatable sequence to isolate wiring, measurement, and code faults.",
+      "keywords": [
+        "debugging",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use a safe, repeatable sequence to isolate wiring, measurement, and code faults."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8. Prerequisites: multimeter, breadboard."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use a safe, repeatable sequence to isolate wiring, measurement, and code faults.",
+      "related": [
+        "led-polarity",
+        "if-else",
+        "power-rails-common-ground",
+        "labview-linx",
+        "servo-pulse-limits",
+        "visa-serial",
+        "mqtt-topics",
+        "moisture-calibration",
+        "multimeter",
+        "breadboard"
+      ]
+    },
+    {
+      "id": "simulation-hardware",
+      "kind": "skill",
+      "name": "Comparing simulation and hardware",
+      "question": "How does comparing simulation and hardware support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Use simulation to reason, then verify results with real components and measurements.",
+      "keywords": [
+        "simulation",
+        "hardware",
+        "Lab 1",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use simulation to reason, then verify results with real components and measurements."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: tinkercad."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use simulation to reason, then verify results with real components and measurements.",
+      "related": [
+        "measurement-uncertainty"
+      ]
+    },
+    {
+      "id": "experimental-evidence",
+      "kind": "skill",
+      "name": "Experimental evidence",
+      "question": "How does experimental evidence support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Support claims with measurements, observations, calculations, and demonstrations.",
+      "keywords": [
+        "evidence",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Support claims with measurements, observations, calculations, and demonstrations."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8, Design Project. Prerequisites: measurement-units."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Support claims with measurements, observations, calculations, and demonstrations.",
+      "related": [
+        "source-evaluation",
+        "dashboard-analytics",
+        "demo-video",
+        "measurement-units"
+      ]
+    },
+    {
+      "id": "safe-bench-practice",
+      "kind": "skill",
+      "name": "Safe bench practice",
+      "question": "How does safe bench practice support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Work with power, meters, wiring, water, and moving parts in a controlled and low-risk sequence.",
+      "keywords": [
+        "safety",
+        "water near electronics",
+        "Lab 1",
+        "Lab 2",
+        "Lab 3",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Work with power, meters, wiring, water, and moving parts in a controlled and low-risk sequence."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 3, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8, Design Project. Prerequisites: multimeter."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Work with power, meters, wiring, water, and moving parts in a controlled and low-risk sequence.",
+      "related": [
+        "trainer-board-power",
+        "ms15-interface",
+        "labview-linx",
+        "active-buzzer",
+        "signal-amplification",
+        "servo-motor",
+        "external-motor-power",
+        "api-token",
+        "soil-moisture-sensor",
+        "risk-planning",
+        "multimeter"
+      ]
+    },
+    {
+      "id": "smart-system-design",
+      "kind": "skill",
+      "name": "Smart-system design",
+      "question": "How does smart-system design support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Combine a real-world purpose, sensors, decision logic, actuators, local HMI, cloud features, and web HMI into one prototype.",
+      "keywords": [
+        "design project",
+        "prototype",
+        "two sensors",
+        "one actuator",
+        "local HMI",
+        "web HMI",
+        "cloud",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Combine a real-world purpose, sensors, decision logic, actuators, local HMI, cloud features, and web HMI into one prototype."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Design Project. Prerequisites: experimental-evidence, actuator-command, cloud-hmi."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Combine a real-world purpose, sensors, decision logic, actuators, local HMI, cloud features, and web HMI into one prototype.",
+      "related": [
+        "project-complexity",
+        "project-proposal",
+        "risk-planning",
+        "experimental-evidence",
+        "actuator-command",
+        "cloud-hmi"
+      ]
+    },
+    {
+      "id": "project-proposal",
+      "kind": "skill",
+      "name": "Project proposal",
+      "question": "How does project proposal support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Communicate the smart-system purpose, functionality, components, schematic, and weekly schedule in 2-3 pages.",
+      "keywords": [
+        "abstract",
+        "proposal",
+        "component list",
+        "timeline",
+        "EasyEDA",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Communicate the smart-system purpose, functionality, components, schematic, and weekly schedule in 2-3 pages."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Design Project. Prerequisites: technical-documentation, smart-system-design."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Communicate the smart-system purpose, functionality, components, schematic, and weekly schedule in 2-3 pages.",
+      "related": [
+        "project-schematic",
+        "weekly-progress",
+        "technical-documentation",
+        "smart-system-design"
+      ]
+    },
+    {
+      "id": "project-schematic",
+      "kind": "skill",
+      "name": "Project schematic",
+      "question": "How does project schematic support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Show the electrical connections clearly enough for the team and instructor to reason about the build.",
+      "keywords": [
+        "schematic",
+        "wiring map",
+        "connections",
+        "EasyEDA",
+        "Design Project",
+        "Engineering practice",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Show the electrical connections clearly enough for the team and instructor to reason about the build."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Design Project. Prerequisites: reading-circuit-diagrams, project-proposal."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Show the electrical connections clearly enough for the team and instructor to reason about the build.",
+      "related": [
+        "systematic-troubleshooting",
+        "risk-planning",
+        "reading-circuit-diagrams",
+        "project-proposal"
+      ]
+    },
+    {
+      "id": "project-complexity",
+      "kind": "skill",
+      "name": "Project complexity planning",
+      "question": "How does project complexity planning support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Balance scope so the project is comparable to about three combined labs without becoming too small or too large.",
+      "keywords": [
+        "complexity",
+        "scope",
+        "approval",
+        "six devices",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Balance scope so the project is comparable to about three combined labs without becoming too small or too large."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Design Project. Prerequisites: smart-system-design."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Balance scope so the project is comparable to about three combined labs without becoming too small or too large.",
+      "related": [
+        "risk-planning",
+        "weekly-progress",
+        "smart-system-design"
+      ]
+    },
+    {
+      "id": "demo-video",
+      "kind": "skill",
+      "name": "Demo and video communication",
+      "question": "How does demo and video communication support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Show functionality, describe hardware, describe software, and explain evidence clearly in the final demo and 3-4 minute video.",
+      "keywords": [
+        "demo",
+        "video",
+        "rubric",
+        "functionality",
+        "hardware",
+        "software",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Show functionality, describe hardware, describe software, and explain evidence clearly in the final demo and 3-4 minute video."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Design Project. Prerequisites: experimental-evidence."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Show functionality, describe hardware, describe software, and explain evidence clearly in the final demo and 3-4 minute video.",
+      "related": [
+        "source-evaluation",
+        "experimental-evidence"
+      ]
+    },
+    {
+      "id": "risk-planning",
+      "kind": "skill",
+      "name": "Risk planning",
+      "question": "How does risk planning support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Identify technical, schedule, safety, and scope risks before they block the final demonstration.",
+      "keywords": [
+        "risk",
+        "fallback",
+        "troubleshooting",
+        "instructor approval",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Identify technical, schedule, safety, and scope risks before they block the final demonstration."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Design Project. Prerequisites: systematic-troubleshooting, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Identify technical, schedule, safety, and scope risks before they block the final demonstration.",
+      "related": [
+        "project-complexity",
+        "weekly-progress",
+        "systematic-troubleshooting",
+        "safe-bench-practice"
+      ]
+    },
+    {
+      "id": "measurement",
+      "kind": "theory",
+      "name": "Calculated Versus Measured Values",
+      "question": "Why do measured values differ from calculated ones, and how do you compare them",
+      "summary": "Why real measurements deviate from ideal calculations and how to quantify the gap.",
+      "keywords": [
+        "calculated",
+        "measured",
+        "values",
+        "measurement"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Calculated values assume ideal components and controlled conditions. Measured values include tolerance, sensor variation, supply variation, meter accuracy, and contact resistance."
+          ]
+        }
+      ],
+      "hint": "Percent difference = `abs(measured - calculated) / abs(calculated) * 100%`.",
+      "related": [
+        "calculated-measured",
+        "percent-difference",
+        "measurement-uncertainty",
+        "multimeter"
+      ]
+    },
+    {
+      "id": "tinkercad",
+      "kind": "skill",
+      "name": "Tinkercad Circuits",
+      "question": "How can you build and test the circuit in simulation before touching hardware",
+      "summary": "Constructing, measuring, and programming the circuit in simulation before the bench.",
+      "keywords": [
+        "Tinkercad",
+        "circuits",
+        "simulation"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Tinkercad lets students construct, measure, and program the circuit before using physical hardware."
+          ]
+        }
+      ],
+      "hint": "Simulation is a model. It helps find logic and wiring errors, but the real circuit still needs bench verification.",
+      "related": [
+        "simulation-hardware",
+        "breadboard",
+        "build-divider"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,505 @@
+{
+  "schemaVersion": 1,
+  "id": "actuators",
+  "title": "Actuators & Output",
+  "blurb": "Turning signals back into motion and sound.",
+  "order": 3,
+  "topics": [
+    {
+      "id": "buzzer",
+      "kind": "spec",
+      "name": "Active Buzzer",
+      "question": "What is an active buzzer and how is it different from a passive one",
+      "asset": "Active_Buzzer.jpg",
+      "assetAlt": "Exploded views comparing an active buzzer (housing, piezo bender, and PCB with built-in drive circuit) with a passive buzzer (housing, piezo disc, and plain PCB with pins, no internal oscillator).",
+      "summary": "A self-oscillating audible alert.",
+      "keywords": [
+        "buzzer",
+        "active",
+        "passive",
+        "tone"
+      ],
+      "sections": [
+        {
+          "heading": "Active vs passive",
+          "paragraphs": [
+            "An active buzzer contains its own oscillator — apply DC and it sounds at a fixed pitch. A passive buzzer is a tiny speaker that needs a driving frequency. For simple alerts the active type is just digitalWrite HIGH/LOW."
+          ]
+        },
+        {
+          "heading": "Driving it",
+          "paragraphs": [
+            "It is polarised, so orientation matters, and draws more than an LED — drive louder buzzers through a transistor rather than directly from a pin."
+          ]
+        }
+      ],
+      "hint": "An active buzzer that stays silent on a HIGH pin usually has reversed polarity — and if you need melodies, you actually need a passive buzzer driven with tone().",
+      "related": [
+        "arduino",
+        "pwm"
+      ]
+    },
+    {
+      "id": "servo",
+      "kind": "spec",
+      "name": "Servo Motor",
+      "question": "What is a servo motor and how do pulses set its angle",
+      "asset": "Servo_Motor.jpg",
+      "assetAlt": "Photo of a micro hobby servo with a translucent case, labelling the internal potentiometer, reduction gears, DC motor and electronic control circuit, with its three-wire connector in the foreground.",
+      "summary": "Angle from pulse width at ≈50 Hz.",
+      "keywords": [
+        "servo",
+        "angle",
+        "pulse",
+        "50hz"
+      ],
+      "sections": [
+        {
+          "heading": "Position from pulses",
+          "paragraphs": [
+            "A hobby servo reads a ≈50 Hz pulse train and moves its horn to an angle set by the pulse width (≈1 ms → 0°, ≈2 ms → 180°). Internal feedback holds that angle against load."
+          ]
+        },
+        {
+          "heading": "Driving it",
+          "paragraphs": [
+            "Use the Arduino `Servo` library, which generates the correct timing on a digital pin. Signal is logic-level; power should be separate."
+          ]
+        }
+      ],
+      "hint": "A servo that twitches or browns out the board on movement is drawing current spikes the 5 V rail cannot supply — power it from an external 5–6 V source with a common ground.",
+      "related": [
+        "pwm",
+        "arduino",
+        "common-ground"
+      ]
+    },
+    {
+      "id": "stepper",
+      "kind": "spec",
+      "name": "Stepper & Driver",
+      "question": "What is a stepper motor, and why does it always need a driver",
+      "asset": "Stepper_Motor_Driver.jpg",
+      "assetAlt": "Wiring diagram of an Arduino Uno driving a 28BYJ-48 stepper motor through a ULN2003 driver board: four digital pins connect to IN1–IN4, and the driver board exposes separate 5–12 V motor-supply terminals.",
+      "summary": "Open-loop rotation in fixed steps.",
+      "keywords": [
+        "stepper",
+        "driver",
+        "a4988",
+        "uln2003",
+        "coil"
+      ],
+      "sections": [
+        {
+          "heading": "Coils and drivers",
+          "paragraphs": [
+            "Steppers move in fixed steps by energising coil pairs in sequence. Never drive them from a pin — a driver (ULN2003 for the 28BYJ-48, or A4988/DRV8825 for bipolar NEMA motors) sequences the coils and limits current."
+          ]
+        },
+        {
+          "heading": "Identifying wiring",
+          "paragraphs": [
+            "Use a multimeter to find coil pairs (a pair shows continuity; across pairs is open) before connecting, so the step sequence energises the right windings."
+          ]
+        }
+      ],
+      "hint": "A motor that vibrates in place but will not rotate has its coil wiring/sequence wrong — buzz out the coil pairs with a multimeter and re-map the driver outputs.",
+      "related": [
+        "stepper-torque",
+        "arduino",
+        "measure-resistance"
+      ]
+    },
+    {
+      "id": "stepper-torque",
+      "kind": "theory",
+      "name": "Holding Torque",
+      "question": "What is holding torque, and why do steppers skip steps",
+      "asset": "Stepper_Torque_Curve.png",
+      "assetAlt": "Graph of a typical NEMA 17 stepper motor torque-versus-speed curve: torque starts near 48 N·cm at standstill and falls steadily to under 10 N·cm as speed approaches 800 RPM.",
+      "summary": "The torque–speed limit of a stepper.",
+      "keywords": [
+        "holding torque",
+        "torque speed",
+        "microstep",
+        "slip"
+      ],
+      "sections": [
+        {
+          "heading": "Discrete steps",
+          "paragraphs": [
+            "A stepper moves in fixed angular increments and can hold a position by energising its coils — that static resisting force is holding torque, giving open-loop positioning without an encoder."
+          ]
+        },
+        {
+          "heading": "Torque vs speed",
+          "paragraphs": [
+            "Available torque falls as step rate rises (the torque-speed curve). Push too fast or too hard and the rotor slips — it skips steps silently and loses position with no error reported."
+          ]
+        }
+      ],
+      "hint": "A motor that stutters or silently loses position under load is past the torque-speed curve — slow the step rate and/or raise the driver's current limit to recover holding torque.",
+      "related": [
+        "stepper"
+      ]
+    },
+    {
+      "id": "servo-motor",
+      "kind": "spec",
+      "name": "Servo motor",
+      "question": "How does servo motor support the 3CC3 lab workflow",
+      "asset": "Servo_Motor.jpg",
+      "assetAlt": "Photo of a micro hobby servo with a translucent case, labelling the internal potentiometer, reduction gears, DC motor and electronic control circuit, with its three-wire connector in the foreground.",
+      "summary": "Interpret a pulse-width command as a target shaft position.",
+      "keywords": [
+        "servo",
+        "brown red orange",
+        "horn",
+        "coupling",
+        "motion",
+        "Lab 5",
+        "Sensors and interfaces",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Interpret a pulse-width command as a target shaft position."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: power-rails-common-ground, digital-output."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Interpret a pulse-width command as a target shaft position.",
+      "related": [
+        "pulse-width",
+        "servo-pulse-limits",
+        "automatic-wave-subvi",
+        "power-rails-common-ground",
+        "digital-output"
+      ]
+    },
+    {
+      "id": "stepper-motor",
+      "kind": "spec",
+      "name": "Stepper motor",
+      "question": "How does stepper motor support the 3CC3 lab workflow",
+      "asset": "Stepper_Motor_Driver.jpg",
+      "assetAlt": "Wiring diagram of an Arduino Uno driving a 28BYJ-48 stepper motor through a ULN2003 driver board: four digital pins connect to IN1–IN4, and the driver board exposes separate 5–12 V motor-supply terminals.",
+      "summary": "Move in discrete increments by energizing windings in sequence and holding position with energized coils.",
+      "keywords": [
+        "stepper",
+        "holding torque",
+        "steps per revolution",
+        "2048",
+        "micro-stepping",
+        "Lab 6",
+        "Sensors and interfaces",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Move in discrete increments by energizing windings in sequence and holding position with energized coils."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 6. Prerequisites: external-motor-power, motor-driver."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Move in discrete increments by energizing windings in sequence and holding position with energized coils.",
+      "related": [
+        "command-parsing",
+        "actuator-command",
+        "external-motor-power",
+        "motor-driver"
+      ]
+    },
+    {
+      "id": "motor-driver",
+      "kind": "spec",
+      "name": "Stepper motor driver",
+      "question": "How does stepper motor driver support the 3CC3 lab workflow",
+      "asset": "Stepper_Motor_Driver.jpg",
+      "assetAlt": "Wiring diagram of an Arduino Uno driving a 28BYJ-48 stepper motor through a ULN2003 driver board: four digital pins connect to IN1–IN4, and the driver board exposes separate 5–12 V motor-supply terminals.",
+      "summary": "Switch motor coils and supply motor current from the external power circuit under Arduino control.",
+      "keywords": [
+        "IN1",
+        "IN2",
+        "IN3",
+        "IN4",
+        "driver",
+        "Lab 6",
+        "Sensors and interfaces",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Switch motor coils and supply motor current from the external power circuit under Arduino control."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 6. Prerequisites: external-motor-power, digital-output."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Switch motor coils and supply motor current from the external power circuit under Arduino control.",
+      "related": [
+        "stepper-motor",
+        "safe-bench-practice",
+        "external-motor-power",
+        "digital-output"
+      ]
+    },
+    {
+      "id": "actuator-command",
+      "kind": "skill",
+      "name": "Actuator command path",
+      "question": "How does actuator command path support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Trace how a number in software becomes a bounded physical output command.",
+      "keywords": [
+        "actuator",
+        "command",
+        "sense decide act",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Trace how a number in software becomes a bounded physical output command."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5, Lab 6, Lab 7, Design Project. Prerequisites: pwm-output, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Trace how a number in software becomes a bounded physical output command.",
+      "related": [
+        "open-loop-control",
+        "ms15-interface",
+        "servo-motor",
+        "stepper-motor",
+        "remote-control",
+        "smart-system-design",
+        "pwm-output",
+        "safe-bench-practice"
+      ]
+    },
+    {
+      "id": "open-loop-control",
+      "kind": "theory",
+      "name": "Open-loop versus closed-loop control",
+      "question": "How does open-loop versus closed-loop control support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Decide whether measured output is fed back to revise the next command.",
+      "keywords": [
+        "open-loop",
+        "closed-loop",
+        "feedback",
+        "Engineering practice",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Decide whether measured output is fed back to revise the next command."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in course practice. Prerequisites: actuator-command, experimental-evidence."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Decide whether measured output is fed back to revise the next command.",
+      "related": [
+        "systematic-troubleshooting",
+        "smart-system-design",
+        "actuator-command",
+        "experimental-evidence"
+      ]
+    },
+    {
+      "id": "active-buzzer",
+      "kind": "spec",
+      "name": "Active buzzer",
+      "question": "How does active buzzer support the 3CC3 lab workflow",
+      "asset": "Active_Buzzer.jpg",
+      "assetAlt": "Exploded views comparing an active buzzer (housing, piezo bender, and PCB with built-in drive circuit) with a passive buzzer (housing, piezo disc, and plain PCB with pins, no internal oscillator).",
+      "summary": "Produce an audible alert when a digital output drives the buzzer input HIGH with correct polarity.",
+      "keywords": [
+        "buzzer",
+        "alarm",
+        "D3",
+        "Lab 3",
+        "Arduino and embedded programming",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Produce an audible alert when a digital output drives the buzzer input HIGH with correct polarity."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 3. Prerequisites: digital-output, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Produce an audible alert when a digital output drives the buzzer input HIGH with correct polarity.",
+      "related": [
+        "event-counting",
+        "digital-output",
+        "safe-bench-practice"
+      ]
+    },
+    {
+      "id": "pwm-output",
+      "kind": "theory",
+      "name": "PWM output",
+      "question": "How does pwm output support the 3CC3 lab workflow",
+      "asset": "PWM_DutyCycle_Waveforms.png",
+      "assetAlt": "Three stacked waveforms illustrating pulse-width modulation: a smooth modulating signal, a constant-width pulsed carrier, and the resulting PWM signal whose pulse widths vary to track the modulating signal.",
+      "summary": "Command apparent output intensity or servo position by switching between low and high states with timing constraints.",
+      "keywords": [
+        "PWM",
+        "duty cycle",
+        "oscilloscope",
+        "multimeter",
+        "Lab 5",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Command apparent output intensity or servo position by switching between low and high states with timing constraints."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: digital-output."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Command apparent output intensity or servo position by switching between low and high states with timing constraints.",
+      "related": [
+        "actuator-command",
+        "measurement-uncertainty",
+        "pulse-width",
+        "digital-output"
+      ]
+    },
+    {
+      "id": "pulse-width",
+      "kind": "theory",
+      "name": "Servo pulse width",
+      "question": "How does servo pulse width support the 3CC3 lab workflow",
+      "asset": "PWM_DutyCycle_Waveforms.png",
+      "assetAlt": "Three stacked waveforms illustrating pulse-width modulation: a smooth modulating signal, a constant-width pulsed carrier, and the resulting PWM signal whose pulse widths vary to track the modulating signal.",
+      "summary": "Map a command angle into a timed servo pulse measured in microseconds.",
+      "keywords": [
+        "pulse width",
+        "microseconds",
+        "1500",
+        "600",
+        "2400",
+        "PW",
+        "Lab 5",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Map a command angle into a timed servo pulse measured in microseconds."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: servo-motor, formula-node."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Map a command angle into a timed servo pulse measured in microseconds.",
+      "related": [
+        "servo-pulse-limits",
+        "pwm-output",
+        "servo-motor",
+        "formula-node"
+      ]
+    },
+    {
+      "id": "servo-pulse-limits",
+      "kind": "skill",
+      "name": "Servo pulse-width limits",
+      "question": "How does servo pulse-width limits support the 3CC3 lab workflow",
+      "asset": "PWM_DutyCycle_Waveforms.png",
+      "assetAlt": "Three stacked waveforms illustrating pulse-width modulation: a smooth modulating signal, a constant-width pulsed carrier, and the resulting PWM signal whose pulse widths vary to track the modulating signal.",
+      "summary": "Confirm safe lower and upper pulse-width values for the actual servo before testing extremes.",
+      "keywords": [
+        "LRV",
+        "URV",
+        "jitter",
+        "mechanical limit",
+        "Lab 5",
+        "Arduino and embedded programming",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Confirm safe lower and upper pulse-width values for the actual servo before testing extremes."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: pulse-width, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Confirm safe lower and upper pulse-width values for the actual servo before testing extremes.",
+      "related": [
+        "systematic-troubleshooting",
+        "pulse-width",
+        "safe-bench-practice"
+      ]
+    }
+  ]
+}

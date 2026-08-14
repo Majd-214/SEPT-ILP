@@ -1,0 +1,572 @@
+{
+  "schemaVersion": 1,
+  "id": "circuit-theory",
+  "title": "Circuit Theory",
+  "blurb": "The electrical laws every lab is built on.",
+  "order": 1,
+  "topics": [
+    {
+      "id": "ohms-law",
+      "kind": "theory",
+      "name": "Ohm's Law & Power",
+      "question": "What is Ohm's Law, and how does power follow from it",
+      "asset": "Ohms_Law_Power_Triangle.png",
+      "assetAlt": "Ohm's law and power formula wheel: the four quadrants P (watts), V (volts), I (amps) and R (ohms), each ringed by the three equivalent formulas that compute it, such as V = I × R and P = V² / R.",
+      "summary": "V = I·R and the power it implies.",
+      "keywords": [
+        "voltage",
+        "current",
+        "resistance",
+        "watt",
+        "heat"
+      ],
+      "sections": [
+        {
+          "heading": "The fundamental relationship",
+          "paragraphs": [
+            "Voltage, current and resistance are locked together by `V = I·R`. Rearranged, it sizes a current-limiting resistor, predicts the voltage across a sensor, or confirms a wire can carry the load. Dividers, bridges and amplifier gain are all this law applied repeatedly."
+          ]
+        },
+        {
+          "heading": "Power dissipation",
+          "paragraphs": [
+            "Power is `P = V·I = I²·R`. A resistor turns electrical energy into heat; exceed its rating and it browns, smells, and drifts. Assume 1/4 W resistors on the bench and check `I²R` before powering anything that draws real current."
+          ]
+        }
+      ],
+      "hint": "A resistor getting hot or smelling burnt means you exceeded its 1/4 W rating — compute I²R, then raise the resistance or use a higher-wattage part before re-testing.",
+      "related": [
+        "voltage-divider",
+        "wheatstone",
+        "measure-resistance"
+      ]
+    },
+    {
+      "id": "voltage-divider",
+      "kind": "theory",
+      "name": "Voltage Divider Rule",
+      "question": "How does a voltage divider turn resistance into a readable voltage",
+      "asset": "Voltage_Divider_Schematic.png",
+      "assetAlt": "Schematic of a two-resistor voltage divider: R1 and R2 in series across the input voltage, with the output voltage taken from the junction between them.",
+      "summary": "Reading resistive sensors as a voltage.",
+      "keywords": [
+        "vout",
+        "r1",
+        "r2",
+        "divider",
+        "analog"
+      ],
+      "sections": [
+        {
+          "heading": "Splitting a voltage",
+          "paragraphs": [
+            "Two series resistors split the supply: `Vout = Vin · R2 / (R1 + R2)`. Almost every resistive sensor here — the LDR, the thermistor, the soil probe — is read by making it one leg of a divider and watching how Vout moves as its resistance changes."
+          ]
+        },
+        {
+          "heading": "Choosing the fixed resistor",
+          "paragraphs": [
+            "Pick the fixed resistor near the sensor's mid-range resistance so the output swings across the widest part of the ADC range. A poor choice squashes your signal into a handful of counts."
+          ]
+        }
+      ],
+      "hint": "An ADC reading pinned at 0 or 1023 means the fixed resistor is mismatched to the sensor — measure the sensor at both extremes and choose a fixed resistor in between.",
+      "related": [
+        "ohms-law",
+        "photoresistor",
+        "thermistor",
+        "build-divider"
+      ]
+    },
+    {
+      "id": "pullup-pulldown",
+      "kind": "theory",
+      "name": "Pull-up / Pull-down",
+      "question": "Why does a digital input need a pull-up or pull-down resistor",
+      "asset": "PullUp_PullDown_Logic.png",
+      "assetAlt": "Side-by-side schematics of pull-up and pull-down wiring: in the pull-up, a resistor ties the input pin to +5 V and a switch pulls it to ground; in the pull-down, the resistor ties the pin to ground and the switch connects it to +5 V.",
+      "summary": "Giving a floating input a defined state.",
+      "keywords": [
+        "floating",
+        "input_pullup",
+        "logic level",
+        "switch"
+      ],
+      "sections": [
+        {
+          "heading": "Why inputs float",
+          "paragraphs": [
+            "A digital input wired to nothing is \"floating\" — it picks up noise and reads randomly. A pull-up ties it to 5 V (reads HIGH until a switch pulls it LOW); a pull-down ties it to ground."
+          ]
+        },
+        {
+          "heading": "On the Arduino",
+          "paragraphs": [
+            "Skip the external resistor with `pinMode(pin, INPUT_PULLUP)`, which enables the internal pull-up. The logic then inverts: a pressed/closed switch reads LOW."
+          ]
+        }
+      ],
+      "hint": "A switch that reads erratically when untouched is floating — enable INPUT_PULLUP (or add a 10 kΩ pull resistor) and invert your logic test.",
+      "related": [
+        "tilt-switch",
+        "arduino"
+      ]
+    },
+    {
+      "id": "wheatstone",
+      "kind": "theory",
+      "name": "Wheatstone Bridge",
+      "question": "How does a Wheatstone bridge resolve a tiny resistance change",
+      "asset": "Wheatstone_Bridge_Diagram.jpg",
+      "assetAlt": "Wheatstone bridge schematic: four resistors P, Q, R and S arranged in a diamond, a galvanometer G bridging the two middle nodes, and a battery E driving the outer corners.",
+      "summary": "Turning a small ΔR into a differential voltage.",
+      "keywords": [
+        "bridge",
+        "balance",
+        "quarter",
+        "strain"
+      ],
+      "sections": [
+        {
+          "heading": "The balanced bridge",
+          "paragraphs": [
+            "Four resistors in a diamond give zero differential output when `R1/R2 = R4/R3`. Replace one arm with a sensing element and a tiny resistance change unbalances the bridge, producing a small differential voltage proportional to that change."
+          ]
+        },
+        {
+          "heading": "Quarter, half, full",
+          "paragraphs": [
+            "Using one active arm (quarter), two (half), or all four (full) trades complexity for sensitivity and temperature compensation. The strain-gauge load cell is the canonical application."
+          ]
+        }
+      ],
+      "hint": "A bridge output of only a few millivolts buried in noise is expected — null the offset to ≈0 V at rest first, then amplify with an op-amp stage before reading it.",
+      "related": [
+        "ohms-law",
+        "strain-gauge",
+        "opamp-gain",
+        "wire-bridge"
+      ]
+    },
+    {
+      "id": "opamp-gain",
+      "kind": "theory",
+      "name": "Op-Amp Gain",
+      "question": "How does an op-amp amplify a weak signal to a readable range",
+      "asset": "OpAmp_Gain_Configs.png",
+      "assetAlt": "Schematics of the two classic op-amp gain configurations: a non-inverting amplifier with gain Av = 1 + R2/R1 and an inverting amplifier with gain Av = −R2/R1, each showing its R1–R2 feedback network.",
+      "summary": "Setting gain and respecting the rails.",
+      "keywords": [
+        "gain",
+        "non-inverting",
+        "rail",
+        "offset"
+      ],
+      "sections": [
+        {
+          "heading": "Setting the gain",
+          "paragraphs": [
+            "A non-inverting amplifier has gain `G = 1 + Rf/Rin`; an inverting one has `G = −Rf/Rin`. This lifts millivolt bridge or sensor signals to a volt-level range the ADC can resolve."
+          ]
+        },
+        {
+          "heading": "Rails and offset",
+          "paragraphs": [
+            "A single-supply op-amp only outputs between its rails (0–5 V here), so centre your signal and watch for clipping. Input offset voltage gets amplified too — trim or reference it deliberately."
+          ]
+        }
+      ],
+      "hint": "An output stuck at a supply rail means the gain is too high for the input swing, or a DC offset is being amplified into saturation — reduce gain and bias the signal to re-centre it.",
+      "related": [
+        "wheatstone",
+        "lmc6484",
+        "strain-gauge"
+      ]
+    },
+    {
+      "id": "pwm",
+      "kind": "theory",
+      "name": "PWM & Duty Cycle",
+      "question": "How does PWM fake an analog level with a square wave",
+      "asset": "PWM_DutyCycle_Waveforms.png",
+      "assetAlt": "Three stacked waveforms illustrating pulse-width modulation: a smooth modulating signal, a constant-width pulsed carrier, and the resulting PWM signal whose pulse widths vary to track the modulating signal.",
+      "summary": "Duty cycle as an average voltage.",
+      "keywords": [
+        "duty cycle",
+        "analogwrite",
+        "frequency",
+        "average"
+      ],
+      "sections": [
+        {
+          "heading": "Duty cycle = average",
+          "paragraphs": [
+            "PWM switches a pin fully on/off fast; the fraction of time it is HIGH (duty cycle) sets the effective average voltage. `analogWrite(pin, 0..255)` maps to 0–100% duty, driving LED brightness, motor speed and heater power efficiently."
+          ]
+        },
+        {
+          "heading": "Frequency matters",
+          "paragraphs": [
+            "The right frequency depends on the load. A servo expects a specific ≈50 Hz pulse train, not the default analogWrite frequency — which is why you use the Servo library to position it."
+          ]
+        }
+      ],
+      "hint": "A servo buzzing or refusing to hold position is getting the wrong PWM frequency — use the Servo library (correct ≈50 Hz, 1–2 ms pulse) rather than analogWrite.",
+      "related": [
+        "servo",
+        "arduino"
+      ]
+    },
+    {
+      "id": "dc-circuits",
+      "kind": "theory",
+      "name": "DC circuit fundamentals",
+      "question": "How does dc circuit fundamentals support the 3CC3 lab workflow",
+      "asset": "Voltage_Divider_Schematic.png",
+      "assetAlt": "Schematic of a simple series DC circuit: a voltage source driving two resistors, with the output voltage taken between them — source, load, path and reference in one loop.",
+      "summary": "Understand source, load, path, and reference in a direct-current circuit.",
+      "keywords": [
+        "circuit",
+        "DC",
+        "Lab 1",
+        "Circuits and components",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Understand source, load, path, and reference in a direct-current circuit."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Use this as a reusable reference when the lab does not give a step-by-step reminder."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Understand source, load, path, and reference in a direct-current circuit.",
+      "related": [
+        "voltage-divider",
+        "power-rails-common-ground"
+      ]
+    },
+    {
+      "id": "resistor-values",
+      "kind": "spec",
+      "name": "Resistor values and units",
+      "question": "How does resistor values and units support the 3CC3 lab workflow",
+      "asset": "Voltage_Divider_Schematic.png",
+      "assetAlt": "Schematic of a two-resistor voltage divider: R1 and R2 in series across the input voltage, with the output voltage taken from the junction between them.",
+      "summary": "Use Ω, kΩ, and component values consistently.",
+      "keywords": [
+        "Ω",
+        "kΩ",
+        "MΩ",
+        "4.7",
+        "10 kΩ",
+        "100 kΩ",
+        "1 MΩ",
+        "Lab 1",
+        "Lab 2",
+        "Lab 3",
+        "Lab 4",
+        "Circuits and components",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use Ω, kΩ, and component values consistently."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 3, Lab 4. Prerequisites: dc-circuits."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use Ω, kΩ, and component values consistently.",
+      "related": [
+        "measurement-units",
+        "led-current-limiting",
+        "pull-down-resistor",
+        "op-amp-gain",
+        "dc-circuits"
+      ]
+    },
+    {
+      "id": "breadboard",
+      "kind": "spec",
+      "name": "Breadboard connectivity",
+      "question": "How does breadboard connectivity support the 3CC3 lab workflow",
+      "asset": "Breadboard_Power_Rails.jpg",
+      "assetAlt": "Isometric illustration of a solderless breadboard with the long red and blue power rails and two short five-hole terminal rows outlined to show exactly which holes are connected internally.",
+      "summary": "Understand how connected rows, separated halves, and component placement affect wiring.",
+      "keywords": [
+        "breadboard",
+        "Tinkercad",
+        "Lab 1",
+        "Lab 2",
+        "Lab 3",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "Circuits and components",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Understand how connected rows, separated halves, and component placement affect wiring."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 3, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8. Prerequisites: dc-circuits."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Understand how connected rows, separated halves, and component placement affect wiring.",
+      "related": [
+        "wiring-map",
+        "systematic-troubleshooting",
+        "dc-circuits"
+      ]
+    },
+    {
+      "id": "power-rails-common-ground",
+      "kind": "theory",
+      "name": "Power rails and common ground",
+      "question": "How does power rails and common ground support the 3CC3 lab workflow",
+      "asset": "Breadboard_Power_Rails.jpg",
+      "assetAlt": "Isometric breadboard illustration with the long red and blue power rails outlined along the board edges — the shared supply and ground paths every part of the circuit must return to — beside the short internal terminal rows.",
+      "summary": "Provide a shared voltage reference so measurements and signals make sense.",
+      "keywords": [
+        "ground",
+        "GND",
+        "rails",
+        "0 V reference",
+        "Lab 1",
+        "Lab 2",
+        "Lab 3",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "Circuits and components",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Provide a shared voltage reference so measurements and signals make sense."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 3, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8. Prerequisites: dc-circuits."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Provide a shared voltage reference so measurements and signals make sense.",
+      "related": [
+        "analog-input",
+        "systematic-troubleshooting",
+        "ms15-interface",
+        "external-motor-power",
+        "dc-circuits"
+      ]
+    },
+    {
+      "id": "external-motor-power",
+      "kind": "skill",
+      "name": "External motor power",
+      "question": "How does external motor power support the 3CC3 lab workflow",
+      "asset": "Voltage_Divider_Schematic.png",
+      "assetAlt": "Schematic of a two-resistor voltage divider: R1 and R2 in series across the input voltage, with the output voltage taken from the junction between them.",
+      "summary": "Use a separate regulated motor supply when actuator current exceeds what Arduino should provide.",
+      "keywords": [
+        "external power",
+        "9 V",
+        "5 V rail",
+        "breadboard power supply",
+        "Lab 6",
+        "Circuits and components",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use a separate regulated motor supply when actuator current exceeds what Arduino should provide."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 6. Prerequisites: power-rails-common-ground, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use a separate regulated motor supply when actuator current exceeds what Arduino should provide.",
+      "related": [
+        "motor-driver",
+        "stepper-motor",
+        "power-rails-common-ground",
+        "safe-bench-practice"
+      ]
+    },
+    {
+      "id": "pull-down-resistor",
+      "kind": "theory",
+      "name": "Pull-down resistor",
+      "question": "How does pull-down resistor support the 3CC3 lab workflow",
+      "asset": "PullUp_PullDown_Logic.png",
+      "assetAlt": "Side-by-side schematics of pull-up and pull-down wiring; in the pull-down half, a resistor holds the input pin at ground so it reads LOW until the switch to +5 V closes and drives it HIGH.",
+      "summary": "Hold a digital input LOW when a switch is open so the input does not float.",
+      "keywords": [
+        "floating input",
+        "10 kΩ",
+        "digital logic",
+        "Lab 3",
+        "Circuits and components",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Hold a digital input LOW when a switch is open so the input does not float."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 3. Prerequisites: resistor-values, power-rails-common-ground."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Hold a digital input LOW when a switch is open so the input does not float.",
+      "related": [
+        "tilt-switch",
+        "digital-input",
+        "resistor-values",
+        "power-rails-common-ground"
+      ]
+    },
+    {
+      "id": "led-polarity",
+      "kind": "theory",
+      "name": "LED polarity",
+      "question": "How does led polarity support the 3CC3 lab workflow",
+      "asset": "Voltage_Divider_Schematic.png",
+      "assetAlt": "Schematic of a two-resistor voltage divider: R1 and R2 in series across the input voltage, with the output voltage taken from the junction between them.",
+      "summary": "Orient the LED correctly so current can flow in the intended direction.",
+      "keywords": [
+        "LED",
+        "anode",
+        "cathode",
+        "Lab 1",
+        "Circuits and components",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Orient the LED correctly so current can flow in the intended direction."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: dc-circuits."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Orient the LED correctly so current can flow in the intended direction.",
+      "related": [
+        "led-current-limiting",
+        "digital-output",
+        "dc-circuits"
+      ]
+    },
+    {
+      "id": "led-current-limiting",
+      "kind": "theory",
+      "name": "LED current-limiting resistors",
+      "question": "How does led current-limiting resistors support the 3CC3 lab workflow",
+      "asset": "Voltage_Divider_Schematic.png",
+      "assetAlt": "Schematic of a two-resistor voltage divider: R1 and R2 in series across the input voltage, with the output voltage taken from the junction between them.",
+      "summary": "Protect the LED by limiting current in the output path.",
+      "keywords": [
+        "220 Ω",
+        "resistor",
+        "Lab 1",
+        "Lab 7",
+        "Circuits and components",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Protect the LED by limiting current in the output path."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 7. Prerequisites: resistor-values, led-polarity."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Protect the LED by limiting current in the output path.",
+      "related": [
+        "digital-output",
+        "remote-control",
+        "resistor-values",
+        "led-polarity"
+      ]
+    },
+    {
+      "id": "resistors-led",
+      "kind": "spec",
+      "name": "Resistors and LED Polarity",
+      "question": "Which resistor goes where, and why does LED orientation matter",
+      "summary": "Choosing the right resistor for each job and orienting the LED correctly.",
+      "keywords": [
+        "resistors",
+        "LED",
+        "polarity",
+        "circuits"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "The divider uses a 4.7 kΩ resistor. The LED path uses 220 Ω to limit current. An LED is polarized, so orientation matters."
+          ]
+        }
+      ],
+      "hint": "A reversed LED may stay off; an LED without current limiting can be damaged.",
+      "related": [
+        "led-polarity",
+        "led-current-limiting",
+        "resistor-values",
+        "voltage-divider"
+      ]
+    }
+  ]
+}
