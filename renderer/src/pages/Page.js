@@ -81,6 +81,23 @@ export class Page {
       entries);
   }
 
+  /**
+   * The constant wayfinding cluster at the top of the rail. It is the
+   * same on every page, minus the page you are on.
+   * @param {"portal" | "knowledge" | null} current
+   * @returns {string}
+   */
+  navGlobal(current) {
+    const root = this.context.relativeRoot;
+    const links = [
+      current !== 'portal' && Html.el('a', { class: 'c-nav__item', href: `${root}index.html` },
+        Html.el('span', { class: 'c-nav__text' }, 'Course home')),
+      current !== 'knowledge' && Html.el('a', { class: 'c-nav__item', href: `${root}knowledge/index.html` },
+        Html.el('span', { class: 'c-nav__text' }, 'Knowledge base')),
+    ].filter(Boolean);
+    return Html.el('div', { class: 'c-nav__top' }, links);
+  }
+
   /** @returns {string} The complete HTML document. */
   render() {
     const root = this.context.relativeRoot;

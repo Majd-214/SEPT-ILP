@@ -82,6 +82,9 @@ class KnowledgeSearch {
       if (show) visible += 1;
     }
 
+    for (const group of Dom.all('[data-kb-group]')) {
+      group.hidden = Dom.all('[data-kb-topic]', group).every((topic) => topic.hidden);
+    }
     for (const domain of this.domains) {
       domain.hidden = Dom.all('[data-kb-topic]', domain).every((topic) => topic.hidden);
     }

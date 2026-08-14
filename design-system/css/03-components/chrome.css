@@ -150,6 +150,12 @@
   padding: var(--md-sys-space-6) var(--md-sys-space-5) var(--md-sys-space-8);
 }
 
+@media (max-width: 639.98px) {
+  .l-content {
+    padding-inline: var(--md-sys-space-4);
+  }
+}
+
 /* --------------------------------------------------------------------------
    Navigation rail
    -------------------------------------------------------------------------- */
@@ -163,6 +169,19 @@
   padding: var(--md-sys-space-5) var(--md-sys-space-3) var(--md-sys-space-7);
   border-right: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface);
+}
+
+/* Constant wayfinding links at the top of the rail, kept visually
+   quieter than the page's own structure below them */
+.c-nav__top {
+  margin-bottom: var(--md-sys-space-4);
+  padding-bottom: var(--md-sys-space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-nav__top .c-nav__item {
+  font-size: 0.8rem;
+  padding-block: 0.4rem;
 }
 
 .c-nav__group {
@@ -298,7 +317,7 @@
    Page header inside the content column
    -------------------------------------------------------------------------- */
 .c-hero {
-  padding-block: var(--md-sys-space-4) var(--md-sys-space-6);
+  padding-bottom: var(--md-sys-space-6);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
   margin-bottom: var(--md-sys-space-6);
 }

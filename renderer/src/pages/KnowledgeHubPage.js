@@ -34,13 +34,9 @@ export class KnowledgeHubPage extends Page {
     Html.el('span', { class: 'c-nav__text' }, Html.escape(domain.title)),
     ));
 
-    const root = this.context.relativeRoot;
     return [
+      this.navGlobal('knowledge'),
       this.navGroup('Domains', domains),
-      this.navGroup('Course', [
-        Html.el('a', { class: 'c-nav__item', href: `${root}index.html` },
-          Html.el('span', { class: 'c-nav__text' }, 'Course home')),
-      ].join('')),
     ].join('');
   }
 
@@ -90,7 +86,25 @@ export class KnowledgeHubPage extends Page {
     ].join('');
   }
 
+  static #KINDS = [
+    ['theory', 'Theory'],
+    ['skill', 'Skills'],
+    ['spec', 'Specifications'],
+  ];
+
   #domain(domain) {
+    const groups = KnowledgeHubPage.#KINDS
+      .map(([kind, label]) => {
+        const topics = domain.topics.filter((topic) => topic.kind === kind);
+        if (topics.length === 0) return null;
+        return Html.el('div', { class: 'c-kb-group', 'data-kb-group': true },
+          Html.el('p', { class: 'c-kb-group__label' }, Html.escape(label)),
+          Html.el('ul', { class: 'c-kb-group__list' },
+            topics.map((topic) => Html.el('li', { class: 'c-kb-group__item' }, this.#topic(topic)))),
+        );
+      })
+      .filter(Boolean);
+
     return Html.el('section', {
       class: 'c-kb-domain',
       id: `domain-${domain.id}`,
@@ -99,18 +113,21 @@ export class KnowledgeHubPage extends Page {
     },
     Html.el('h2', { class: 'c-kb-domain__title' }, Html.escape(domain.title)),
     Html.el('p', { class: 'c-kb-domain__blurb' }, this.context.rich(domain.blurb)),
-    Html.el('div', { class: 'o-stack o-stack--tight' },
-      domain.topics.map((topic) => Html.el('a', {
-        class: 'c-kb-topic',
-        href: `${topic.id}.html`,
-        'data-kb-topic': true,
-        'data-kb-kind': topic.kind,
-        'data-kb-haystack': KnowledgeHubPage.#haystack(topic),
-      },
-      Html.el('span', { class: 'c-kb-topic__name' }, Html.escape(topic.name)),
-      Html.el('span', { class: 'c-kb-topic__summary' }, this.context.rich(topic.summary)),
-      Html.el('span', { class: `c-kb-kind c-kb-kind--${topic.kind}` }, Html.escape(topic.kind)),
-      ))),
+    Html.el('div', { class: 'c-kb-domain__body' }, groups),
+    );
+  }
+
+  #topic(topic) {
+    return Html.el('a', {
+      class: 'c-kb-topic',
+      href: `${topic.id}.html`,
+      'data-kb-topic': true,
+      'data-kb-kind': topic.kind,
+      'data-kb-haystack': KnowledgeHubPage.#haystack(topic),
+    },
+    Html.el('span', { class: 'c-kb-topic__name' }, Html.escape(topic.name)),
+    Html.el('span', { class: 'c-kb-topic__summary' }, this.context.rich(topic.summary)),
+    Html.el('span', { class: `c-kb-kind c-kb-kind--${topic.kind}` }, Html.escape(topic.kind)),
     );
   }
 

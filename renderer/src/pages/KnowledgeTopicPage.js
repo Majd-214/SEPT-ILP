@@ -47,14 +47,8 @@ export class KnowledgeTopicPage extends Page {
     Html.el('span', { class: 'c-nav__text' }, Html.escape(entry.name)),
     ));
 
-    const root = this.context.relativeRoot;
     return [
-      this.navGroup('Reference', [
-        Html.el('a', { class: 'c-nav__item', href: 'index.html' },
-          Html.el('span', { class: 'c-nav__text' }, 'All domains')),
-        Html.el('a', { class: 'c-nav__item', href: `${root}index.html` },
-          Html.el('span', { class: 'c-nav__text' }, 'Course home')),
-      ].join('')),
+      this.navGlobal(null),
       this.navGroup(this.domain.title, topics),
     ].join('');
   }

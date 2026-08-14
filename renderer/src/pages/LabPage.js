@@ -69,15 +69,9 @@ export class LabPage extends Page {
     Html.el('span', { class: 'c-nav__check', 'aria-hidden': 'true' }, '✓'),
     ));
 
-    const root = this.context.relativeRoot;
     return [
+      this.navGlobal(null),
       this.navGroup(this.isProject ? 'Phases' : 'Checkpoints', steps),
-      this.navGroup('Course', [
-        Html.el('a', { class: 'c-nav__item', href: `${root}index.html` },
-          Html.el('span', { class: 'c-nav__text' }, 'Course home')),
-        Html.el('a', { class: 'c-nav__item', href: `${root}knowledge/index.html` },
-          Html.el('span', { class: 'c-nav__text' }, 'Knowledge base')),
-      ].join('')),
     ].join('');
   }
 

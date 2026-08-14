@@ -29,14 +29,6 @@ export class PortalPage extends Page {
   }
 
   navigation() {
-    const sections = [
-      ['#overview', 'Overview'],
-      ['#labs', 'Laboratories'],
-      ['knowledge/index.html', 'Knowledge base'],
-      ['#reset', 'Saved progress'],
-    ].map(([href, label]) => Html.el('a', { class: 'c-nav__item', href },
-      Html.el('span', { class: 'c-nav__text' }, Html.escape(label))));
-
     const labs = [
       ...this.repository.labs.map((lab) => Html.el('a', {
         class: 'c-nav__item',
@@ -54,7 +46,7 @@ export class PortalPage extends Page {
     ];
 
     return [
-      Html.el('div', { class: 'c-nav__group' }, sections),
+      this.navGlobal('portal'),
       this.navGroup('Laboratories', labs),
     ].join('');
   }
