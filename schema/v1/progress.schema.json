@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://majd-214.github.io/SEPT-ILP/schema/v1/progress.schema.json",
+  "title": "SEPT-ILP student progress file v1",
+  "description": "The student's portable record of lab state: answers, measurements, confirmations, and timestamps. Browser storage is a convenience cache; this file is the system of record. It is human-readable by design and restores on any browser, any machine, any day.",
+  "type": "object",
+  "properties": {
+    "platform": { "const": "sept-ilp" },
+    "progressVersion": { "const": 1 },
+    "course": { "type": "string", "description": "Course id the state belongs to." },
+    "lab": { "type": "string", "description": "Lab id the state belongs to." },
+    "labTitle": { "type": "string" },
+    "contentVersion": {
+      "type": "string",
+      "description": "The lab contentVersion this state was recorded against. Restore warns when versions differ."
+    },
+    "exportedAt": { "type": "string", "format": "date-time" },
+    "state": {
+      "type": "object",
+      "properties": {
+        "currentCheckpoint": { "type": "string" },
+        "confirmed": {
+          "type": "object",
+          "description": "Checkpoint id → ISO timestamp of confirmation.",
+          "additionalProperties": { "type": "string" }
+        },
+        "quizzes": {
+          "type": "object",
+          "description": "Quiz id → attempt record.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "selection": { "type": "string" },
+              "correct": { "type": "boolean" },
+              "attempts": { "type": "integer", "minimum": 0 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "fields": {
+          "type": "object",
+          "description": "Field key → entered value.",
+          "additionalProperties": { "type": "string" }
+        },
+        "checks": {
+          "type": "object",
+          "description": "Checklist key → confirmed.",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "ordering": {
+          "type": "object",
+          "description": "Ordering key → item keys in the student's current arrangement, plus solved state.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "arrangement": { "type": "array", "items": { "type": "string" } },
+              "solved": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "description": "Evidence key → chosen filename (a memory aid; file contents are never stored).",
+          "additionalProperties": { "type": "string" }
+        },
+        "tabs": {
+          "type": "object",
+          "description": "Tab group key → selected tab key.",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["platform", "progressVersion", "course", "lab", "contentVersion", "exportedAt", "state"],
+  "additionalProperties": false
+}

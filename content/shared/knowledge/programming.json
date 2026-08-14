@@ -1,0 +1,1748 @@
+{
+  "schemaVersion": 1,
+  "id": "programming",
+  "title": "Programming & Control",
+  "blurb": "From dataflow logic to live control.",
+  "order": 6,
+  "topics": [
+    {
+      "id": "dataflow",
+      "kind": "theory",
+      "name": "Dataflow Paradigm",
+      "question": "Why does LabVIEW not run top-to-bottom",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Execution by data availability.",
+      "keywords": [
+        "dataflow",
+        "labview",
+        "parallel",
+        "order"
+      ],
+      "sections": [
+        {
+          "heading": "Execution by data, not lines",
+          "paragraphs": [
+            "In a dataflow language a node executes the moment all its inputs are available — not in textual order. Independent branches run in parallel automatically, which is powerful but surprising if you think sequentially."
+          ]
+        },
+        {
+          "heading": "Forcing order",
+          "paragraphs": [
+            "When order matters (open port → read → close), you create artificial data dependencies — error clusters wired in series, or a Sequence structure — so one node cannot start until the previous finishes."
+          ]
+        }
+      ],
+      "hint": "A LabVIEW VI running its steps in the \"wrong\" order has no implied sequence — chain the error in/out wire through the nodes, or wrap them in a Flat Sequence, to force order.",
+      "related": [
+        "labview-fundamentals"
+      ]
+    },
+    {
+      "id": "labview-fundamentals",
+      "kind": "skill",
+      "name": "LabVIEW Loops",
+      "question": "How do I use loops and shift registers in LabVIEW",
+      "asset": "LabVIEW_BlockDiagram.png",
+      "assetAlt": "Screenshot of a large LabVIEW block diagram: nested while loops and case structures joined by coloured wires that carry data between string, numeric and Boolean terminals, subVIs and indicators.",
+      "summary": "Repeating logic and remembering state.",
+      "keywords": [
+        "labview",
+        "loop",
+        "shift register",
+        "front panel"
+      ],
+      "sections": [
+        {
+          "heading": "Front panel + block diagram",
+          "paragraphs": [
+            "Every VI has a front panel (the UI) and a block diagram (the graphical code). You build behaviour by wiring nodes; While and For loops repeat a section of diagram."
+          ]
+        },
+        {
+          "heading": "Shift registers",
+          "paragraphs": [
+            "A plain wire inside a loop resets every iteration. A shift register carries a value from one iteration to the next — essential for running totals, filters and state machines."
+          ]
+        }
+      ],
+      "hint": "A value that resets to its default every loop iteration was wired through a tunnel — right-click the loop border and Replace with Shift Register to persist it.",
+      "related": [
+        "dataflow",
+        "labview-linx",
+        "labview-visa"
+      ]
+    },
+    {
+      "id": "labview-linx",
+      "kind": "skill",
+      "name": "LabVIEW LINX",
+      "question": "How do I drive Arduino pins from LabVIEW with LINX",
+      "asset": "LabVIEW_LINX_Palette.png",
+      "assetAlt": "Screenshot of the LabVIEW MakerHub functions palette expanded to show the LINX sub-palette (Open, Close, Peripherals, Sensors, Utilities) and the Toolbox sub-palette.",
+      "summary": "Controlling Arduino from the diagram.",
+      "keywords": [
+        "linx",
+        "hobbyist",
+        "arduino",
+        "session"
+      ],
+      "sections": [
+        {
+          "heading": "What LINX does",
+          "paragraphs": [
+            "The LINX (Hobbyist) toolkit lets LabVIEW read and write Arduino pins directly — analog read, digital write, PWM — without writing C. Deploy its firmware once, then drive the board from the block diagram."
+          ]
+        },
+        {
+          "heading": "Session management",
+          "paragraphs": [
+            "Open the LINX session once before your main loop and close it once after — never inside the loop. Match the baud rate and select the correct COM port."
+          ]
+        }
+      ],
+      "hint": "LINX that runs slowly or errors repeatedly is opening/closing the session inside the loop — open before the loop, pass the reference through a shift register, close after.",
+      "related": [
+        "labview-fundamentals",
+        "arduino",
+        "thingsboard"
+      ]
+    },
+    {
+      "id": "labview-visa",
+      "kind": "skill",
+      "name": "LabVIEW VISA",
+      "question": "How do I read an Arduino serial stream with VISA",
+      "asset": "LabVIEW_VISA_Serial.png",
+      "assetAlt": "LabVIEW block diagram for VISA serial input: a COM-port control and 9600-baud constant configure the serial port, a while loop polls Bytes at Port and reads into a string indicator, and VISA Close runs after the stop button.",
+      "summary": "Parsing raw serial in LabVIEW.",
+      "keywords": [
+        "visa",
+        "serial",
+        "baud",
+        "termination"
+      ],
+      "sections": [
+        {
+          "heading": "When to use VISA",
+          "paragraphs": [
+            "When you write your own Arduino sketch that prints over Serial, VISA is how LabVIEW reads that stream. Configure the port (baud, data bits), then read/write bytes and parse them."
+          ]
+        },
+        {
+          "heading": "Framing the data",
+          "paragraphs": [
+            "Agree on a termination character (usually newline) on both sides so VISA knows where one message ends, and configure the serial read to stop on that terminator."
+          ]
+        }
+      ],
+      "hint": "VISA returning garbage, partial lines, or hanging is nearly always a baud-rate or termination-character mismatch — set both ends identical and clear the buffer before reading.",
+      "related": [
+        "labview-fundamentals",
+        "arduino"
+      ]
+    },
+    {
+      "id": "arduino-threshold",
+      "kind": "skill",
+      "name": "Threshold Control",
+      "question": "How do I turn a sensor reading into an action on the Arduino",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "analogRead → if/else → digitalWrite.",
+      "keywords": [
+        "analogread",
+        "digitalwrite",
+        "if",
+        "threshold"
+      ],
+      "sections": [
+        {
+          "heading": "Read, compare, act",
+          "paragraphs": [
+            "In `loop()`, read the sensor with `analogRead()`, compare it to a threshold with an `if/else`, and command an actuator with `digitalWrite()`. This is the automatic-lighting pattern at the heart of the labs."
+          ]
+        },
+        {
+          "heading": "Choosing the threshold",
+          "paragraphs": [
+            "Set the threshold from calibrated measurements, and test around the boundary — not just obvious cases — so the actuator switches cleanly rather than chattering near the limit."
+          ]
+        }
+      ],
+      "hint": "An actuator that chatters on and off near the trigger point needs hysteresis — use two thresholds (one to turn on, a separate one to turn off) instead of a single value.",
+      "related": [
+        "calibrate-sensor",
+        "arduino",
+        "ultrasonic"
+      ]
+    },
+    {
+      "id": "labview-interface",
+      "kind": "theory",
+      "name": "LabVIEW interface",
+      "question": "How does labview interface support the 3CC3 lab workflow",
+      "asset": "LabVIEW_BlockDiagram.png",
+      "assetAlt": "Screenshot of a large LabVIEW block diagram: nested while loops and case structures joined by coloured wires that carry data between string, numeric and Boolean terminals, subVIs and indicators.",
+      "summary": "Recognize the relationship between the front panel and the block diagram.",
+      "keywords": [
+        "LabVIEW",
+        "interface",
+        "Lab 1",
+        "Lab 2",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Recognize the relationship between the front panel and the block diagram."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 5, Lab 6, Lab 7, Lab 8. Use this as a reusable reference when the lab does not give a step-by-step reminder."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Recognize the relationship between the front panel and the block diagram.",
+      "related": [
+        "front-panel",
+        "block-diagram"
+      ]
+    },
+    {
+      "id": "front-panel",
+      "kind": "theory",
+      "name": "Front panel",
+      "question": "How does front panel support the 3CC3 lab workflow",
+      "asset": "LabVIEW_BlockDiagram.png",
+      "assetAlt": "Screenshot of a large LabVIEW block diagram: nested while loops and case structures joined by coloured wires that carry data between string, numeric and Boolean terminals, subVIs and indicators.",
+      "summary": "Use the front panel as the user-facing space for controls, indicators, labels, and identity information.",
+      "keywords": [
+        "LabVIEW",
+        "user interface",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use the front panel as the user-facing space for controls, indicators, labels, and identity information."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8. Prerequisites: labview-interface."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use the front panel as the user-facing space for controls, indicators, labels, and identity information.",
+      "related": [
+        "controls-indicators",
+        "hmi-controls",
+        "cloud-hmi",
+        "labview-interface"
+      ]
+    },
+    {
+      "id": "block-diagram",
+      "kind": "theory",
+      "name": "Block diagram",
+      "question": "How does block diagram support the 3CC3 lab workflow",
+      "asset": "LabVIEW_BlockDiagram.png",
+      "assetAlt": "Screenshot of a large LabVIEW block diagram: nested while loops and case structures joined by coloured wires that carry data between string, numeric and Boolean terminals, subVIs and indicators.",
+      "summary": "Use the block diagram for dataflow logic, terminals, functions, and structures.",
+      "keywords": [
+        "LabVIEW",
+        "dataflow",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use the block diagram for dataflow logic, terminals, functions, and structures."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8. Prerequisites: labview-interface."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use the block diagram for dataflow logic, terminals, functions, and structures.",
+      "related": [
+        "while-loops",
+        "for-loops",
+        "case-structure",
+        "labview-interface"
+      ]
+    },
+    {
+      "id": "program-elements",
+      "kind": "spec",
+      "name": "Program elements",
+      "question": "How does program elements support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Identify the objects that make up a LabVIEW program.",
+      "keywords": [
+        "LabVIEW",
+        "programming",
+        "Lab 1",
+        "Lab 2",
+        "Lab 5",
+        "LabVIEW and graphical programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Identify the objects that make up a LabVIEW program."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 5. Prerequisites: labview-interface."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Identify the objects that make up a LabVIEW program.",
+      "related": [
+        "controls-indicators",
+        "vi-subvi",
+        "formula-node",
+        "labview-interface"
+      ]
+    },
+    {
+      "id": "controls-indicators",
+      "kind": "theory",
+      "name": "Controls and indicators",
+      "question": "How does controls and indicators support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Distinguish values students enter from values the program displays.",
+      "keywords": [
+        "LabVIEW",
+        "input",
+        "output",
+        "Voltage Reading",
+        "Angle",
+        "Speed",
+        "NumberOfWaves",
+        "RPM",
+        "Direction",
+        "Distance",
+        "LED",
+        "Voltage",
+        "percent_moisture",
+        "Low Moisture",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Distinguish values students enter from values the program displays."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8. Prerequisites: front-panel."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Distinguish values students enter from values the program displays.",
+      "related": [
+        "voltage-divider-vi",
+        "temperature-conversion",
+        "hmi-controls",
+        "cloud-hmi",
+        "front-panel"
+      ]
+    },
+    {
+      "id": "vi-subvi",
+      "kind": "theory",
+      "name": "VI and SubVI",
+      "question": "How does vi and subvi support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Understand how a LabVIEW program can become a reusable subroutine.",
+      "keywords": [
+        "LabVIEW",
+        "reuse",
+        "Lab 1",
+        "Lab 2",
+        "Lab 5",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Understand how a LabVIEW program can become a reusable subroutine."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 5. Prerequisites: labview-interface."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Understand how a LabVIEW program can become a reusable subroutine.",
+      "related": [
+        "voltage-divider-vi",
+        "temperature-conversion",
+        "automatic-wave-subvi",
+        "labview-interface"
+      ]
+    },
+    {
+      "id": "hmi-controls",
+      "kind": "skill",
+      "name": "HMI controls",
+      "question": "How does hmi controls support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Use front-panel controls to let a person choose mode and command motion.",
+      "keywords": [
+        "HMI",
+        "Choice",
+        "Manual",
+        "Automatic",
+        "GO",
+        "Speed",
+        "NumberOfWaves",
+        "Dashboard",
+        "LED",
+        "Lab 5",
+        "Lab 7",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use front-panel controls to let a person choose mode and command motion."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5, Lab 7. Prerequisites: front-panel, controls-indicators."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use front-panel controls to let a person choose mode and command motion.",
+      "related": [
+        "case-structure",
+        "servo-motor",
+        "cloud-hmi",
+        "front-panel",
+        "controls-indicators"
+      ]
+    },
+    {
+      "id": "case-structure",
+      "kind": "skill",
+      "name": "Case Structure",
+      "question": "How does case structure support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Select which LabVIEW logic runs based on a mode such as Manual or Automatic.",
+      "keywords": [
+        "Manual",
+        "Automatic",
+        "Default",
+        "Choice",
+        "Lab 5",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Select which LabVIEW logic runs based on a mode such as Manual or Automatic."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: block-diagram, controls-indicators."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Select which LabVIEW logic runs based on a mode such as Manual or Automatic.",
+      "related": [
+        "formula-node",
+        "automatic-wave-subvi",
+        "block-diagram",
+        "controls-indicators"
+      ]
+    },
+    {
+      "id": "formula-node",
+      "kind": "skill",
+      "name": "Formula Node",
+      "question": "How does Formula Node support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Use script-style equations inside the existing Lab 5 servo activities for angle, pulse-width, and automatic motion logic.",
+      "keywords": [
+        "Formula Node",
+        "Angle",
+        "PW",
+        "URV",
+        "LRV",
+        "Lab 5",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use script-style equations inside the existing Lab 5 servo activities for angle, pulse-width, and automatic motion logic."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: program-elements."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the Lab 5 servo system and connect it to angle, pulse-width, or automatic motion logic.",
+      "related": [
+        "pulse-width",
+        "automatic-wave-subvi",
+        "program-elements"
+      ]
+    },
+    {
+      "id": "local-variables",
+      "kind": "theory",
+      "name": "Local variables",
+      "question": "How does local variables support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Read previous LabVIEW values so automatic motion can continue from its last state.",
+      "keywords": [
+        "AngleLast",
+        "DirectionLast",
+        "WaveCountLast",
+        "WavingLast",
+        "Distance",
+        "RX Value",
+        "percent_moisture",
+        "moisture_threshold",
+        "Lab 5",
+        "Lab 7",
+        "Lab 8",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Read previous LabVIEW values so automatic motion can continue from its last state."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5, Lab 7, Lab 8. Prerequisites: block-diagram."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Read previous LabVIEW values so automatic motion can continue from its last state.",
+      "related": [
+        "automatic-wave-subvi",
+        "shift-registers",
+        "mqtt",
+        "block-diagram"
+      ]
+    },
+    {
+      "id": "automatic-wave-subvi",
+      "kind": "skill",
+      "name": "Automatic-wave SubVI",
+      "question": "How does automatic-wave subvi support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Generate a reusable waving angle command from GO, Speed, and NumberOfWaves.",
+      "keywords": [
+        "Wave Servo",
+        "waving",
+        "robot arm",
+        "Lab 5",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Generate a reusable waving angle command from GO, Speed, and NumberOfWaves."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: vi-subvi, local-variables, formula-node."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Generate a reusable waving angle command from GO, Speed, and NumberOfWaves.",
+      "related": [
+        "servo-motor",
+        "pulse-width",
+        "vi-subvi",
+        "local-variables",
+        "formula-node"
+      ]
+    },
+    {
+      "id": "temperature-conversion",
+      "kind": "skill",
+      "name": "Temperature conversion VI",
+      "question": "How does temperature conversion vi support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Convert Celsius values into Fahrenheit or Kelvin using LabVIEW arithmetic and reusable SubVIs.",
+      "keywords": [
+        "Celsius",
+        "Fahrenheit",
+        "Kelvin",
+        "SubVI",
+        "Lab 2",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Convert Celsius values into Fahrenheit or Kelvin using LabVIEW arithmetic and reusable SubVIs."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 2. Prerequisites: controls-indicators, vi-subvi."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Convert Celsius values into Fahrenheit or Kelvin using LabVIEW arithmetic and reusable SubVIs.",
+      "related": [
+        "thermistor",
+        "labview-linx",
+        "controls-indicators",
+        "vi-subvi"
+      ]
+    },
+    {
+      "id": "data-types",
+      "kind": "theory",
+      "name": "Data types",
+      "question": "How does data types support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Recognize that wires carry specific kinds of information such as numeric, Boolean, or string values.",
+      "keywords": [
+        "LabVIEW",
+        "wires",
+        "Lab 1",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Recognize that wires carry specific kinds of information such as numeric, Boolean, or string values."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: program-elements."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Recognize that wires carry specific kinds of information such as numeric, Boolean, or string values.",
+      "related": [
+        "arrays",
+        "clusters",
+        "program-elements"
+      ]
+    },
+    {
+      "id": "arrays",
+      "kind": "theory",
+      "name": "Arrays",
+      "question": "How does arrays support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Store repeated values of the same type, such as a set of voltage measurements.",
+      "keywords": [
+        "LabVIEW",
+        "data organization",
+        "Lab 1",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Store repeated values of the same type, such as a set of voltage measurements."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: data-types."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Store repeated values of the same type, such as a set of voltage measurements.",
+      "related": [
+        "measurement-units",
+        "data-types"
+      ]
+    },
+    {
+      "id": "clusters",
+      "kind": "theory",
+      "name": "Clusters",
+      "question": "How does clusters support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Group related values, potentially of different types, into a single structured item.",
+      "keywords": [
+        "LabVIEW",
+        "data organization",
+        "Lab 1",
+        "LabVIEW and graphical programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Group related values, potentially of different types, into a single structured item."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: data-types."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Group related values, potentially of different types, into a single structured item.",
+      "related": [
+        "technical-documentation",
+        "data-types"
+      ]
+    },
+    {
+      "id": "while-loops",
+      "kind": "skill",
+      "name": "While loops",
+      "question": "How do While Loops support the 3CC3 lab workflow?",
+      "asset": "LabVIEW_BlockDiagram.png",
+      "assetAlt": "Screenshot of a large LabVIEW block diagram: nested while loops and case structures joined by coloured wires that carry data between string, numeric and Boolean terminals, subVIs and indicators.",
+      "summary": "Repeat LabVIEW calculations or measurements while the interface remains responsive, then stop through a defined condition.",
+      "keywords": [
+        "LabVIEW",
+        "program flow",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Lab 8",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "A While Loop repeatedly runs the code inside its border. In a LabVIEW VI, this lets indicators update as controls or measurements change and keeps the front panel responsive until the wired Stop condition becomes true."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 6, Lab 7, Lab 8. Prerequisites: block-diagram."
+          ]
+        }
+      ],
+      "hint": "Place the calculation or measurement inside the loop, wire a front-panel Stop control to the loop condition, and use that control instead of repeatedly pressing Run or stopping with Abort.",
+      "related": [
+        "shift-registers",
+        "block-diagram"
+      ]
+    },
+    {
+      "id": "for-loops",
+      "kind": "skill",
+      "name": "For loops",
+      "question": "How does for loops support the 3CC3 lab workflow",
+      "asset": "LabVIEW_BlockDiagram.png",
+      "assetAlt": "Screenshot of a large LabVIEW block diagram: nested while loops and case structures joined by coloured wires that carry data between string, numeric and Boolean terminals, subVIs and indicators.",
+      "summary": "Repeat logic a known number of times.",
+      "keywords": [
+        "LabVIEW",
+        "program flow",
+        "Lab 1",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Repeat logic a known number of times."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: block-diagram."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Repeat logic a known number of times.",
+      "related": [
+        "arrays",
+        "block-diagram"
+      ]
+    },
+    {
+      "id": "shift-registers",
+      "kind": "skill",
+      "name": "Shift registers",
+      "question": "How does shift registers support the 3CC3 lab workflow",
+      "asset": "LabVIEW_BlockDiagram.png",
+      "assetAlt": "Screenshot of a large LabVIEW block diagram: nested while loops and case structures joined by coloured wires that carry data between string, numeric and Boolean terminals, subVIs and indicators.",
+      "summary": "Carry a value from one loop iteration to the next.",
+      "keywords": [
+        "LabVIEW",
+        "memory",
+        "Lab 1",
+        "Lab 3",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Carry a value from one loop iteration to the next."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 3. Prerequisites: while-loops."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Carry a value from one loop iteration to the next.",
+      "related": [
+        "sensor-calibration",
+        "event-counting",
+        "while-loops"
+      ]
+    },
+    {
+      "id": "voltage-divider-vi",
+      "kind": "skill",
+      "name": "Voltage-divider VI",
+      "question": "How does voltage-divider vi support the 3CC3 lab workflow",
+      "asset": "Voltage_Divider_Schematic.png",
+      "assetAlt": "Schematic of a two-resistor voltage divider: R1 and R2 in series across the input voltage, with the output voltage taken from the junction between them.",
+      "summary": "Implement the voltage-divider relationship as an interactive LabVIEW calculation.",
+      "keywords": [
+        "LabVIEW",
+        "voltage divider",
+        "Lab 1",
+        "LabVIEW and graphical programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Implement the voltage-divider relationship as an interactive LabVIEW calculation."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: controls-indicators, while-loops, voltage-divider."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Implement the voltage-divider relationship as an interactive LabVIEW calculation.",
+      "related": [
+        "calculated-measured",
+        "controls-indicators",
+        "while-loops",
+        "voltage-divider"
+      ]
+    },
+    {
+      "id": "analog-input",
+      "kind": "theory",
+      "name": "Analog input",
+      "question": "How does analog input support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Read a changing voltage with an analog input such as A0.",
+      "keywords": [
+        "A0",
+        "LabVIEW",
+        "LINX",
+        "V3",
+        "SIG",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Read a changing voltage with an analog input such as A0."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5, Lab 8. Prerequisites: voltage-divider, analog-sensor-signals."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Read a changing voltage with an analog input such as A0.",
+      "related": [
+        "analog-to-digital",
+        "labview-linx",
+        "signal-amplification",
+        "potentiometer",
+        "soil-moisture-sensor",
+        "voltage-divider",
+        "analog-sensor-signals"
+      ]
+    },
+    {
+      "id": "digital-output",
+      "kind": "theory",
+      "name": "Digital output",
+      "question": "How does digital output support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Command an output pin as LOW or HIGH or as a timed control signal.",
+      "keywords": [
+        "D7",
+        "pin 7",
+        "LED",
+        "D3",
+        "servo signal",
+        "D8",
+        "D9",
+        "D10",
+        "D11",
+        "D12",
+        "Lab 1",
+        "Lab 3",
+        "Lab 5",
+        "Lab 6",
+        "Lab 7",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Command an output pin as LOW or HIGH or as a timed control signal."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 3, Lab 5, Lab 6, Lab 7. Prerequisites: led-current-limiting."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Command an output pin as LOW or HIGH or as a timed control signal.",
+      "related": [
+        "digital-write",
+        "pwm-output",
+        "active-buzzer",
+        "servo-motor",
+        "motor-driver",
+        "remote-control",
+        "led-current-limiting"
+      ]
+    },
+    {
+      "id": "digital-input",
+      "kind": "theory",
+      "name": "Digital input",
+      "question": "How does digital input support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Read a defined HIGH or LOW state from a switch circuit.",
+      "keywords": [
+        "D2",
+        "HIGH",
+        "LOW",
+        "switch",
+        "Lab 3",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Read a defined HIGH or LOW state from a switch circuit."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 3. Prerequisites: pull-down-resistor."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Read a defined HIGH or LOW state from a switch circuit.",
+      "related": [
+        "tilt-switch",
+        "event-counting",
+        "pull-down-resistor"
+      ]
+    },
+    {
+      "id": "analog-to-digital",
+      "kind": "theory",
+      "name": "Analog-to-digital conversion",
+      "question": "How does analog-to-digital conversion support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Convert a voltage range into a numeric reading.",
+      "keywords": [
+        "ADC",
+        "0 to 1023",
+        "voltage to number",
+        "Lab 1",
+        "Lab 2",
+        "Lab 4",
+        "Lab 5",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Convert a voltage range into a numeric reading."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 4, Lab 5. Prerequisites: analog-input."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Convert a voltage range into a numeric reading.",
+      "related": [
+        "threshold-selection",
+        "sampled-data",
+        "analog-input"
+      ]
+    },
+    {
+      "id": "op-amp-gain",
+      "kind": "skill",
+      "name": "Op-amp gain",
+      "question": "How does op-amp gain support the 3CC3 lab workflow",
+      "asset": "OpAmp_Gain_Configs.png",
+      "assetAlt": "Schematics of the two classic op-amp gain configurations: a non-inverting amplifier with gain Av = 1 + R2/R1 and an inverting amplifier with gain Av = −R2/R1, each showing its R1–R2 feedback network.",
+      "summary": "Use resistor ratios and feedback to set first-stage and second-stage signal gain.",
+      "keywords": [
+        "LMC6484",
+        "gain",
+        "R3 R1",
+        "R6 R5",
+        "saturation",
+        "Lab 4",
+        "Arduino and embedded programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use resistor ratios and feedback to set first-stage and second-stage signal gain."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 4. Prerequisites: resistor-values, signal-amplification."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use resistor ratios and feedback to set first-stage and second-stage signal gain.",
+      "related": [
+        "analog-input",
+        "resistor-values",
+        "signal-amplification"
+      ]
+    },
+    {
+      "id": "serial-communication",
+      "kind": "theory",
+      "name": "Serial communication",
+      "question": "How does serial communication support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Exchange text commands between a computer program and Arduino over a COM port.",
+      "keywords": [
+        "serial",
+        "COM port",
+        "9600 baud",
+        "Serial Monitor",
+        "Lab 6",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Exchange text commands between a computer program and Arduino over a COM port."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 6. Prerequisites: arduino-ide."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Exchange text commands between a computer program and Arduino over a COM port.",
+      "related": [
+        "visa-serial",
+        "command-parsing",
+        "arduino-ide"
+      ]
+    },
+    {
+      "id": "visa-serial",
+      "kind": "spec",
+      "name": "VISA Serial in LabVIEW",
+      "question": "How does visa serial in labview support the 3CC3 lab workflow",
+      "asset": "LabVIEW_VISA_Serial.png",
+      "assetAlt": "LabVIEW block diagram for VISA serial input: a COM-port control and 9600-baud constant configure the serial port, a while loop polls Bytes at Port and reads into a string indicator, and VISA Close runs after the stop button.",
+      "summary": "Configure, write to, and close a serial port from LabVIEW.",
+      "keywords": [
+        "VISA",
+        "Configure Port",
+        "Write",
+        "Close",
+        "Sent Msg",
+        "Lab 6",
+        "Arduino and embedded programming",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Configure, write to, and close a serial port from LabVIEW."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 6. Prerequisites: serial-communication, labview-interface."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Configure, write to, and close a serial port from LabVIEW.",
+      "related": [
+        "command-parsing",
+        "actuator-command",
+        "serial-communication",
+        "labview-interface"
+      ]
+    },
+    {
+      "id": "command-parsing",
+      "kind": "skill",
+      "name": "Command parsing",
+      "question": "How does command parsing support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Split a delimited command string into speed, distance, and direction fields.",
+      "keywords": [
+        "comma",
+        "delimiter",
+        "substring",
+        "indexOf",
+        "RPM",
+        "Lab 6",
+        "Arduino and embedded programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Split a delimited command string into speed, distance, and direction fields."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 6. Prerequisites: serial-communication, arduino-variables."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Split a delimited command string into speed, distance, and direction fields.",
+      "related": [
+        "stepper-motor",
+        "serial-communication",
+        "arduino-variables"
+      ]
+    },
+    {
+      "id": "native-labview-calibration",
+      "kind": "skill",
+      "name": "Native LabVIEW moisture calibration",
+      "question": "How does native LabVIEW moisture calibration support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Implement the dry/wet calibration equation, clamp the result, and compare it with a threshold.",
+      "keywords": [
+        "native arithmetic",
+        "comparison functions",
+        "Boolean logic",
+        "V_dry",
+        "V_wet",
+        "LED",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Implement the dry/wet calibration equation, clamp the result, and compare it with a threshold."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 8. Prerequisites: moisture-calibration."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Implement the dry/wet calibration equation, clamp the result, and compare it with a threshold.",
+      "related": [
+        "percent-moisture",
+        "threshold-control",
+        "moisture-calibration"
+      ]
+    },
+    {
+      "id": "arduino-variables",
+      "kind": "skill",
+      "name": "Arduino variables",
+      "question": "How does arduino variables support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Store pin numbers, sensor readings, and thresholds in named values.",
+      "keywords": [
+        "int",
+        "variables",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Store pin numbers, sensor readings, and thresholds in named values."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: arduino-code-flow."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Store pin numbers, sensor readings, and thresholds in named values.",
+      "related": [
+        "threshold-control"
+      ]
+    },
+    {
+      "id": "setup-function",
+      "kind": "spec",
+      "name": "setup()",
+      "question": "How does setup() support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Run configuration code once when the Arduino starts.",
+      "keywords": [
+        "setup",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Run configuration code once when the Arduino starts."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: arduino-code-flow."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Run configuration code once when the Arduino starts.",
+      "related": [
+        "pin-mode"
+      ]
+    },
+    {
+      "id": "loop-function",
+      "kind": "spec",
+      "name": "loop()",
+      "question": "How does loop() support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Repeat sensing and decision logic continuously.",
+      "keywords": [
+        "loop",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Repeat sensing and decision logic continuously."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: arduino-code-flow."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Repeat sensing and decision logic continuously.",
+      "related": [
+        "analog-read",
+        "if-else"
+      ]
+    },
+    {
+      "id": "pin-mode",
+      "kind": "spec",
+      "name": "pinMode()",
+      "question": "How does pinmode() support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Configure a digital pin as an input or output.",
+      "keywords": [
+        "pinMode",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Configure a digital pin as an input or output."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: setup-function."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Configure a digital pin as an input or output.",
+      "related": [
+        "digital-output",
+        "setup-function"
+      ]
+    },
+    {
+      "id": "analog-read",
+      "kind": "spec",
+      "name": "analogRead()",
+      "question": "How does analogread() support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Read the analog sensor value from A0.",
+      "keywords": [
+        "analogRead",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Read the analog sensor value from A0."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: loop-function, analog-input."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Read the analog sensor value from A0.",
+      "related": [
+        "threshold-selection",
+        "loop-function",
+        "analog-input"
+      ]
+    },
+    {
+      "id": "digital-write",
+      "kind": "spec",
+      "name": "digitalWrite()",
+      "question": "How does digitalwrite() support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Command the LED output as HIGH or LOW.",
+      "keywords": [
+        "digitalWrite",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Command the LED output as HIGH or LOW."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: digital-output."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Command the LED output as HIGH or LOW.",
+      "related": [
+        "threshold-control",
+        "digital-output"
+      ]
+    },
+    {
+      "id": "if-else",
+      "kind": "spec",
+      "name": "if/else",
+      "question": "How does if/else support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Choose one of two actions based on a Boolean condition.",
+      "keywords": [
+        "if",
+        "else",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Choose one of two actions based on a Boolean condition."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: loop-function."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Choose one of two actions based on a Boolean condition.",
+      "related": [
+        "threshold-control",
+        "loop-function"
+      ]
+    },
+    {
+      "id": "threshold-control",
+      "kind": "skill",
+      "name": "Threshold-based control",
+      "question": "How does threshold-based control support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Turn a sensor reading into a decision and an actuator action.",
+      "keywords": [
+        "automatic lighting",
+        "distance less than 5 cm",
+        "moisture less than threshold",
+        "Lab 1",
+        "Lab 7",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Turn a sensor reading into a decision and an actuator action."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 7, Lab 8. Prerequisites: threshold-selection, if-else."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Turn a sensor reading into a decision and an actuator action.",
+      "related": [
+        "boundary-testing",
+        "remote-control",
+        "shared-attributes",
+        "threshold-selection",
+        "if-else"
+      ]
+    },
+    {
+      "id": "event-counting",
+      "kind": "skill",
+      "name": "Event counting with shift registers",
+      "question": "How does event counting with shift registers support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Count a transition once by comparing current and previous digital states.",
+      "keywords": [
+        "state",
+        "event",
+        "transition",
+        "Not Equal",
+        "Boolean To 1 0",
+        "Lab 3",
+        "Arduino and embedded programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Count a transition once by comparing current and previous digital states."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 3. Prerequisites: shift-registers, digital-input."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Count a transition once by comparing current and previous digital states.",
+      "related": [
+        "systematic-troubleshooting",
+        "shift-registers",
+        "digital-input"
+      ]
+    },
+    {
+      "id": "labview-data",
+      "kind": "theory",
+      "name": "Data Types, Arrays, and Clusters",
+      "question": "What do LabVIEW wires carry, and when do values belong in an array or a cluster",
+      "summary": "What LabVIEW wire types carry and when to group values into arrays or clusters.",
+      "keywords": [
+        "data types",
+        "arrays",
+        "clusters",
+        "LabVIEW"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Numeric wires carry numbers, Boolean wires carry true or false, and strings carry text. Arrays hold multiple values of one type. Clusters group related values and may combine different types."
+          ]
+        }
+      ],
+      "hint": "Five voltage readings naturally form an array; a student ID plus readings plus a completion flag could form a cluster.",
+      "related": [
+        "data-types",
+        "arrays",
+        "clusters",
+        "controls-indicators"
+      ]
+    },
+    {
+      "id": "labview-loops",
+      "kind": "skill",
+      "name": "While Loops, For Loops, and Shift Registers",
+      "question": "When do you repeat with a while loop or a for loop, and how does state carry between iterations",
+      "summary": "Choosing between while and for loops, and carrying values across iterations.",
+      "keywords": [
+        "while loops",
+        "for loops",
+        "shift registers",
+        "LabVIEW"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "A while loop repeats until a stop condition is met. A for loop repeats a known number of times. A shift register carries a value from one iteration to the next."
+          ]
+        }
+      ],
+      "hint": "The LabVIEW exercise uses a while loop so the calculation can continue until the user stops it.",
+      "related": [
+        "while-loops",
+        "for-loops",
+        "shift-registers",
+        "labview-fundamentals"
+      ]
+    },
+    {
+      "id": "analog-digital",
+      "kind": "theory",
+      "name": "Analog Input and Digital Output",
+      "question": "How does an analog input reading become a digital output command",
+      "summary": "Reading a range of voltages on an analog pin and commanding an output LOW or HIGH.",
+      "keywords": [
+        "analog input",
+        "digital output",
+        "Arduino"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Analog input A0 reads a range of voltages as a number. Digital pin 7 commands the LED as LOW or HIGH."
+          ]
+        }
+      ],
+      "hint": "Use A0 for the sensor voltage and D7 for the LED state.",
+      "related": [
+        "analog-input",
+        "digital-output",
+        "analog-to-digital",
+        "arduino"
+      ]
+    },
+    {
+      "id": "arduino-code",
+      "kind": "theory",
+      "name": "Arduino Code Flow",
+      "question": "How does an Arduino sketch flow from `setup()` through the repeating `loop()`",
+      "summary": "How a sketch’s setup, loop, reads, writes, and branches fit together.",
+      "keywords": [
+        "Arduino",
+        "code flow",
+        "sketch"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "`setup()` runs once. `loop()` repeats continuously. `analogRead()` samples the sensor. `digitalWrite()` controls the output. `if/else` selects the LED action."
+          ]
+        }
+      ],
+      "hint": "If PR is below `lowLightLim`, the given code writes HIGH to `LEDPin`.",
+      "related": [
+        "setup-function",
+        "loop-function",
+        "analog-read",
+        "digital-write",
+        "if-else",
+        "threshold-control"
+      ]
+    }
+  ]
+}

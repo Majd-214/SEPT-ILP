@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Objects layer (o-*) — structural layout patterns
+   --------------------------------------------------------------------------
+   OOCSS: objects define geometry only — no colours, borders, or shadows.
+   Visual skins live in the components layer. Objects may be reused by any
+   component and know nothing about their contents.
+   ========================================================================== */
+
+/* Page-width container */
+.o-container {
+  max-width: var(--md-sys-layout-max-width);
+  margin-inline: auto;
+  padding-inline: var(--md-sys-space-5);
+}
+
+/* Vertical rhythm between sibling blocks */
+.o-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-5);
+}
+
+.o-stack--tight {
+  gap: var(--md-sys-space-3);
+}
+
+.o-stack--loose {
+  gap: var(--md-sys-space-7);
+}
+
+/* Horizontal row that wraps; used for chip rows, button rows, meta rows */
+.o-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+}
+
+.o-cluster--between {
+  justify-content: space-between;
+}
+
+/* Responsive card grid */
+.o-grid {
+  display: grid;
+  gap: var(--md-sys-space-5);
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+}
+
+.o-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+}
+
+/* Cards keep their natural height instead of stretching to the row */
+.o-grid--start {
+  align-items: start;
+}
+
+/* Media object: fixed figure beside fluid text; stacks on small screens */
+.o-media {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-space-5);
+  align-items: flex-start;
+}
+
+.o-media > * {
+  flex: 1 1 18rem;
+}
+
+/* Constrain long-form text to a readable measure */
+.o-prose {
+  max-width: var(--md-sys-layout-max-width-prose);
+}
+
+/* Horizontal scroll region for wide content (tables, code) */
+.o-scroll-x {
+  overflow-x: auto;
+}

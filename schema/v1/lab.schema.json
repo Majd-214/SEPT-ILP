@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://majd-214.github.io/SEPT-ILP/schema/v1/lab.schema.json",
+  "title": "SEPT-ILP lab document v1",
+  "description": "The single source of truth for one laboratory: a staged scenario of checkpoints built from the shared block vocabulary. A lab document records what the lab says — never how it looks or how a page is produced.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional editor hint pointing at this schema file."
+    },
+    "schemaVersion": {
+      "const": 1,
+      "description": "Lab JSON schema major version this document conforms to."
+    },
+    "kind": {
+      "enum": ["lab", "project"],
+      "default": "lab",
+      "description": "Projects share the lab structure; the renderer labels their checkpoints as phases and omits lab-specific chrome."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Stable identifier, unique within the course (e.g. lab-01). Names the output directory and the student-state namespace."
+    },
+    "number": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Ordinal shown to students and used to order the course portal."
+    },
+    "title": { "type": "string", "minLength": 3 },
+    "summary": {
+      "$ref": "blocks.schema.json#/$defs/paragraphs",
+      "description": "The hero abstract: what the student will do and why it matters."
+    },
+    "cardSummary": {
+      "$ref": "blocks.schema.json#/$defs/richText",
+      "description": "One-sentence description shown on the course portal card."
+    },
+    "chips": {
+      "type": "array",
+      "items": { "$ref": "blocks.schema.json#/$defs/richText" },
+      "minItems": 1,
+      "maxItems": 6,
+      "description": "Short hero facts: software, hardware, core concept, deliverables."
+    },
+    "duration": {
+      "type": "object",
+      "description": "Time expectations, stated explicitly rather than buried in prose.",
+      "properties": {
+        "prelab": { "type": "string" },
+        "lab": { "type": "string" },
+        "postlab": { "type": "string" },
+        "safety": { "$ref": "blocks.schema.json#/$defs/richText" }
+      },
+      "additionalProperties": false
+    },
+    "contentVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Bump when published edits invalidate stored student state (changed keys, changed answers). The runtime resets saved work whose version no longer matches."
+    },
+    "sidebars": {
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "description": "A slide-out reference drawer available from every checkpoint.",
+        "properties": {
+          "side": { "enum": ["left", "right"] },
+          "title": { "$ref": "blocks.schema.json#/$defs/richText" },
+          "subtitle": { "$ref": "blocks.schema.json#/$defs/richText" },
+          "handleLabel": { "$ref": "blocks.schema.json#/$defs/richText" },
+          "icon": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Icon shown on the drawer's dock button, by Material Symbols name (build, code, menu_book, functions, science, info, bolt, push_pin). An unknown name falls back to a default."
+          },
+          "blocks": { "$ref": "blocks.schema.json#/$defs/blocks" }
+        },
+        "required": ["side", "title", "blocks"],
+        "additionalProperties": false
+      }
+    },
+    "knowledgeTopics": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+      "description": "Knowledge-base topic ids most relevant to this lab, listed in the lab's support panel. Inline links use kb:<topic-id> targets in rich text."
+    },
+    "checkpoints": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "description": "One stage of the scenario. Completion is derived from the interactive blocks inside: every quiz answered correctly, every checklist ticked, every non-optional field valid, every ordering solved, every required evidence chosen.",
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "title": { "$ref": "blocks.schema.json#/$defs/richText" },
+          "navLabel": {
+            "$ref": "blocks.schema.json#/$defs/richText",
+            "description": "Short label for the progress bar; defaults to the title."
+          },
+          "eyebrow": {
+            "$ref": "blocks.schema.json#/$defs/richText",
+            "description": "Kicker above the title (e.g. a pedagogical phase: Predict, Build, Measure, Explain)."
+          },
+          "context": {
+            "$ref": "blocks.schema.json#/$defs/richText",
+            "description": "Small context badge (equipment or focus, e.g. \"A0 sensor + D7 LED\")."
+          },
+          "intro": { "$ref": "blocks.schema.json#/$defs/paragraphs" },
+          "blocks": { "$ref": "blocks.schema.json#/$defs/blocks" },
+          "submission": {
+            "type": "boolean",
+            "default": false,
+            "description": "Marks the closing checkpoint: rendered with the submission treatment and hosting the progress-file controls."
+          }
+        },
+        "required": ["id", "title", "blocks"],
+        "additionalProperties": false
+      }
+    },
+    "submissionRules": {
+      "type": "array",
+      "items": { "$ref": "blocks.schema.json#/$defs/richText" },
+      "description": "What must be submitted through the LMS, stated as explicit rules on the final checkpoint."
+    }
+  },
+  "required": ["schemaVersion", "id", "number", "title", "summary", "cardSummary", "chips", "contentVersion", "checkpoints"],
+  "additionalProperties": false
+}

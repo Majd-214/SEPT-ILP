@@ -1,0 +1,540 @@
+{
+  "schemaVersion": 1,
+  "id": "iot",
+  "title": "IoT & Cloud",
+  "blurb": "Publishing sensor data to the cloud.",
+  "order": 7,
+  "topics": [
+    {
+      "id": "mqtt",
+      "kind": "theory",
+      "name": "MQTT Protocol",
+      "question": "What is MQTT and how does publish/subscribe work",
+      "asset": "MQTT_PubSub_Topology.png",
+      "assetAlt": "MQTT publish–subscribe topology: sensor clients publish values such as “30°” on topic “temp” to a central MQTT broker, which forwards each message to the valve and cloud-server clients subscribed to that topic.",
+      "summary": "Broker-based lightweight messaging.",
+      "keywords": [
+        "mqtt",
+        "publish",
+        "subscribe",
+        "broker",
+        "topic"
+      ],
+      "sections": [
+        {
+          "heading": "Publish / subscribe",
+          "paragraphs": [
+            "Devices do not talk directly. A publisher sends a message to a named topic on a central broker; any client subscribed to that topic receives it. This decouples your Arduino from the dashboard and scales to many devices."
+          ]
+        },
+        {
+          "heading": "Topics and QoS",
+          "paragraphs": [
+            "Topics are hierarchical strings (`esi/3cc3/temp`). Quality-of-Service levels trade delivery guarantees for overhead, and an auth token usually gates who may publish to a topic."
+          ]
+        }
+      ],
+      "hint": "Data that never reaches the cloud is usually a topic, token, or broker-address typo — check the exact (case-sensitive) topic string first, then the credentials, then the broker host/port.",
+      "related": [
+        "thingsboard"
+      ]
+    },
+    {
+      "id": "thingsboard",
+      "kind": "skill",
+      "name": "ThingsBoard Cloud",
+      "question": "How do I exchange LabVIEW data with ThingsBoard Cloud",
+      "asset": "MQTT_PubSub_Topology.png",
+      "assetAlt": "MQTT publish–subscribe topology: sensor clients publish values such as “30°” on topic “temp” to a central MQTT broker, which forwards each message to the valve and cloud-server clients subscribed to that topic.",
+      "summary": "Publish JSON telemetry, receive persistent shared attributes, and build a device dashboard.",
+      "keywords": [
+        "ThingsBoard",
+        "dashboard",
+        "device access token",
+        "telemetry",
+        "shared attribute"
+      ],
+      "sections": [
+        {
+          "heading": "One cloud device per physical project",
+          "paragraphs": [
+            "ThingsBoard stores measurements as telemetry and persistent cloud-to-device settings as shared attributes. Build gauges, time-series charts, indicators, and controls around the same device entity."
+          ]
+        },
+        {
+          "heading": "MQTT connection and topics",
+          "paragraphs": [
+            "Connect to `mqtt.thingsboard.cloud` on port 1883 with the device access token as the username and a blank password. Publish JSON to `v1/devices/me/telemetry` and exchange desired-state values through the ThingsBoard attribute topics."
+          ]
+        }
+      ],
+      "hint": "An empty widget means a token, label, or rate-limit problem — verify the token is the device token (not the account token), the variable label matches exactly, and you are under the free-tier limit.",
+      "related": [
+        "mqtt",
+        "labview-linx",
+        "cloud-dashboard",
+        "shared-attributes"
+      ]
+    },
+    {
+      "id": "technical-documentation",
+      "kind": "spec",
+      "name": "Technical documentation use",
+      "question": "How does technical documentation use support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Use course notes and references to find exact procedures and constraints.",
+      "keywords": [
+        "documentation",
+        "Labs 1-8",
+        "Design Project",
+        "Engineering practice",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use course notes and references to find exact procedures and constraints."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Labs 1-8, Design Project. Use this as a reusable reference when the lab does not give a step-by-step reminder."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use course notes and references to find exact procedures and constraints.",
+      "related": [
+        "source-evaluation",
+        "project-proposal"
+      ]
+    },
+    {
+      "id": "source-evaluation",
+      "kind": "skill",
+      "name": "Source evaluation",
+      "question": "How does source evaluation support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Judge whether a source is appropriate, authoritative, and applicable to the current problem.",
+      "keywords": [
+        "datasheets",
+        "manufacturer",
+        "Labs 7-8",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Judge whether a source is appropriate, authoritative, and applicable to the current problem."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Labs 7-8, Design Project. Prerequisites: technical-documentation."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Judge whether a source is appropriate, authoritative, and applicable to the current problem.",
+      "related": [
+        "safe-bench-practice",
+        "technical-documentation"
+      ]
+    },
+    {
+      "id": "weekly-progress",
+      "kind": "skill",
+      "name": "Weekly progress tracking",
+      "question": "How does weekly progress tracking support the 3CC3 lab workflow",
+      "asset": "DMM_Voltage_Measurement.jpg",
+      "assetAlt": "Schematic of a voltage measurement: a voltmeter connected in parallel across resistor R1 in a powered DC circuit that also drives an LED.",
+      "summary": "Use weekly goals and instructor feedback to keep hardware, software, cloud, and HMI integration moving.",
+      "keywords": [
+        "attendance",
+        "progress",
+        "week 1",
+        "week 2",
+        "week 3",
+        "Design Project",
+        "Engineering practice",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use weekly goals and instructor feedback to keep hardware, software, cloud, and HMI integration moving."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Design Project. Prerequisites: project-proposal."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use weekly goals and instructor feedback to keep hardware, software, cloud, and HMI integration moving.",
+      "related": [
+        "risk-planning",
+        "demo-video",
+        "project-proposal"
+      ]
+    },
+    {
+      "id": "mqtt-topics",
+      "kind": "spec",
+      "name": "ThingsBoard MQTT topic structure",
+      "question": "How do the ThingsBoard telemetry and attribute topics route lab data",
+      "asset": "MQTT_PubSub_Topology.png",
+      "assetAlt": "MQTT publish–subscribe topology: sensor clients publish values such as “30°” on topic “temp” to a central MQTT broker, which forwards each message to the valve and cloud-server clients subscribed to that topic.",
+      "summary": "Use exact ThingsBoard topic paths to publish telemetry and exchange shared attributes.",
+      "keywords": [
+        "v1/devices/me/telemetry",
+        "v1/devices/me/attributes",
+        "v1/devices/me/attributes/response/+",
+        "v1/devices/me/attributes/request/1",
+        "topic",
+        "Lab 7",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use exact topic paths to route sensor readings and cloud commands."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 7 and Lab 8. Prerequisites: MQTT and ThingsBoard Cloud. Topic strings are case-sensitive and have no leading slash."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use exact topic paths to route sensor readings and cloud commands.",
+      "related": [
+        "api-token",
+        "systematic-troubleshooting",
+        "mqtt",
+        "thingsboard"
+      ]
+    },
+    {
+      "id": "api-token",
+      "kind": "skill",
+      "name": "ThingsBoard device access-token handling",
+      "question": "How do I use a ThingsBoard device credential without exposing it",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Use a private cloud credential without exposing it in public files or screenshots.",
+      "keywords": [
+        "token",
+        "credentials",
+        "MQTT username",
+        "security",
+        "Lab 7",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use a private cloud credential without exposing it in public files or screenshots."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 7, Lab 8. Prerequisites: source-evaluation."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use a private cloud credential without exposing it in public files or screenshots.",
+      "related": [
+        "thingsboard",
+        "safe-bench-practice",
+        "source-evaluation"
+      ]
+    },
+    {
+      "id": "cloud-dashboard",
+      "kind": "spec",
+      "name": "Cloud dashboard widgets",
+      "question": "How does cloud dashboard widgets support the 3CC3 lab workflow",
+      "asset": "MQTT_PubSub_Topology.png",
+      "assetAlt": "MQTT publish–subscribe topology: sensor clients publish values such as “30°” on topic “temp” to a central MQTT broker, which forwards each message to the valve and cloud-server clients subscribed to that topic.",
+      "summary": "Build ThingsBoard widgets that visualize telemetry and write persistent shared attributes.",
+      "keywords": [
+        "dashboard",
+        "widget",
+        "gauge",
+        "switch",
+        "tank",
+        "slider",
+        "line chart",
+        "metric",
+        "Lab 7",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Bind widgets to the physical device through an entity alias. Use telemetry widgets for measured and actual-state values, and control widgets that write shared attributes for desired state."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 7 and Lab 8. Prerequisites: ThingsBoard Cloud and MQTT."
+          ]
+        }
+      ],
+      "hint": "If a widget is empty, confirm the dashboard entity alias points to the correct device and that the expected key exists under Latest Telemetry or Shared Attributes.",
+      "related": [
+        "cloud-hmi",
+        "remote-control",
+        "dashboard-analytics",
+        "thingsboard",
+        "mqtt"
+      ]
+    },
+    {
+      "id": "cloud-hmi",
+      "kind": "theory",
+      "name": "Cloud-based HMI",
+      "question": "How does cloud-based hmi support the 3CC3 lab workflow",
+      "asset": "MQTT_PubSub_Topology.png",
+      "assetAlt": "MQTT publish–subscribe topology: sensor clients publish values such as “30°” on topic “temp” to a central MQTT broker, which forwards each message to the valve and cloud-server clients subscribed to that topic.",
+      "summary": "Use a web interface to monitor local sensor data and command local settings or actuators.",
+      "keywords": [
+        "web HMI",
+        "dashboard",
+        "monitoring",
+        "control",
+        "threshold",
+        "Lab 7",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use a web interface to monitor local sensor data and command local settings or actuators."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 7, Lab 8. Prerequisites: hmi-controls, cloud-dashboard."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use a web interface to monitor local sensor data and command local settings or actuators.",
+      "related": [
+        "remote-control",
+        "ultrasonic-sensor",
+        "soil-moisture-sensor",
+        "hmi-controls",
+        "cloud-dashboard"
+      ]
+    },
+    {
+      "id": "shared-attributes",
+      "kind": "spec",
+      "name": "ThingsBoard shared attributes",
+      "question": "How do shared attributes preserve cloud-to-device desired state",
+      "asset": "MQTT_PubSub_Topology.png",
+      "assetAlt": "MQTT publish–subscribe topology: sensor clients publish values such as “30°” on topic “temp” to a central MQTT broker, which forwards each message to the valve and cloud-server clients subscribed to that topic.",
+      "summary": "Store desired state in the cloud and request the current value after startup or reconnect.",
+      "keywords": [
+        "shared attribute",
+        "desired state",
+        "led_switch",
+        "moisture_threshold",
+        "v1/devices/me/attributes/response/+",
+        "Lab 7",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use `led_switch` and `moisture_threshold` as persistent shared attributes. Subscribe for changes and issue a startup request so LabVIEW recovers the current desired value after reconnecting."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 7 and Lab 8. Prerequisites: ThingsBoard Cloud, MQTT, and a device dashboard."
+          ]
+        }
+      ],
+      "hint": "On startup, subscribe before publishing the shared-attribute request; parse both live updates and response envelopes before applying validated values.",
+      "related": [
+        "email-alerts",
+        "threshold-control",
+        "thingsboard",
+        "cloud-dashboard"
+      ]
+    },
+    {
+      "id": "email-alerts",
+      "kind": "skill",
+      "name": "Optional ThingsBoard alarm history",
+      "question": "How can ThingsBoard retain an optional history of local alarm telemetry",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Optionally display or retain alarm history while keeping the primary decision local in LabVIEW.",
+      "keywords": [
+        "alarm history",
+        "event history",
+        "low_moisture_alarm",
+        "optional cloud view",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Publish `low_moisture_alarm` as telemetry and optionally chart or retain its history in ThingsBoard. LabVIEW remains the source of the alarm decision."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 8. Prerequisites: ThingsBoard shared attributes and local LabVIEW threshold logic."
+          ]
+        }
+      ],
+      "hint": "Keep the core low-moisture decision in LabVIEW; cloud history is optional evidence, not a dependency for safe local behavior.",
+      "related": [
+        "source-evaluation",
+        "shared-attributes"
+      ]
+    },
+    {
+      "id": "dashboard-analytics",
+      "kind": "spec",
+      "name": "Dashboard analytics widgets",
+      "question": "How does dashboard analytics widgets support the 3CC3 lab workflow",
+      "asset": "MQTT_PubSub_Topology.png",
+      "assetAlt": "MQTT publish–subscribe topology: sensor clients publish values such as “30°” on topic “temp” to a central MQTT broker, which forwards each message to the valve and cloud-server clients subscribed to that topic.",
+      "summary": "Display current and historical ThingsBoard telemetry without moving local control decisions to the cloud.",
+      "keywords": [
+        "metric",
+        "minimum",
+        "maximum",
+        "average",
+        "Today",
+        "Lab 8",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use latest-value, gauge, time-series, and state-indicator widgets to inspect raw voltage, moisture percentage, and local alarm telemetry. Optional history can support reflection without replacing LabVIEW logic."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 8. Prerequisites: cloud-dashboard, percent-moisture."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Summarize cloud data using minimum, maximum, and average metric widgets.",
+      "related": [
+        "experimental-evidence",
+        "cloud-dashboard",
+        "percent-moisture"
+      ]
+    },
+    {
+      "id": "remote-control",
+      "kind": "skill",
+      "name": "Remote actuator control",
+      "question": "How does remote actuator control support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Trace how a cloud switch value becomes a local digital output command.",
+      "keywords": [
+        "switch variable",
+        "RX Value",
+        "Digital Write",
+        "LED",
+        "Lab 7",
+        "Arduino and embedded programming",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Trace how a cloud switch value becomes a local digital output command."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 7. Prerequisites: digital-output, mqtt."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Trace how a cloud switch value becomes a local digital output command.",
+      "related": [
+        "actuator-command",
+        "threshold-control",
+        "digital-output",
+        "mqtt"
+      ]
+    },
+    {
+      "id": "deployment",
+      "kind": "spec",
+      "name": "Deployment and LMS Integration",
+      "question": "How is the course site hosted, and how should it connect to an LMS",
+      "summary": "Hosting the static course site and integrating with an LMS through approved methods.",
+      "keywords": [
+        "deployment",
+        "LMS",
+        "integration",
+        "LTI",
+        "practice"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "The site is static first: index, labs, knowledge, and assets can be hosted together. A later LMS connection should use an approved institutional method such as LTI."
+          ]
+        }
+      ],
+      "hint": "Client-side pages should not directly post grades or sensitive student data.",
+      "related": [
+        "technical-documentation",
+        "cloud-dashboard"
+      ]
+    }
+  ]
+}

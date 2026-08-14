@@ -1,0 +1,683 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://majd-214.github.io/SEPT-ILP/schema/v1/blocks.schema.json",
+  "title": "SEPT-ILP block vocabulary v1",
+  "description": "The typed units of laboratory content. Every block is authored through plain fields and rendered by a matching template; no block carries any visual decision. Rich-text fields accept only the platform's restricted inline vocabulary: **bold**, *italic*, `code`, [link](target), ~subscript~, ^superscript^. Link targets may be https:// URLs, #anchors, relative paths, kb:<topic-id> for knowledge-base topics, or lab:<lab-id> for other labs in the course.",
+  "$defs": {
+    "richText": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One line or paragraph of restricted rich text."
+    },
+    "paragraphs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/richText" },
+      "minItems": 1,
+      "description": "One or more paragraphs of restricted rich text."
+    },
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 64,
+      "description": "Stable machine identifier: lowercase, digits, and hyphens. Keys name stored student state, so changing one orphans saved work — treat keys as permanent once published."
+    },
+    "assetPath": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "description": "Bare filename of an image in the course assets directory. The renderer resolves the path; content never hardcodes directory structure."
+    },
+    "blocks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/block" },
+      "minItems": 1,
+      "description": "An ordered sequence of content blocks."
+    },
+    "block": {
+      "type": "object",
+      "oneOf": [
+        { "$ref": "#/$defs/text" },
+        { "$ref": "#/$defs/callout" },
+        { "$ref": "#/$defs/figure" },
+        { "$ref": "#/$defs/code" },
+        { "$ref": "#/$defs/formula" },
+        { "$ref": "#/$defs/steps" },
+        { "$ref": "#/$defs/list" },
+        { "$ref": "#/$defs/equipment" },
+        { "$ref": "#/$defs/keyValues" },
+        { "$ref": "#/$defs/flow" },
+        { "$ref": "#/$defs/objectives" },
+        { "$ref": "#/$defs/cards" },
+        { "$ref": "#/$defs/table" },
+        { "$ref": "#/$defs/details" },
+        { "$ref": "#/$defs/quiz" },
+        { "$ref": "#/$defs/checklist" },
+        { "$ref": "#/$defs/fields" },
+        { "$ref": "#/$defs/measurementTable" },
+        { "$ref": "#/$defs/calculator" },
+        { "$ref": "#/$defs/ordering" },
+        { "$ref": "#/$defs/evidence" },
+        { "$ref": "#/$defs/tabs" },
+        { "$ref": "#/$defs/questions" }
+      ],
+      "discriminator": { "propertyName": "type" }
+    },
+
+    "text": {
+      "type": "object",
+      "description": "Running prose.",
+      "properties": {
+        "type": { "const": "text" },
+        "paragraphs": { "$ref": "#/$defs/paragraphs" }
+      },
+      "required": ["type", "paragraphs"],
+      "additionalProperties": false
+    },
+
+    "callout": {
+      "type": "object",
+      "description": "An emphasized aside. Variants carry meaning, not colour: note (context), success (good practice or confirmation), warning (caution), danger (safety-critical).",
+      "properties": {
+        "type": { "const": "callout" },
+        "variant": { "enum": ["note", "success", "warning", "danger"] },
+        "title": { "$ref": "#/$defs/richText" },
+        "paragraphs": { "$ref": "#/$defs/paragraphs" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/richText" },
+          "minItems": 1,
+          "description": "Optional list rendered after the paragraphs."
+        },
+        "ordered": {
+          "type": "boolean",
+          "default": false,
+          "description": "Render items as a numbered sequence instead of bullets."
+        }
+      },
+      "required": ["type", "variant"],
+      "anyOf": [
+        { "required": ["paragraphs"] },
+        { "required": ["items"] }
+      ],
+      "additionalProperties": false
+    },
+
+    "figure": {
+      "type": "object",
+      "description": "An image with mandatory alternative text. Accessibility law is enforced here by the schema, not by review.",
+      "properties": {
+        "type": { "const": "figure" },
+        "src": { "$ref": "#/$defs/assetPath" },
+        "alt": { "type": "string", "minLength": 3, "description": "Alternative text describing the image for screen readers." },
+        "caption": { "$ref": "#/$defs/richText" },
+        "step": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional step number badge, for figures that form a numbered sequence."
+        }
+      },
+      "required": ["type", "src", "alt"],
+      "additionalProperties": false
+    },
+
+    "code": {
+      "type": "object",
+      "description": "A source listing. Highlighting happens deterministically at build time; unknown languages render as plain monospace text.",
+      "properties": {
+        "type": { "const": "code" },
+        "language": {
+          "enum": ["arduino", "json", "labview-formula-node", "pseudocode", "text"],
+          "description": "Language tag. Only arduino and json receive token highlighting."
+        },
+        "title": { "$ref": "#/$defs/richText" },
+        "code": { "type": "string", "minLength": 1 }
+      },
+      "required": ["type", "language", "code"],
+      "additionalProperties": false
+    },
+
+    "formula": {
+      "type": "object",
+      "description": "A display formula shown in monospace, with an optional explanatory note.",
+      "properties": {
+        "type": { "const": "formula" },
+        "title": { "$ref": "#/$defs/richText" },
+        "expression": { "type": "string", "minLength": 1 },
+        "note": { "$ref": "#/$defs/richText" }
+      },
+      "required": ["type", "expression"],
+      "additionalProperties": false
+    },
+
+    "steps": {
+      "type": "object",
+      "description": "A numbered procedure.",
+      "properties": {
+        "type": { "const": "steps" },
+        "title": { "$ref": "#/$defs/richText" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/richText" }, "minItems": 1 }
+      },
+      "required": ["type", "items"],
+      "additionalProperties": false
+    },
+
+    "list": {
+      "type": "object",
+      "description": "An unordered list.",
+      "properties": {
+        "type": { "const": "list" },
+        "title": { "$ref": "#/$defs/richText" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/richText" }, "minItems": 1 }
+      },
+      "required": ["type", "items"],
+      "additionalProperties": false
+    },
+
+    "equipment": {
+      "type": "object",
+      "description": "A materials list with explicit quantities.",
+      "properties": {
+        "type": { "const": "equipment" },
+        "title": { "$ref": "#/$defs/richText" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": { "$ref": "#/$defs/richText" },
+              "quantity": { "type": "integer", "minimum": 1, "default": 1 },
+              "note": { "$ref": "#/$defs/richText" }
+            },
+            "required": ["item"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["type", "items"],
+      "additionalProperties": false
+    },
+
+    "keyValues": {
+      "type": "object",
+      "description": "Term/description pairs: hardware reference values, pin maps, glossaries, at-a-glance metadata.",
+      "properties": {
+        "type": { "const": "keyValues" },
+        "title": { "$ref": "#/$defs/richText" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "term": { "$ref": "#/$defs/richText" },
+              "description": { "$ref": "#/$defs/richText" }
+            },
+            "required": ["term", "description"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["type", "items"],
+      "additionalProperties": false
+    },
+
+    "flow": {
+      "type": "object",
+      "description": "A left-to-right chain of stages with connecting arrows: signal paths, causal chains, process bands. Steps without detail render as compact chips.",
+      "properties": {
+        "type": { "const": "flow" },
+        "title": { "$ref": "#/$defs/richText" },
+        "steps": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "$ref": "#/$defs/richText" },
+              "detail": { "$ref": "#/$defs/richText" }
+            },
+            "required": ["label"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["type", "steps"],
+      "additionalProperties": false
+    },
+
+    "objectives": {
+      "type": "object",
+      "description": "Learning outcomes, rendered as a numbered pedagogical list.",
+      "properties": {
+        "type": { "const": "objectives" },
+        "title": { "$ref": "#/$defs/richText" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/richText" }, "minItems": 1 }
+      },
+      "required": ["type", "items"],
+      "additionalProperties": false
+    },
+
+    "cards": {
+      "type": "object",
+      "description": "A responsive grid of small emphasis cards: metadata snapshots, concept tiles, timing plans.",
+      "properties": {
+        "type": { "const": "cards" },
+        "title": { "$ref": "#/$defs/richText" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "eyebrow": { "$ref": "#/$defs/richText" },
+              "title": { "$ref": "#/$defs/richText" },
+              "body": { "$ref": "#/$defs/richText" },
+              "accent": {
+                "enum": ["primary", "gold", "success", "warning", "danger", "neutral"],
+                "default": "primary"
+              }
+            },
+            "required": ["title"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["type", "items"],
+      "additionalProperties": false
+    },
+
+    "table": {
+      "type": "object",
+      "description": "A static reference table (truth tables, rubrics, comparisons). For tables students fill in, use measurementTable.",
+      "properties": {
+        "type": { "const": "table" },
+        "title": { "$ref": "#/$defs/richText" },
+        "columns": { "type": "array", "items": { "$ref": "#/$defs/richText" }, "minItems": 1 },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "array", "items": { "$ref": "#/$defs/richText" }, "minItems": 1 }
+        },
+        "note": { "$ref": "#/$defs/richText" }
+      },
+      "required": ["type", "columns", "rows"],
+      "additionalProperties": false
+    },
+
+    "details": {
+      "type": "object",
+      "description": "A collapsed disclosure: hints, troubleshooting, optional depth. A gate ties the hint to a prediction field so students commit to an answer before reading it.",
+      "properties": {
+        "type": { "const": "details" },
+        "summary": { "$ref": "#/$defs/richText" },
+        "paragraphs": { "$ref": "#/$defs/paragraphs" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/richText" }, "minItems": 1 },
+        "open": { "type": "boolean", "default": false },
+        "gatedBy": {
+          "type": "object",
+          "description": "Lock this disclosure until the named field holds a minimum-length answer.",
+          "properties": {
+            "field": { "$ref": "#/$defs/key" },
+            "minLength": { "type": "integer", "minimum": 1, "default": 10 },
+            "message": { "$ref": "#/$defs/richText" }
+          },
+          "required": ["field"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "summary"],
+      "anyOf": [
+        { "required": ["paragraphs"] },
+        { "required": ["items"] }
+      ],
+      "additionalProperties": false
+    },
+
+    "quiz": {
+      "type": "object",
+      "description": "An auto-marked multiple-choice question with hint and retry support. Exactly one option must be correct — the schema refuses a quiz with zero or two answers.",
+      "properties": {
+        "type": { "const": "quiz" },
+        "id": { "$ref": "#/$defs/key" },
+        "prompt": { "$ref": "#/$defs/richText" },
+        "points": { "type": "integer", "minimum": 1, "default": 1 },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": { "$ref": "#/$defs/richText" },
+              "correct": { "type": "boolean" }
+            },
+            "required": ["text"],
+            "additionalProperties": false
+          },
+          "contains": {
+            "type": "object",
+            "properties": { "correct": { "const": true } },
+            "required": ["correct"]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        "hint": { "$ref": "#/$defs/richText" },
+        "explanation": { "$ref": "#/$defs/richText" }
+      },
+      "required": ["type", "id", "prompt", "points", "options", "hint"],
+      "additionalProperties": false
+    },
+
+    "checklist": {
+      "type": "object",
+      "description": "Checkboxes the student must confirm. The role records what a tick means: materials (setup complete), tasks (work done), confirmations (externally verified, e.g. demonstrated to the TA).",
+      "properties": {
+        "type": { "const": "checklist" },
+        "role": { "enum": ["materials", "tasks", "confirmations"] },
+        "title": { "$ref": "#/$defs/richText" },
+        "description": { "$ref": "#/$defs/richText" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "label": { "$ref": "#/$defs/richText" }
+            },
+            "required": ["key", "label"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["type", "role", "items"],
+      "additionalProperties": false
+    },
+
+    "fields": {
+      "type": "object",
+      "description": "Student-entry fields: measurements, observations, predictions. Every field is required for checkpoint completion unless marked optional. Validation rules live here as data — never as page code.",
+      "properties": {
+        "type": { "const": "fields" },
+        "title": { "$ref": "#/$defs/richText" },
+        "description": { "$ref": "#/$defs/richText" },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/field" }
+        }
+      },
+      "required": ["type", "fields"],
+      "additionalProperties": false
+    },
+
+    "field": {
+      "type": "object",
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "label": { "$ref": "#/$defs/richText" },
+        "control": { "enum": ["text", "textarea", "number", "select"] },
+        "placeholder": { "type": "string" },
+        "unit": { "type": "string", "description": "Measurement unit shown beside the control and recorded in the progress file." },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "step": { "type": "number", "exclusiveMinimum": 0 },
+        "options": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 2,
+          "description": "Choices for a select control."
+        },
+        "optional": { "type": "boolean", "default": false },
+        "expected": {
+          "type": "object",
+          "description": "Marks this field as self-checking: the runtime shows a live correct/incorrect indicator and checkpoint completion requires a match.",
+          "properties": {
+            "value": {
+              "type": ["string", "number"],
+              "description": "The accepted answer. Numbers compare within tolerance; strings compare case-insensitively unless caseSensitive is set."
+            },
+            "alternatives": {
+              "type": "array",
+              "items": { "type": ["string", "number"] },
+              "minItems": 1,
+              "description": "Additional accepted answers."
+            },
+            "tolerance": { "type": "number", "minimum": 0, "default": 0.01 },
+            "caseSensitive": { "type": "boolean", "default": false },
+            "message": { "$ref": "#/$defs/richText", "description": "Shown while the answer does not match." }
+          },
+          "required": ["value"],
+          "additionalProperties": false
+        },
+        "rangeNote": {
+          "type": "object",
+          "description": "A live, non-blocking plausibility warning shown when the value leaves the stated range.",
+          "properties": {
+            "min": { "type": "number" },
+            "max": { "type": "number" },
+            "message": { "$ref": "#/$defs/richText" }
+          },
+          "required": ["message"],
+          "anyOf": [
+            { "required": ["min"] },
+            { "required": ["max"] }
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": ["key", "label", "control"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "control": { "const": "select" } } },
+          "then": { "required": ["options"] }
+        }
+      ]
+    },
+
+    "measurementTable": {
+      "type": "object",
+      "description": "A table students complete in the page. Cells are typed; units are explicit fields, never buried in label strings. Range rules block checkpoint completion with the stated message.",
+      "properties": {
+        "type": { "const": "measurementTable" },
+        "title": { "$ref": "#/$defs/richText" },
+        "description": { "$ref": "#/$defs/richText" },
+        "columns": { "type": "array", "items": { "$ref": "#/$defs/richText" }, "minItems": 2 },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "$ref": "#/$defs/richText" },
+              "unit": { "type": "string" },
+              "cells": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/$defs/tableCell" }
+              }
+            },
+            "required": ["label", "cells"],
+            "additionalProperties": false
+          }
+        },
+        "note": { "$ref": "#/$defs/richText" }
+      },
+      "required": ["type", "columns", "rows"],
+      "additionalProperties": false
+    },
+
+    "tableCell": {
+      "type": "object",
+      "properties": {
+        "control": { "enum": ["number", "text", "check", "static"] },
+        "key": { "$ref": "#/$defs/key" },
+        "value": { "$ref": "#/$defs/richText", "description": "Displayed content of a static cell." },
+        "placeholder": { "type": "string" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "step": { "type": "number", "exclusiveMinimum": 0 },
+        "optional": { "type": "boolean", "default": false },
+        "rangeMessage": { "$ref": "#/$defs/richText", "description": "Completion-blocking message when the value is outside min/max." }
+      },
+      "required": ["control"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "control": { "const": "static" } } },
+          "then": { "required": ["value"] },
+          "else": { "required": ["key"] }
+        }
+      ]
+    },
+
+    "calculator": {
+      "type": "object",
+      "description": "A live worked calculation. The formula is data: a pure arithmetic expression over the input keys, evaluated identically by the runtime on every keystroke. Supported: + - * / parentheses, numbers, input keys, and the functions clamp(x,lo,hi), min, max, abs, round.",
+      "properties": {
+        "type": { "const": "calculator" },
+        "title": { "$ref": "#/$defs/richText" },
+        "description": { "$ref": "#/$defs/richText" },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "label": { "$ref": "#/$defs/richText" },
+              "unit": { "type": "string" },
+              "min": { "type": "number" },
+              "max": { "type": "number" },
+              "step": { "type": "number", "exclusiveMinimum": 0 },
+              "placeholder": { "type": "string" }
+            },
+            "required": ["key", "label"],
+            "additionalProperties": false
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "$ref": "#/$defs/richText" },
+              "expression": { "type": "string", "minLength": 1 },
+              "precision": { "type": "integer", "minimum": 0, "maximum": 6, "default": 2 },
+              "unit": { "type": "string" },
+              "emptyText": { "type": "string", "default": "Enter values" }
+            },
+            "required": ["label", "expression"],
+            "additionalProperties": false
+          }
+        },
+        "note": { "$ref": "#/$defs/richText" }
+      },
+      "required": ["type", "inputs", "outputs"],
+      "additionalProperties": false
+    },
+
+    "ordering": {
+      "type": "object",
+      "description": "A sequence the student arranges into the correct order. Items are authored in the correct order; the runtime presents them shuffled deterministically. Correctness is state, never rendered prose.",
+      "properties": {
+        "type": { "const": "ordering" },
+        "key": { "$ref": "#/$defs/key" },
+        "title": { "$ref": "#/$defs/richText" },
+        "prompt": { "$ref": "#/$defs/richText" },
+        "items": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "label": { "$ref": "#/$defs/richText" }
+            },
+            "required": ["key", "label"],
+            "additionalProperties": false
+          }
+        },
+        "successMessage": { "$ref": "#/$defs/richText" },
+        "failureMessage": { "$ref": "#/$defs/richText" }
+      },
+      "required": ["type", "key", "items"],
+      "additionalProperties": false
+    },
+
+    "evidence": {
+      "type": "object",
+      "description": "An evidence dropbox. It records the chosen filename locally as a memory aid; actual submission always happens through the LMS.",
+      "properties": {
+        "type": { "const": "evidence" },
+        "key": { "$ref": "#/$defs/key" },
+        "label": { "$ref": "#/$defs/richText" },
+        "accept": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^(\\.[a-z0-9]+|image/\\*|application/pdf)$" },
+          "description": "Accepted file extensions or MIME patterns."
+        },
+        "optional": { "type": "boolean", "default": false },
+        "note": { "$ref": "#/$defs/richText" }
+      },
+      "required": ["type", "key", "label", "accept"],
+      "additionalProperties": false
+    },
+
+    "tabs": {
+      "type": "object",
+      "description": "Tabbed sub-sections within a checkpoint. Tabs group parallel material (wiring / code / test); they must not be nested.",
+      "properties": {
+        "type": { "const": "tabs" },
+        "key": { "$ref": "#/$defs/key" },
+        "tabs": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "label": { "$ref": "#/$defs/richText" },
+              "blocks": { "$ref": "#/$defs/blocks" }
+            },
+            "required": ["key", "label", "blocks"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["type", "key", "tabs"],
+      "additionalProperties": false
+    },
+
+    "questions": {
+      "type": "object",
+      "description": "Numbered free-response questions (analysis and reflection). Answers below minLength are flagged in the progress record for instructor attention.",
+      "properties": {
+        "type": { "const": "questions" },
+        "title": { "$ref": "#/$defs/richText" },
+        "description": { "$ref": "#/$defs/richText" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "$ref": "#/$defs/key" },
+              "prompt": { "$ref": "#/$defs/richText" },
+              "minLength": { "type": "integer", "minimum": 1, "default": 12 },
+              "optional": { "type": "boolean", "default": false }
+            },
+            "required": ["key", "prompt"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["type", "items"],
+      "additionalProperties": false
+    }
+  }
+}

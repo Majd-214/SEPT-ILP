@@ -1,0 +1,501 @@
+/* ==========================================================================
+   Components — course portal and knowledge base
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Section headers on the portal
+   -------------------------------------------------------------------------- */
+.c-section {
+  margin-bottom: var(--md-sys-space-7);
+}
+
+.c-section:last-child {
+  margin-bottom: 0;
+}
+
+.c-section__title {
+  font-size: var(--md-sys-type-headline-size);
+  margin-bottom: var(--md-sys-space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Lab cards
+   -------------------------------------------------------------------------- */
+.c-labcard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-5);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-top: 5px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-lg);
+  background: var(--md-sys-color-surface-container-lowest);
+  box-shadow: var(--md-sys-elevation-1);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-labcard:hover {
+  box-shadow: var(--md-sys-elevation-3);
+  transform: translateY(-2px);
+}
+
+.c-labcard--project {
+  border-top-color: var(--md-ref-gold);
+}
+
+.c-labcard__badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.06em;
+  /* Balance the trailing letter-space so the text sits centred */
+  text-indent: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.c-labcard--project .c-labcard__badge {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.c-labcard__title {
+  font-size: var(--md-sys-type-title-size);
+  line-height: var(--md-sys-type-line-height-tight);
+}
+
+.c-labcard__number {
+  color: var(--md-sys-color-primary);
+}
+
+.c-labcard__description {
+  flex: 1 1 auto;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+
+/* --------------------------------------------------------------------------
+   Knowledge hub — domain groups and topic rows
+   -------------------------------------------------------------------------- */
+.c-kb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  margin-bottom: var(--md-sys-space-6);
+}
+
+.c-kb-toolbar__search {
+  flex: 1 1 16rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-kb-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-kb-filter:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-kb-filter.is-active {
+  background: var(--md-sys-color-primary);
+  border-color: transparent;
+  color: var(--md-sys-color-on-primary);
+}
+
+.c-kb-viewtoggle {
+  display: inline-flex;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  overflow: hidden;
+}
+
+.c-kb-viewtoggle__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1rem;
+  border: 0;
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-kb-viewtoggle__btn:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-kb-viewtoggle__btn.is-active {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.c-kb-domain {
+  margin-bottom: var(--md-sys-space-6);
+}
+
+/* List view (default): the kind groups are structural only — group
+   wrappers and list markup dissolve so topics flow as one flat list. */
+.c-kb:not(.is-tree) .c-kb-group,
+.c-kb:not(.is-tree) .c-kb-group__list,
+.c-kb:not(.is-tree) .c-kb-group__item {
+  display: contents;
+}
+
+.c-kb:not(.is-tree) .c-kb-group__label {
+  display: none;
+}
+
+.c-kb:not(.is-tree) .c-kb-domain__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+}
+
+.c-kb-group__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Tree view: each domain is a branch card. A trunk line descends from the
+   domain title; elbow connectors join the kind groups, and each group
+   draws its own trunk and elbows to its topic leaves.
+   -------------------------------------------------------------------------- */
+/* Column-based masonry: cards pack under one another regardless of
+   height, so short and tall domains leave no row gaps. */
+.c-kb.is-tree {
+  columns: 21rem;
+  column-gap: var(--md-sys-space-5);
+}
+
+.c-kb.is-tree .c-kb-domain {
+  break-inside: avoid;
+  margin-bottom: var(--md-sys-space-5);
+  padding: var(--md-sys-space-4) var(--md-sys-space-5);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-lg);
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.c-kb.is-tree .c-kb-domain__title {
+  font-size: var(--md-sys-type-title-size);
+}
+
+.c-kb.is-tree .c-kb-domain__blurb {
+  display: none;
+}
+
+.c-kb.is-tree .c-kb-domain__body {
+  position: relative;
+  margin-top: var(--md-sys-space-2);
+  padding-left: 1.1rem;
+}
+
+.c-kb.is-tree .c-kb-domain__body::before {
+  content: "";
+  position: absolute;
+  left: 0.3rem;
+  top: 0;
+  bottom: 0.75rem;
+  width: 1px;
+  background: var(--md-sys-color-outline-variant);
+}
+
+.c-kb.is-tree .c-kb-group {
+  position: relative;
+  padding-top: var(--md-sys-space-2);
+}
+
+.c-kb.is-tree .c-kb-group::before {
+  content: "";
+  position: absolute;
+  left: -0.8rem;
+  top: calc(var(--md-sys-space-2) + 0.55em);
+  width: 0.65rem;
+  height: 1px;
+  background: var(--md-sys-color-outline-variant);
+}
+
+.c-kb.is-tree .c-kb-group__label {
+  font-size: 0.7rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-kb.is-tree .c-kb-group__list {
+  position: relative;
+  margin-top: 0.15rem;
+  padding-left: 1.1rem;
+}
+
+.c-kb.is-tree .c-kb-group__list::before {
+  content: "";
+  position: absolute;
+  left: 0.3rem;
+  top: 0;
+  bottom: 0.85em;
+  width: 1px;
+  background: var(--md-sys-color-outline-variant);
+}
+
+.c-kb.is-tree .c-kb-group__item {
+  position: relative;
+}
+
+.c-kb.is-tree .c-kb-group__item::before {
+  content: "";
+  position: absolute;
+  left: -0.8rem;
+  top: 0.85em;
+  width: 0.65rem;
+  height: 1px;
+  background: var(--md-sys-color-outline-variant);
+}
+
+.c-kb.is-tree .c-kb-topic {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0.2rem 0.5rem;
+  gap: var(--md-sys-space-2);
+  border-radius: var(--md-sys-shape-sm);
+  /* Rows hold a single line and a text-free dot, so centre alignment
+     replaces the list view's baseline alignment. */
+  align-items: center;
+}
+
+.c-kb.is-tree .c-kb-topic:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-kb.is-tree .c-kb-topic__name {
+  font-weight: var(--md-sys-type-weight-medium);
+  font-size: 0.86rem;
+}
+
+.c-kb.is-tree .c-kb-topic__summary {
+  display: none;
+}
+
+.c-kb.is-tree .c-kb-kind {
+  order: -1;
+  padding: 0;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--md-sys-shape-full);
+  font-size: 0;
+}
+
+.c-kb.is-tree .c-kb-kind--theory { background: var(--md-ref-gold); }
+.c-kb.is-tree .c-kb-kind--skill { background: var(--md-sys-color-primary); }
+.c-kb.is-tree .c-kb-kind--spec { background: var(--md-sys-color-secondary); }
+
+.c-kb-domain__title {
+  font-size: var(--md-sys-type-title-lg-size);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-kb-domain__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-2);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.c-kb-domain__chevron {
+  flex: 0 0 auto;
+  font-size: 0.8em;
+  color: var(--md-sys-color-on-surface-variant);
+  transition: transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+  transform: rotate(90deg);
+}
+
+.c-kb-domain.is-collapsed .c-kb-domain__chevron {
+  transform: none;
+}
+
+.c-kb-domain__name {
+  flex: 1 1 auto;
+}
+
+.c-kb-domain__count {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.c-kb-domain.is-collapsed .c-kb-domain__blurb,
+.c-kb-domain.is-collapsed .c-kb-domain__body {
+  display: none;
+}
+
+.c-kb-domain__blurb {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-1);
+  margin-bottom: var(--md-sys-space-4);
+}
+
+.c-kb-topic {
+  display: flex;
+  align-items: baseline;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface-container-lowest);
+  text-decoration: none;
+  color: inherit;
+}
+
+.c-kb-topic:hover {
+  border-color: var(--md-sys-color-primary);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+.c-kb-topic__name {
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-kb-topic__summary {
+  flex: 1 1 auto;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Topic kind badge, shared by hub rows and topic pages */
+.c-kb-kind {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--md-sys-shape-full);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.05em;
+  text-indent: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.c-kb-kind--theory {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.c-kb-kind--skill {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.c-kb-kind--spec {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.c-kb-empty {
+  padding: var(--md-sys-space-5);
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-md);
+  text-align: center;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* --------------------------------------------------------------------------
+   Knowledge topic page
+   -------------------------------------------------------------------------- */
+.c-kb-page__name {
+  font-size: var(--md-sys-type-display-size);
+  letter-spacing: -0.015em;
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-kb-page__question {
+  font-size: var(--md-sys-type-title-lg-size);
+  font-weight: var(--md-sys-type-weight-regular);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-kb-page__section-title {
+  font-size: var(--md-sys-type-title-lg-size);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+.c-kb-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-space-2);
+}
+
+.c-kb-related__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-sys-space-2);
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1.2;
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+}
+
+.c-kb-related__chip:hover {
+  background: var(--md-sys-color-primary-container);
+}
+
+.c-kb-related__domain {
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: var(--md-sys-type-weight-regular);
+}

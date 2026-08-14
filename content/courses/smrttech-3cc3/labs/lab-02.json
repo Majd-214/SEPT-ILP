@@ -1,0 +1,937 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-02",
+  "number": 2,
+  "title": "Temperature Sensing with LabVIEW and Arduino",
+  "summary": [
+    "A guided interactive companion for Lab 2: build a Celsius-to-Fahrenheit VI, convert it into a SubVI, read a thermistor divider through Arduino A0, and display live temperature in LabVIEW."
+  ],
+  "cardSummary": "Thermistor voltage divider, Arduino LINX communication, Celsius-to-Fahrenheit SubVI, live LabVIEW display, Kelvin extension, and evidence-based troubleshooting.",
+  "chips": [
+    "Software: LabVIEW + LINX",
+    "Hardware: Arduino Mega + thermistor",
+    "Core concept: resistance to voltage",
+    "Deliverables: VIs, evidence, Kelvin extension"
+  ],
+  "duration": {
+    "prelab": "30-45 min",
+    "lab": "2.5-3 h",
+    "postlab": "30-45 min",
+    "safety": "Low-voltage electronics"
+  },
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "labview-interface",
+    "vi-subvi",
+    "voltage-divider",
+    "analog-input",
+    "experimental-evidence",
+    "systematic-troubleshooting"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Tools & Access",
+      "subtitle": "LabVIEW, LINX, Arduino Mega, thermistor circuit",
+      "handleLabel": "Open lab tools reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Access Checklist",
+          "items": [
+            "LabVIEW is installed and opens normally.",
+            "NI LabVIEW LINX Toolkit is installed.",
+            "Arduino firmware loading/testing document from A2L has been followed.",
+            "Arduino Mega appears on the expected serial port.",
+            "Required course files from A2L are downloaded."
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Hardware Values",
+          "items": [
+            { "term": "Fixed resistor", "description": "10 kΩ" },
+            { "term": "Analog input", "description": "A0" },
+            { "term": "Supply", "description": "Arduino 5 V" },
+            { "term": "Reference", "description": "GND" },
+            { "term": "Main file", "description": "`Thermometer.vi`" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Power Rule",
+          "paragraphs": [
+            "Disconnect USB or power before changing wiring. Confirm the divider before running the VI."
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Formula & Concepts",
+      "subtitle": "Temperature conversion, divider logic, LINX dataflow",
+      "handleLabel": "Open formula and concept reference",
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Lab 2 Knowledge Skills",
+          "items": [
+            "[LabVIEW front panel and block diagram](kb:labview-interface)",
+            "[VI and SubVI](kb:vi-subvi)",
+            "[Voltage divider](kb:voltage-divider)",
+            "[Analog input and ADC](kb:analog-input)",
+            "[Measurement evidence](kb:experimental-evidence)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)"
+          ]
+        },
+        {
+          "type": "formula",
+          "title": "Temperature Conversions",
+          "expression": "F = 1.8C + 32"
+        },
+        {
+          "type": "formula",
+          "expression": "K = C + 273.15",
+          "note": "Use the course-provided thermistor conversion VI or instructor-provided thermistor parameters for voltage-to-Celsius conversion."
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "prepare",
+      "title": "Build the local sensing layer of an IoT system",
+      "navLabel": "Prepare",
+      "eyebrow": "Prepare",
+      "blocks": [
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Central question",
+          "paragraphs": [
+            "How does a change in physical temperature become a live digital temperature display in LabVIEW?"
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "You are building the first sensing node for an Internet of Things temperature-monitoring system. Before data can be sent to the cloud, the local system must correctly sense temperature, convert a physical change into voltage, acquire that voltage using Arduino, and display a meaningful temperature value in LabVIEW.",
+            "This lab focuses on the local sensing layer, not yet the cloud layer."
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Conceptual signal chain",
+          "steps": [
+            { "label": "Temperature change", "detail": "Physical condition changes." },
+            { "label": "Thermistor resistance", "detail": "The sensor resistance changes." },
+            { "label": "Divider voltage", "detail": "A voltage appears at the junction." },
+            { "label": "Arduino A0", "detail": "Analog input reads voltage." },
+            { "label": "LabVIEW LINX", "detail": "Voltage data enters LabVIEW." },
+            { "label": "Conversion", "detail": "A model infers temperature." },
+            { "label": "Display", "detail": "Celsius, Fahrenheit, or Kelvin appears." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "LabVIEW does not directly measure temperature. Arduino reads a voltage, and LabVIEW uses the course-provided thermistor conversion VI or instructor-provided sensor parameters to infer temperature."
+          ]
+        },
+        {
+          "type": "cards",
+          "title": "Time, tools, and prerequisites",
+          "items": [
+            { "eyebrow": "Pre-lab", "title": "30-45 minutes", "accent": "gold" },
+            { "eyebrow": "Lab time", "title": "2.5-3 hours", "accent": "gold" },
+            { "eyebrow": "Post-lab", "title": "30-45 minutes", "accent": "gold" },
+            { "eyebrow": "Safety level", "title": "Low-voltage electronics", "body": "Wiring still must be checked before operation.", "accent": "success" }
+          ]
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Software", "body": "LabVIEW, NI LabVIEW LINX Toolkit, Arduino firmware loaded for LINX, and the required A2L course files." },
+            { "title": "Hardware", "body": "Arduino Mega, thermistor, 10 kΩ resistor, breadboard, jumper wires, and USB cable." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "Prerequisite: basic LabVIEW environment familiarity or an instructor demonstration."
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "By the end of this lab, you should be able to...",
+          "items": [
+            "**Sensor model** — Explain how a thermistor changes resistance with temperature.",
+            "**Voltage divider** — Explain why the circuit converts resistance change into measurable voltage.",
+            "**Arduino role** — Identify how Arduino acquires analog sensor data from A0.",
+            "**LabVIEW LINX** — Identify how LabVIEW communicates with Arduino.",
+            "**VI building** — Build controls, indicators, arithmetic functions, and unit conversion logic.",
+            "**SubVI reuse** — Convert a VI into a reusable SubVI with an icon and connector pane.",
+            "**Live display** — Read voltage, convert temperature, and display Celsius, Fahrenheit, and Kelvin.",
+            "**Troubleshooting** — Diagnose hardware, firmware, wiring, and LabVIEW block-diagram faults."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, and course resources before beginning the lab.",
+          "items": [
+            { "key": "material-labview", "label": "LabVIEW is installed and opens normally." },
+            { "key": "material-linx", "label": "NI LabVIEW LINX Toolkit is installed." },
+            { "key": "material-firmware", "label": "Arduino firmware for LINX is available to load." },
+            { "key": "material-files", "label": "Required course files from Avenue to Learn are downloaded." },
+            { "key": "material-arduino", "label": "Arduino Mega and a USB data cable are available." },
+            { "key": "material-thermistor", "label": "Thermistor and 10 kΩ fixed resistor are available." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires are available." },
+            { "key": "material-port", "label": "The Arduino serial port can be identified on this computer." }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "title": "Activity A: Software readiness",
+          "items": [
+            { "key": "pre-labview", "label": "LabVIEW is installed." },
+            { "key": "pre-linx", "label": "NI LabVIEW LINX Toolkit is installed." },
+            { "key": "pre-firmware-doc", "label": "The Arduino firmware loading/testing document from A2L has been followed." },
+            { "key": "pre-port", "label": "Arduino Mega appears on the expected serial port." },
+            { "key": "pre-usb", "label": "A working USB data cable is available." },
+            { "key": "pre-files", "label": "Required files from A2L are downloaded." }
+          ]
+        },
+        {
+          "type": "ordering",
+          "key": "sensing-chain",
+          "title": "Activity B: Build the sensing chain",
+          "prompt": "Drag the events into order.",
+          "items": [
+            { "key": "chain-temperature", "label": "Temperature changes" },
+            { "key": "chain-resistance", "label": "Thermistor resistance changes" },
+            { "key": "chain-divider", "label": "Voltage divider output changes" },
+            { "key": "chain-a0", "label": "Arduino analog input reads voltage" },
+            { "key": "chain-linx", "label": "LabVIEW receives voltage through LINX" },
+            { "key": "chain-convert", "label": "LabVIEW converts voltage to temperature" },
+            { "key": "chain-display", "label": "Temperature appears on the front panel" }
+          ],
+          "successMessage": "Correct measurement chain.",
+          "failureMessage": "Needs correction."
+        },
+        {
+          "type": "fields",
+          "title": "Activity C: Predict voltage-divider behavior",
+          "fields": [
+            {
+              "key": "pre-divider-prediction",
+              "label": "If the thermistor resistance changes, why does Arduino A0 see a changing voltage instead of directly seeing resistance?",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Hint after you have made a prediction",
+          "paragraphs": [
+            "A voltage divider uses two resistances between 5 V and GND. Arduino A0 measures the voltage at the junction. If one resistance changes, the junction voltage changes."
+          ],
+          "gatedBy": { "field": "pre-divider-prediction" }
+        },
+        {
+          "type": "formula",
+          "title": "Activity D: Temperature-unit conversion",
+          "expression": "F = 1.8C + 32",
+          "note": "Kelvin is `K = C + 273.15`."
+        },
+        {
+          "type": "fields",
+          "description": "Predict the Fahrenheit values, then check them using `F = 1.8C + 32`.",
+          "fields": [
+            {
+              "key": "pred-f-0",
+              "label": "Predicted Fahrenheit for 0 °C",
+              "control": "number",
+              "unit": "°F",
+              "expected": { "value": 32, "tolerance": 0.01 }
+            },
+            {
+              "key": "pred-f-25",
+              "label": "Predicted Fahrenheit for 25 °C",
+              "control": "number",
+              "unit": "°F",
+              "expected": { "value": 77, "tolerance": 0.01 }
+            },
+            {
+              "key": "pred-f-100",
+              "label": "Predicted Fahrenheit for 100 °C",
+              "control": "number",
+              "unit": "°F",
+              "expected": { "value": 212, "tolerance": 0.01 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "communicate",
+      "title": "Can LabVIEW communicate with Arduino?",
+      "navLabel": "Communicate",
+      "eyebrow": "Communicate",
+      "intro": [
+        "Use the LabVIEW Arduino firmware loading and testing instructions from A2L. Do not begin sensor troubleshooting until basic communication is proven."
+      ],
+      "blocks": [
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "comm-board",
+              "label": "Arduino board type",
+              "control": "select",
+              "options": ["Arduino Uno", "Arduino Mega"]
+            },
+            {
+              "key": "comm-port",
+              "label": "Serial port used",
+              "control": "select",
+              "options": ["COM1", "COM2", "COM3", "COM4", "COM5"]
+            },
+            {
+              "key": "comm-firmware",
+              "label": "[LINX firmware](kb:labview-linx) loaded?",
+              "control": "select",
+              "options": ["Yes", "No", "Not sure"]
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "Select the board and COM port you verified, then confirm the firmware status before proceeding to sensor work."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "convert",
+      "title": "Build a basic temperature-conversion VI",
+      "navLabel": "Convert",
+      "eyebrow": "Convert",
+      "intro": [
+        "Create a LabVIEW VI that converts degrees Celsius to degrees Fahrenheit. Save it as `Convert C to F.vi`."
+      ],
+      "blocks": [
+        {
+          "type": "details",
+          "summary": "How to build it: Front Panel",
+          "open": true,
+          "items": [
+            "Open LabVIEW and create a blank VI.",
+            "Add a numeric control labelled `deg C`.",
+            "Add a numeric indicator labelled `deg F`."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "How to build it: Block Diagram",
+          "items": [
+            "Use Multiply, Add, numeric constant `1.8`, and numeric constant `32.0`.",
+            "Wire the Celsius control through `F = 1.8C + 32`.",
+            "Run the VI with several values before trusting it."
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Celsius to Fahrenheit block logic",
+          "steps": [
+            { "label": "deg C" },
+            { "label": "multiply by 1.8" },
+            { "label": "add 32" },
+            { "label": "deg F" }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Which object is the input?",
+            "Which object is the output?",
+            "Where is the equation represented in the block diagram?",
+            "What happens if a wire is missing?",
+            "How does LabVIEW dataflow differ from line-by-line text programming?",
+            "Why should you test 0 °C and 100 °C before trusting the VI?"
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "Self-check table",
+          "columns": ["Celsius input", "Expected Fahrenheit", "Measured VI output", "Match?"],
+          "rows": [
+            {
+              "label": "0",
+              "cells": [
+                { "control": "static", "value": "32" },
+                { "control": "number", "key": "vi-out-0" },
+                { "control": "check", "key": "vi-match-0" }
+              ]
+            },
+            {
+              "label": "25",
+              "cells": [
+                { "control": "static", "value": "77" },
+                { "control": "number", "key": "vi-out-25" },
+                { "control": "check", "key": "vi-match-25" }
+              ]
+            },
+            {
+              "label": "100",
+              "cells": [
+                { "control": "static", "value": "212" },
+                { "control": "number", "key": "vi-out-100" },
+                { "control": "check", "key": "vi-match-100" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "modularize",
+      "title": "Turn your conversion into a reusable SubVI",
+      "navLabel": "Modularize",
+      "eyebrow": "Modularize",
+      "intro": [
+        "Reopen `Convert C to F.vi` and convert it into a SubVI. A SubVI is a reusable block that hides internal details while exposing defined inputs and outputs."
+      ],
+      "blocks": [
+        {
+          "type": "details",
+          "summary": "Step-by-step SubVI procedure",
+          "open": true,
+          "items": [
+            "Save a backup copy of the working Celsius-to-Fahrenheit VI.",
+            "Open the VI front panel and confirm the control is named `deg C` and the indicator is named `deg F`.",
+            "Open the icon editor and create a simple, readable icon that communicates C to F conversion.",
+            "Open the connector pane and choose a two-terminal pattern.",
+            "Assign the left terminal to `deg C` and the right terminal to `deg F`.",
+            "Turn on Context Help and hover over the SubVI icon to confirm the terminals are labelled correctly.",
+            "Save the SubVI, then place it in a new test VI and verify 0, 25, and 100 degrees Celsius."
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab2-subvi-edit-icon.png",
+          "alt": "LabVIEW VI icon context menu with Edit Icon selected",
+          "caption": "Right-click the VI icon in the upper-right corner of the front panel and select **Edit Icon**."
+        },
+        {
+          "type": "figure",
+          "src": "lab2-subvi-connector-pattern.png",
+          "alt": "LabVIEW connector pane Patterns menu with a two-terminal pattern selected",
+          "caption": "Open the connector pane Patterns menu and choose a two-terminal layout for the Celsius input and Fahrenheit output."
+        },
+        {
+          "type": "steps",
+          "title": "Core actions",
+          "items": [
+            "Edit the VI icon and make it represent C to F.",
+            "Choose a connector pane pattern with two terminals.",
+            "Assign the left terminal to `deg C`.",
+            "Assign the right terminal to `deg F`.",
+            "Use Context Help to verify the terminals.",
+            "Save the VI."
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Regular VI versus SubVI",
+          "columns": ["Regular VI", "SubVI"],
+          "rows": [
+            ["Built and run directly", "Used as a block inside another VI"],
+            ["Front panel visible to the user", "Has defined input and output terminals"],
+            ["Contains full block diagram", "Encourages modular design and reuse"]
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "What problem does a SubVI solve?",
+            "What information must be visible outside the SubVI?",
+            "What information can be hidden inside the SubVI?",
+            "Why does the connector pane matter?",
+            "What would happen if `deg C` and `deg F` were assigned to the wrong terminals?",
+            "Why is a meaningful icon more than decoration?"
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "subvi-explain",
+              "label": "Explain why your SubVI icon and terminal choices are clear.",
+              "control": "textarea"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sense",
+      "title": "Build and verify the thermistor voltage-divider circuit",
+      "navLabel": "Sense",
+      "eyebrow": "Sense",
+      "intro": [
+        "Build the thermistor voltage-divider circuit using the thermistor, 10 kΩ resistor, Arduino Mega, breadboard, jumper wires, 5 V, GND, and A0."
+      ],
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Skill map references",
+          "items": [
+            "[Voltage divider](kb:voltage-divider)",
+            "[Arduino analog input](kb:analog-input)",
+            "[Measuring voltage](kb:measure-voltage)",
+            "[Systematic troubleshooting](kb:systematic-troubleshooting)"
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Build focus",
+          "paragraphs": [
+            "Use the instructor-provided schematic and bench hardware to identify the thermistor, fixed resistor, 5 V, GND, and the divider junction that feeds Arduino A0.",
+            "Sketch your own wiring map before powering. The goal is to understand the signal path rather than copy a picture."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Confirm placement before power",
+          "paragraphs": [
+            "Confirm the exact thermistor and resistor placement with your instructor or the course-provided schematic before powering the Arduino. Reversing the thermistor and fixed resistor may reverse the temperature-voltage relationship."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Safe recovery sequence",
+          "paragraphs": [
+            "If the reading is missing or implausible, disconnect USB power before moving wires. Verify 5 V, GND, the A0 divider junction, thermistor seating, and the 10 kΩ resistor row; then confirm LINX firmware, serial port, and analog channel 0. Change one item at a time and retest with a measurement or inspection."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why is the 10 kΩ resistor needed?",
+            "What does Arduino A0 actually measure?",
+            "Does A0 measure resistance directly?",
+            "How does a resistance change become a voltage change?",
+            "What would happen if the sensor wire to A0 were disconnected?",
+            "What would happen if 5 V and GND were accidentally shorted?",
+            "Why might touching the thermistor change the reading slowly rather than instantly?"
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "title": "Required evidence",
+          "items": [
+            { "key": "sense-circuit-checked", "label": "Circuit checked before USB connection." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "sense-pin",
+              "label": "Arduino pin used",
+              "control": "text",
+              "placeholder": "A0"
+            },
+            {
+              "key": "sense-resistor",
+              "label": "Fixed resistor value",
+              "control": "text",
+              "placeholder": "10 kΩ"
+            },
+            {
+              "key": "sense-divider-purpose",
+              "label": "Brief explanation of voltage-divider purpose",
+              "control": "textarea"
+            },
+            {
+              "key": "sense-direction",
+              "label": "Predicted direction of voltage change when the thermistor warms",
+              "control": "textarea"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "display",
+      "title": "Read the sensor and test the temperature response",
+      "navLabel": "Display",
+      "eyebrow": "Display",
+      "intro": [
+        "Create a main VI that opens a LINX connection, reads Arduino analog channel 0, sends the voltage to the course-provided thermistor conversion VI, reuses your C-to-F SubVI, lets the user select Celsius or Fahrenheit, displays the result on a thermometer indicator, repeats inside a while loop, stops with a Stop button, and closes LINX after the loop ends."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab2-display-block-diagram.png",
+          "alt": "Annotated LabVIEW LINX block diagram identifying the serial connection, analog read, digital write, timing, stop control, error wire, while loop, and close function",
+          "caption": "Use this annotated dataflow reference to distinguish connection setup, repeated measurement and output logic, controlled stopping, and resource cleanup."
+        },
+        {
+          "type": "flow",
+          "title": "LabVIEW thermometer conceptual block diagram",
+          "steps": [
+            { "label": "Arduino A0 voltage" },
+            { "label": "LINX Analog Read" },
+            { "label": "Thermistor voltage-to-Celsius VI" },
+            { "label": "C-to-F SubVI" },
+            { "label": "Select scale" },
+            { "label": "Thermometer display" }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "A. Front Panel",
+          "open": true,
+          "paragraphs": [
+            "Add temperature scale switch, thermometer indicator, serial port control or constant, and Stop button."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "B. Block Diagram",
+          "paragraphs": [
+            "Organize dataflow left to right: open, read, convert, select, display, close."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "C. LINX Connection",
+          "paragraphs": [
+            "Use LINX Open with the Arduino serial port. Keep it outside the while loop."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "D. Analog Read",
+          "paragraphs": [
+            "Use LINX Analog Read with Analog Channel constant set to `0`."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "E. Temperature Conversion",
+          "paragraphs": [
+            "Use the course-provided thermistor conversion VI or instructor-provided sensor parameters."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "F. Unit Selection",
+          "paragraphs": [
+            "Use your C-to-F SubVI and a Select function controlled by the Temp Scale switch."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "G. While Loop",
+          "paragraphs": [
+            "Place repeated measurement and display code inside the loop so data updates live."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "H. Safe Stop And Close",
+          "paragraphs": [
+            "Wire the Stop button to the loop condition and place LINX Close after the loop."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "I. Run And Observe",
+          "paragraphs": [
+            "Run the VI, touch or warm the thermistor, observe response, then stop with the Stop button."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Required LabVIEW elements",
+          "items": [
+            "LINX Open and LINX Close",
+            "LINX Analog Read",
+            "`lab_3_thermistor_sensor` VI or course-provided equivalent",
+            "`Convert C to F` VI",
+            "Select function and Temp Scale switch",
+            "Thermometer indicator",
+            "While Loop and Stop button",
+            "Analog Channel constant set to 0",
+            "Serial Port constant or control set to the Arduino serial port"
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "What value leaves the LINX Analog Read block?",
+            "Why is the thermistor-conversion VI needed?",
+            "Why reuse the C-to-F SubVI instead of rebuilding the equation?",
+            "What does the Select function decide?",
+            "Why must the while loop surround repeated measurement code?",
+            "Why should LINX Open stay outside the loop?",
+            "Why should LINX Close occur after the loop?",
+            "What information is lost if the VI only displays the latest value and stores no data?"
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Test the temperature response",
+          "description": "Run the VI. Put a finger on the temperature sensor and notice whether the temperature increases. Stop the VI using the Stop button, not Abort. Save the file as `Thermometer.vi`.",
+          "fields": [
+            {
+              "key": "obs-initial",
+              "label": "Initial temperature",
+              "control": "text"
+            },
+            {
+              "key": "obs-warm",
+              "label": "Temperature after warming sensor",
+              "control": "text"
+            },
+            {
+              "key": "obs-time",
+              "label": "Approximate time for noticeable change",
+              "control": "text"
+            },
+            {
+              "key": "obs-return",
+              "label": "Returns toward room temperature?",
+              "control": "select",
+              "options": ["Yes", "No", "Partly"]
+            },
+            {
+              "key": "obs-consistent",
+              "label": "Celsius and Fahrenheit displays consistent?",
+              "control": "select",
+              "options": ["Yes", "No", "Not tested"]
+            },
+            {
+              "key": "obs-noise",
+              "label": "One possible reason for noise or slow response",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "Why does the reading not jump instantly?",
+            "Is the thermistor measuring air temperature, finger temperature, or something in between?",
+            "How could you test whether the sensor is responding consistently?",
+            "How could the circuit be correct but the displayed temperature still be wrong?",
+            "What assumptions are hidden inside the thermistor-conversion VI?",
+            "What evidence would make you trust the system as an IoT temperature node?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "title": "Add a Kelvin display",
+      "navLabel": "Extend",
+      "eyebrow": "Extend",
+      "intro": [
+        "Add an additional third option thermometer or numeric indicator showing Kelvin. Use `K = C + 273.15`."
+      ],
+      "blocks": [
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "kelvin-option",
+              "label": "Which option did you choose?",
+              "control": "select",
+              "options": ["Option A: SubVI", "Option B: Direct logic"]
+            },
+            {
+              "key": "kelvin-test",
+              "label": "How did you test that Kelvin is correct?",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "kelvin-front-panel",
+          "label": "Front panel evidence (PNG, JPG, or PDF)",
+          "accept": [".png", ".jpg", ".jpeg", ".pdf"]
+        },
+        {
+          "type": "evidence",
+          "key": "kelvin-block-diagram",
+          "label": "Block diagram evidence (PNG, JPG, or PDF)",
+          "accept": [".png", ".jpg", ".jpeg", ".pdf"]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "paragraphs": [
+            "The chooser records the selected filename as local evidence in this browser. It does not upload or submit your VI or report. Accepted formats are PNG, JPG, and PDF."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Think it through",
+          "items": [
+            "When is a SubVI worth creating?",
+            "When is direct block-diagram logic sufficient?",
+            "What are the benefits of modularity?",
+            "What are the costs of too many small SubVIs?",
+            "Should Kelvin depend on Celsius or Fahrenheit?"
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Optional extensions",
+          "paragraphs": [
+            "Try these after required evidence is complete."
+          ],
+          "items": [
+            "Log temperature data to a file.",
+            "Plot temperature versus time.",
+            "Add a moving average filter.",
+            "Add a high-temperature warning indicator.",
+            "Add a simulated cloud-upload placeholder.",
+            "Compare Celsius, Fahrenheit, and Kelvin displays.",
+            "Estimate sensor settling time.",
+            "Compare finger warming with ambient recovery.",
+            "Add a second sensor input.",
+            "Explain how this sensing node could later publish data to a cloud dashboard."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Submission checklist and final questions",
+      "navLabel": "Reflect",
+      "eyebrow": "Reflect",
+      "submission": true,
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "title": "Submission checklist",
+          "items": [
+            { "key": "del-cf-vi", "label": "Completed `Convert C to F.vi`." },
+            { "key": "del-subvi", "label": "Completed C-to-F SubVI with icon and connector pane." },
+            { "key": "del-thermometer", "label": "Completed `Thermometer.vi`." },
+            { "key": "del-comm", "label": "Evidence of successful Arduino-LabVIEW communication." },
+            { "key": "del-divider", "label": "Explanation of the thermistor voltage-divider circuit." },
+            { "key": "del-block", "label": "Explanation of the main `Thermometer.vi` block diagram." },
+            { "key": "del-while", "label": "Response to what happens if the while loop is not used." },
+            { "key": "del-kelvin", "label": "Kelvin extension implementation and explanation." },
+            { "key": "del-reflections", "label": "Answers to all reflection questions." },
+            { "key": "del-name", "label": "Student name and number included as required by course procedure." }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "final-thermometer-vi",
+          "label": "Final `Thermometer.vi` file",
+          "accept": [".vi"]
+        },
+        {
+          "type": "evidence",
+          "key": "final-c-to-f-subvi",
+          "label": "Final Celsius-to-Fahrenheit SubVI file",
+          "accept": [".vi"]
+        },
+        {
+          "type": "questions",
+          "title": "Final questions",
+          "items": [
+            { "key": "reflect-1", "prompt": "LabVIEW displayed a temperature value. What physical quantity did Arduino actually measure?" },
+            { "key": "reflect-2", "prompt": "Why is the 10 kΩ resistor necessary in the thermistor circuit?" },
+            { "key": "reflect-3", "prompt": "What would happen if the while loop were removed from the VI?" },
+            { "key": "reflect-4", "prompt": "Why should the Stop button be used instead of the Abort button?" },
+            { "key": "reflect-5", "prompt": "What is the benefit of using a SubVI for Celsius-to-Fahrenheit conversion?" },
+            { "key": "reflect-6", "prompt": "If the temperature reading is unstable, list two possible hardware causes and two possible software or configuration causes." },
+            { "key": "reflect-7", "prompt": "Does this lab create a complete IoT system? If not, which IoT layer has been completed and what still needs to be added?" },
+            { "key": "reflect-8", "prompt": "What did you initially believe about sensor measurement that this lab changed or clarified?" }
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "What you can now demonstrate after completing this lab:"
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "Learning Outcomes Achieved",
+          "items": [
+            "**Sensor model** — Explain how temperature changes thermistor resistance.",
+            "**Voltage divider** — Trace resistance change to a measurable junction voltage.",
+            "**Arduino role** — Identify A0 as the analog-voltage acquisition point.",
+            "**LabVIEW LINX** — Explain how voltage data reaches LabVIEW.",
+            "**VI building** — Build and test temperature-conversion controls, logic, and indicators.",
+            "**SubVI reuse** — Package unit conversion as a reusable SubVI.",
+            "**Live display** — Display and verify Celsius, Fahrenheit, and Kelvin readings.",
+            "**Troubleshooting** — Diagnose the sensing chain with one evidence-based change at a time."
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "**Glossary — key terms**"
+          ]
+        },
+        { "type": "details", "summary": "Thermistor", "paragraphs": ["A resistor whose resistance changes with temperature."] },
+        { "type": "details", "summary": "Resistance", "paragraphs": ["Opposition to electric current, measured in Ω."] },
+        { "type": "details", "summary": "Voltage divider", "paragraphs": ["Two resistive elements that create a measurable junction voltage."] },
+        { "type": "details", "summary": "Analog voltage", "paragraphs": ["A continuously varying voltage value."] },
+        { "type": "details", "summary": "Arduino analog input", "paragraphs": ["A microcontroller input that measures voltage and converts it to a number."] },
+        { "type": "details", "summary": "A0", "paragraphs": ["Analog input channel 0 on the Arduino."] },
+        { "type": "details", "summary": "ADC", "paragraphs": ["Analog-to-digital converter."] },
+        { "type": "details", "summary": "LabVIEW", "paragraphs": ["A graphical programming environment."] },
+        { "type": "details", "summary": "VI", "paragraphs": ["Virtual Instrument, a LabVIEW program."] },
+        { "type": "details", "summary": "Front Panel", "paragraphs": ["The user-facing controls and indicators of a VI."] },
+        { "type": "details", "summary": "Block Diagram", "paragraphs": ["The graphical program logic of a VI."] },
+        { "type": "details", "summary": "Control", "paragraphs": ["A LabVIEW input object."] },
+        { "type": "details", "summary": "Indicator", "paragraphs": ["A LabVIEW output display object."] },
+        { "type": "details", "summary": "SubVI", "paragraphs": ["A reusable VI used as a block inside another VI."] },
+        { "type": "details", "summary": "Connector pane", "paragraphs": ["The terminal mapping that defines SubVI inputs and outputs."] },
+        { "type": "details", "summary": "LINX", "paragraphs": ["LabVIEW toolkit for communicating with supported hardware such as Arduino."] },
+        { "type": "details", "summary": "Serial port", "paragraphs": ["The communication port used by the computer to talk to Arduino."] },
+        { "type": "details", "summary": "While loop", "paragraphs": ["A repeated LabVIEW structure that continues until a stop condition is met."] },
+        { "type": "details", "summary": "Stop button", "paragraphs": ["A controlled way to end a running VI."] },
+        { "type": "details", "summary": "Abort button", "paragraphs": ["An emergency stop that can interrupt cleanup logic and should not be the normal stop method."] },
+        { "type": "details", "summary": "Celsius", "paragraphs": ["A temperature scale based on water freezing at 0 and boiling at 100 under standard conditions."] },
+        { "type": "details", "summary": "Fahrenheit", "paragraphs": ["A temperature scale where `F = 1.8C + 32`."] },
+        { "type": "details", "summary": "Kelvin", "paragraphs": ["An absolute temperature scale where `K = C + 273.15`."] },
+        { "type": "details", "summary": "Calibration", "paragraphs": ["Relating measured signals to meaningful physical values."] },
+        { "type": "details", "summary": "Sensor noise", "paragraphs": ["Small variation in readings caused by circuit, environment, or measurement limits."] },
+        { "type": "details", "summary": "Settling time", "paragraphs": ["The time required for a sensor reading to approach a new stable value."] },
+        { "type": "details", "summary": "IoT sensing node", "paragraphs": ["A local device that senses a physical condition and can later send data to a network or cloud system."] }
+      ]
+    }
+  ]
+}

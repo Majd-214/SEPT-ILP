@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://majd-214.github.io/SEPT-ILP/schema/v1/course.schema.json",
+  "title": "SEPT-ILP course manifest v1",
+  "description": "Course-level metadata and portal content. Lab entries are discovered from the course's labs directory and ordered by their numbers; the manifest never duplicates per-lab data.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Course identifier (e.g. smrttech-3cc3). Namespaces student state and output paths."
+    },
+    "code": { "type": "string", "minLength": 2, "description": "Calendar code, e.g. SMRTTECH 3CC3." },
+    "title": { "type": "string", "minLength": 3, "description": "Full course title." },
+    "term": { "type": "string", "description": "Offering term shown on the portal, e.g. Fall 2026." },
+    "institution": { "type": "string" },
+    "school": { "type": "string" },
+    "program": { "type": "string" },
+    "portal": {
+      "type": "object",
+      "description": "Content of the course home page.",
+      "properties": {
+        "headline": {
+          "$ref": "blocks.schema.json#/$defs/richText",
+          "description": "Portal H1. The renderer emphasizes the part wrapped in *italic* markers."
+        },
+        "lead": { "$ref": "blocks.schema.json#/$defs/paragraphs" },
+        "chips": {
+          "type": "array",
+          "items": { "$ref": "blocks.schema.json#/$defs/richText" },
+          "minItems": 1
+        },
+        "about": {
+          "type": "object",
+          "description": "How the learning space fits together.",
+          "properties": {
+            "title": { "$ref": "blocks.schema.json#/$defs/richText" },
+            "cards": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "eyebrow": { "$ref": "blocks.schema.json#/$defs/richText" },
+                  "title": { "$ref": "blocks.schema.json#/$defs/richText" },
+                  "body": { "$ref": "blocks.schema.json#/$defs/richText" }
+                },
+                "required": ["title", "body"],
+                "additionalProperties": false
+              }
+            },
+            "flow": {
+              "type": "array",
+              "minItems": 2,
+              "items": { "$ref": "blocks.schema.json#/$defs/richText" },
+              "description": "The student journey as a chip band (e.g. Open course hub → Choose lab → …)."
+            }
+          },
+          "required": ["cards"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["headline", "lead"],
+      "additionalProperties": false
+    },
+    "team": {
+      "type": "object",
+      "description": "The course's instructional team, shown on the home page. Roles are free text, so any staffing model fits: instructors, teaching assistants, laboratory instructors, coordinators.",
+      "properties": {
+        "title": { "$ref": "blocks.schema.json#/$defs/richText" },
+        "members": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "minLength": 2 },
+              "role": { "type": "string", "minLength": 2 },
+              "contact": {
+                "$ref": "blocks.schema.json#/$defs/richText",
+                "description": "How to reach this person: an email link, office, or hours."
+              },
+              "note": { "$ref": "blocks.schema.json#/$defs/richText" }
+            },
+            "required": ["name", "role"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["members"],
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "type": "object",
+      "description": "Knowledge-base hub metadata. Domains come from the course's own knowledge directory plus any shared domains the course includes; shared domains live in content/shared/knowledge and are copied into this course's site and archives at build time.",
+      "properties": {
+        "eyebrow": { "$ref": "blocks.schema.json#/$defs/richText" },
+        "title": { "$ref": "blocks.schema.json#/$defs/richText" },
+        "description": { "$ref": "blocks.schema.json#/$defs/richText" },
+        "include": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "minItems": 1,
+          "description": "Identifiers of shared knowledge domains this course includes. The build fails if a listed domain does not exist."
+        }
+      },
+      "required": ["title", "description"],
+      "additionalProperties": false
+    },
+    "footer": {
+      "$ref": "blocks.schema.json#/$defs/richText",
+      "description": "Footer line rendered on every page of the course."
+    },
+    "designSystemVersion": {
+      "type": "string",
+      "description": "Design-system release this course pins. Upgrades are deliberate: edit this value, rebuild, review."
+    }
+  },
+  "required": ["schemaVersion", "id", "code", "title", "term", "institution", "portal", "knowledge", "footer"],
+  "additionalProperties": false
+}

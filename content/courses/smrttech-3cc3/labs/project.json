@@ -1,0 +1,721 @@
+{
+  "schemaVersion": 1,
+  "kind": "project",
+  "id": "project",
+  "number": 0,
+  "title": "Smart System Design Project",
+  "summary": [
+    "Integrating sensors, actuators, local HMI, cloud features, and web-based HMI."
+  ],
+  "cardSummary": "Plan, build, test, demonstrate, and submit a purposeful smart-system prototype with sensors, actuators, local HMI, cloud features, and web-based HMI.",
+  "chips": [
+    "Project idea due 02-Nov",
+    "Proposal due 09-Nov",
+    "Demo 24-Nov",
+    "Video and code 24-Nov",
+    "Teams: lab groups"
+  ],
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "breadboard",
+    "analog-digital",
+    "measurement",
+    "systematic-troubleshooting",
+    "labview-interface",
+    "controls-indicators",
+    "deployment"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Project Hardware",
+      "subtitle": "Required components and approval limits",
+      "handleLabel": "Open hardware reference",
+      "blocks": [
+        {
+          "type": "keyValues",
+          "title": "Minimum Build",
+          "items": [
+            { "term": "Sensors", "description": "At least 2" },
+            { "term": "Actuators", "description": "At least 1" },
+            { "term": "Total devices", "description": "Max 6 unless approved" },
+            { "term": "Parts", "description": "Kit or approved" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Before buying parts",
+          "paragraphs": [
+            "Consult the instructor. Personal purchases should only happen after approval."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Useful Knowledge",
+          "items": [
+            "[Breadboard and common ground](kb:breadboard)",
+            "[Arduino sensor I/O](kb:analog-digital)",
+            "[Measurement and evidence](kb:measurement)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)"
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Project Software",
+      "subtitle": "Local HMI, cloud, and web HMI reminders",
+      "handleLabel": "Open software reference",
+      "blocks": [
+        {
+          "type": "keyValues",
+          "title": "Required Software Features",
+          "items": [
+            { "term": "Local HMI", "description": "LabVIEW is highly recommended." },
+            { "term": "Web HMI", "description": "A dashboard or web interface for remote monitoring or control." },
+            { "term": "Cloud feature", "description": "Data transfer, alert, dashboard, database, or remote-control behavior." }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Useful Knowledge",
+          "items": [
+            "[LabVIEW interface](kb:labview-interface)",
+            "[Controls and indicators](kb:controls-indicators)",
+            "[Arduino code and I/O](kb:analog-digital)",
+            "[Cloud and documentation habits](kb:deployment)"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "understand-requirements",
+      "title": "Understand Requirements",
+      "eyebrow": "Phase 1",
+      "intro": [
+        "Start with the central design question: **How can you combine sensors, actuators, local logic, local HMI, cloud communication, and web-based HMI into a purposeful smart system?**"
+      ],
+      "blocks": [
+        {
+          "type": "flow",
+          "title": "Project concept chain",
+          "steps": [
+            { "label": "Problem", "detail": "Real-world need" },
+            { "label": "Prototype", "detail": "Small-scale model" },
+            { "label": "Sensors", "detail": "Collect information" },
+            { "label": "Logic", "detail": "Arduino or LabVIEW" },
+            { "label": "Actuator", "detail": "Physical response" },
+            { "label": "Local HMI", "detail": "Display and control" },
+            { "label": "Cloud", "detail": "Store or transfer" },
+            { "label": "Web HMI", "detail": "Remote view/control" },
+            { "label": "Demo", "detail": "Communicate clearly" }
+          ]
+        },
+        {
+          "type": "objectives",
+          "title": "Learning Outcomes",
+          "items": [
+            "Define a real-world smart-system purpose.",
+            "Select suitable sensors and actuators.",
+            "Build a low-cost small-scale prototype.",
+            "Use local logic to make decisions from sensor evidence.",
+            "Create a local HMI for monitoring or control.",
+            "Create a web-based HMI or cloud dashboard.",
+            "Transfer data to a cloud platform or remote interface.",
+            "Explain how hardware, software, and cloud pieces interact.",
+            "Plan a project schedule and track progress.",
+            "Troubleshoot hardware, code, and interface problems systematically.",
+            "Prepare a concise proposal, demo, video, and code submission.",
+            "Use evidence to defend design decisions.",
+            "Recognize when instructor approval is required."
+          ]
+        },
+        {
+          "type": "cards",
+          "title": "Metadata Snapshot",
+          "items": [
+            { "title": "Proposal length", "body": "2-3 pages." },
+            { "title": "Video length", "body": "3-4 minutes." },
+            { "title": "Hardware", "body": "At least 2 sensors and 1 actuator." },
+            { "title": "Complexity", "body": "Equivalent to about 3 combined labs." },
+            { "title": "HMI", "body": "Local HMI required; web HMI required." },
+            { "title": "Software", "body": "LabVIEW recommended; alternatives need comparable HMI quality." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "choose-project-idea",
+      "title": "Choose Project Idea",
+      "eyebrow": "Phase 2",
+      "intro": [
+        "Your first submission is only one paragraph. It should name the application, the problem, at least two sensors, at least one actuator, the local HMI, and the cloud or web-based HMI."
+      ],
+      "blocks": [
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "One-Paragraph Template",
+          "paragraphs": [
+            "Our project will design a smart `[system/application]` that solves `[real-world problem]`. It will use `[sensor 1]` and `[sensor 2]` to measure `[quantities]`, and it will control `[actuator]` to `[action]`. A local HMI will allow the user to `[monitor/control]`, while a web-based HMI will `[display/control/alert/log]` through `[cloud platform]`. The prototype will be built as a small-scale model using `[materials]`."
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Idea Workspace",
+          "fields": [
+            {
+              "key": "problem",
+              "label": "Real-world problem",
+              "control": "textarea",
+              "placeholder": "What problem, user, or environment is your system addressing?"
+            },
+            {
+              "key": "idea",
+              "label": "Proposed smart system",
+              "control": "textarea",
+              "placeholder": "Write your one-paragraph idea draft here."
+            },
+            {
+              "key": "idea-prompts",
+              "label": "Socratic prompts",
+              "control": "textarea",
+              "placeholder": "Why is this useful? What will count as success? What could go wrong? What evidence will show it works?"
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "PDF examples",
+          "open": true,
+          "items": [
+            "Elevator system using limit switches and a motor.",
+            "Home security system using motion sensors.",
+            "Temperature monitoring/control system for a building.",
+            "Sun tracking system for a solar panel."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Expanded idea cards",
+          "items": [
+            "**Smart greenhouse monitor:** moisture and temperature sensors, pump or fan actuator, LabVIEW HMI, cloud dashboard. Risk: water near electronics.",
+            "**Smart package/security box:** distance and door sensors, lock or alarm actuator, web alert. Risk: mechanical reliability.",
+            "**Mini smart elevator:** limit switches, position feedback, motor actuator, HMI floor request. Risk: motor control scope.",
+            "**Smart storage monitor:** light and humidity/temperature sensing, LED/buzzer actuator, data logging. Risk: meaningful purpose.",
+            "**Solar tracker:** light sensors, servo or stepper motion, cloud status. Risk: alignment and mechanism friction."
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": ["All ideas require instructor approval."]
+        }
+      ]
+    },
+    {
+      "id": "consult-instructor",
+      "title": "Consult Instructor",
+      "eyebrow": "Phase 3",
+      "intro": [
+        "During the Nov 3 lab, the instructor spends about 5-10 minutes discussing each project idea. The idea may be accepted, modified, rejected, or replaced with a suggested direction."
+      ],
+      "blocks": [
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Approval Check", "body": "Is the purpose clear and course-relevant?" },
+            { "title": "Scope Check", "body": "Is it comparable to about three combined labs?" },
+            { "title": "Risk Check", "body": "Are parts, wiring, cloud, and mechanisms realistic?" }
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Instructor Feedback Notes",
+          "fields": [
+            {
+              "key": "instructor-feedback",
+              "label": "What did the instructor approve, modify, reject, or warn about?",
+              "control": "textarea"
+            },
+            {
+              "key": "changes-before-proposal",
+              "label": "What must change before proposal submission?",
+              "control": "textarea"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "submit-proposal",
+      "title": "Submit Proposal",
+      "eyebrow": "Phase 4",
+      "intro": [
+        "The proposal is due 09-Nov prior to lab start and should be 2-3 pages. It is the team's plan for building, testing, demonstrating, and communicating the project."
+      ],
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "title": "Proposal Builder",
+          "items": [
+            { "key": "proposal-abstract", "label": "**Abstract** — Short summary of purpose and approach." },
+            { "key": "proposal-description", "label": "**Description** — System purpose and expected functionality." },
+            { "key": "proposal-components", "label": "**Component list** — Sensors, actuators, Arduino, cloud, and materials." },
+            { "key": "proposal-schematic", "label": "**Electrical schematic** — Connections shown clearly; EasyEDA may be used." },
+            { "key": "proposal-timeline", "label": "**Weekly timeline** — Week-by-week hardware, software, and integration plan." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "proposal-plan",
+              "label": "Proposal planning prompt",
+              "control": "textarea",
+              "placeholder": "What will the reader understand after two pages? What evidence will prove the design is feasible?"
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Evidence Checklist",
+          "items": [
+            "System block diagram or signal path.",
+            "Electrical schematic or wiring map.",
+            "Clear sensor and actuator choices.",
+            "Local HMI and web HMI descriptions.",
+            "Cloud feature description.",
+            "Risk or troubleshooting plan.",
+            "Weekly schedule with milestones."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "build-prototype",
+      "title": "Build Prototype",
+      "eyebrow": "Phase 5",
+      "intro": [
+        "Build a low-cost, small-scale prototype. Cardboard, wood, and simple materials are acceptable when the prototype demonstrates a real smart-system purpose."
+      ],
+      "blocks": [
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Hardware", "body": "At least two sensors and one actuator; no more than six sensors/actuators unless approved." },
+            { "title": "Purpose", "body": "The prototype should communicate a recognizable real-world application." },
+            { "title": "Instructor Role", "body": "The instructor reviews scope and monitors progress; troubleshooting remains the team's responsibility." }
+          ]
+        },
+        {
+          "type": "fields",
+          "title": "Hardware Planning Inputs",
+          "fields": [
+            {
+              "key": "sensor-count",
+              "label": "Sensor count",
+              "control": "number",
+              "min": 0,
+              "step": 1,
+              "rangeNote": { "min": 2, "message": "Missing required sensors: include at least 2 sensors." }
+            },
+            {
+              "key": "actuator-count",
+              "label": "Actuator count",
+              "control": "number",
+              "min": 0,
+              "step": 1,
+              "rangeNote": { "min": 1, "message": "Missing actuator: include at least 1 actuator." }
+            }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "confirmations",
+          "items": [
+            { "key": "approved-over-six", "label": "Instructor approved more than 6 devices" },
+            { "key": "kit-approved", "label": "Parts are kit-based or approved" }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "prototype-materials",
+              "label": "Prototype materials and mechanism notes",
+              "control": "textarea"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "develop-local-hmi",
+      "title": "Develop Local HMI",
+      "eyebrow": "Phase 6",
+      "intro": [
+        "A local HMI is required. LabVIEW is highly recommended, but another software environment may be accepted if the HMI quality is similar or better."
+      ],
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "local-hmi", "label": "**Local HMI exists** — Students can monitor or control the system locally." },
+            { "key": "sufficient-logic", "label": "**Sufficient logic** — The program makes decisions rather than only displaying raw values." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "local-hmi-notes",
+              "label": "Local HMI controls and indicators",
+              "control": "textarea",
+              "placeholder": "List the controls, indicators, modes, alarms, or settings."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-cloud-web-hmi",
+      "title": "Add Cloud/Web HMI",
+      "eyebrow": "Phase 7",
+      "intro": [
+        "The project must include a web-based HMI and a cloud feature such as data transfer, alerting, dashboard visualization, database storage, or remote control."
+      ],
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "web-hmi", "label": "**Web-based HMI** — A remote dashboard or web interface is present." },
+            { "key": "cloud-feature", "label": "**Cloud feature** — Data is transferred, logged, alerted, visualized, or used for remote control." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "cloud-hmi-notes",
+              "label": "Cloud and web HMI design",
+              "control": "textarea",
+              "placeholder": "What variable is sent? What does the remote user see or control?"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-and-troubleshoot",
+      "title": "Test and Troubleshoot",
+      "eyebrow": "Phase 8",
+      "intro": [
+        "Attendance is required during the three project weeks. Progress is monitored and assessed, but the team is responsible for systematic troubleshooting."
+      ],
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "title": "Requirement Checker",
+          "description": "This checker is a planning aid only. Instructor approval is the final decision.",
+          "items": [
+            { "key": "purpose", "label": "Real-world application is clear" },
+            { "key": "goal-stated", "label": "Project goal is stated" },
+            { "key": "functionality-described", "label": "Functionality is described" },
+            { "key": "complexity-three-labs", "label": "Complexity is about three labs" }
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Risk Table",
+          "columns": ["Risk", "Student response"],
+          "rows": [
+            ["Too few components or weak purpose", "Reconnect the build to a real use case and add meaningful sensing/actuation."],
+            ["Too many devices or over-scope", "Reduce features or get instructor approval."],
+            ["Cloud or web HMI delayed", "Build a minimal dashboard first, then improve visuals."],
+            ["Wiring or common-ground errors", "Test one sensor or actuator path at a time."],
+            ["Demo failure", "Prepare recorded evidence and a fallback explanation."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prepare-demo",
+      "title": "Prepare Demo",
+      "eyebrow": "Phase 9",
+      "intro": [
+        "The real-life demo happens on 24-Nov. The last hour of lab is reserved for demos only."
+      ],
+      "blocks": [
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "demo-functionality", "label": "Main functionality demonstrated" },
+            { "key": "demo-hardware", "label": "Hardware path can be explained" },
+            { "key": "demo-software", "label": "Software and cloud path can be explained" }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "demo-plan",
+              "label": "Demo script and fallback plan",
+              "control": "textarea"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "record-video",
+      "title": "Record Video",
+      "eyebrow": "Phase 10",
+      "intro": [
+        "The video is due 24-Nov with the code submission. It should be 3-4 minutes and describe hardware, describe software, and demonstrate the main functionality."
+      ],
+      "blocks": [
+        {
+          "type": "cards",
+          "title": "Suggested Timing",
+          "items": [
+            { "title": "0:00-0:20", "body": "System name, problem, and purpose." },
+            { "title": "0:20-1:10", "body": "Hardware: sensors, actuator, wiring, prototype." },
+            { "title": "1:10-2:00", "body": "Software: local HMI, logic, cloud, web HMI." },
+            { "title": "2:00-3:30", "body": "Demonstrate functionality clearly." },
+            { "title": "3:30-4:00", "body": "Summarize evidence, limitations, and final result." }
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Lab Video Submission Rubric",
+          "columns": ["Criterion", "0", "1", "2", "3"],
+          "rows": [
+            ["Video: demonstrate the functionality", "No functionality is demonstrated", "Minimal and unclear demo of the functionalities", "Most of the functionality is clearly demonstrated", "All functionalities are clearly demonstrated"],
+            ["Video: describe the hardware", "No description is provided", "Minimal and unclear description", "Most of the hardware is clearly described", "All the hardware is described and clearly explained"],
+            ["Video: describe the software", "No description is provided", "Minimal and unclear description", "Most of the software is clearly described", "All the software is described and clearly explained"]
+          ],
+          "note": "The marking scheme lists Video as 2.5 marks; this rubric judges video quality and may be scaled to the official video mark."
+        },
+        {
+          "type": "figure",
+          "src": "project-video-rubric.png",
+          "alt": "Rubric for lab video submission with criteria for demonstrating functionality, describing hardware, and describing software, scored from 0 to 3.",
+          "caption": "Original rubric image from the project handout."
+        }
+      ]
+    },
+    {
+      "id": "submit-code-and-evidence",
+      "title": "Submit Code and Evidence",
+      "eyebrow": "Phase 11",
+      "intro": [
+        "Submit the video and code by 24-Nov. Keep evidence organized so the instructor can understand what was built, how it works, and what was verified."
+      ],
+      "blocks": [
+        {
+          "type": "table",
+          "title": "Marking Scheme",
+          "columns": ["Item", "Marks"],
+          "rows": [
+            ["Project idea", "0.5"],
+            ["Proposal and schedule", "1"],
+            ["Project functionality", "3"],
+            ["Demo presentation", "2.5"],
+            ["Video", "2.5"],
+            ["Complexity", "4"],
+            ["Lab attendance and progress", "1.5"],
+            ["**Table total**", "**12.5**"]
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "paragraphs": [
+            "Confirm the official weighting because the handout states \"Project Weight: 15 Marks\" but the table totals 12.5."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "confirmations",
+          "title": "Submission Checklist",
+          "items": [
+            { "key": "video-functionality", "label": "Video demonstrates functionality" },
+            { "key": "video-hardware", "label": "Video describes hardware" },
+            { "key": "video-software", "label": "Video describes software" },
+            { "key": "code-included", "label": "Code is included" }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "evidence-list",
+              "label": "Final evidence list",
+              "control": "textarea",
+              "placeholder": "List videos, code files, schematics, screenshots, measurements, and demo notes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Reflect",
+      "eyebrow": "Phase 12",
+      "submission": true,
+      "intro": [
+        "Use the self-assessment to see what is complete, what still needs work, and what should be confirmed with the instructor."
+      ],
+      "blocks": [
+        {
+          "type": "fields",
+          "title": "Self-Assessment Tool",
+          "fields": [
+            {
+              "key": "real-world-purpose",
+              "label": "Clear real-world purpose",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "two-sensors",
+              "label": "At least 2 sensors",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "one-actuator",
+              "label": "At least 1 actuator",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "local-hmi-assess",
+              "label": "Local HMI",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "web-hmi-assess",
+              "label": "Web-based HMI",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "cloud-feature-assess",
+              "label": "Cloud feature",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "logic-complexity",
+              "label": "Logic complexity",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "prototype",
+              "label": "Small-scale prototype",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "proposal-completeness",
+              "label": "Proposal completeness",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "demo-readiness",
+              "label": "Demo readiness",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            },
+            {
+              "key": "video-readiness",
+              "label": "Video readiness",
+              "control": "select",
+              "options": ["Not started", "In progress", "Complete", "Needs instructor confirmation"]
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Timeline",
+          "columns": ["Date", "Milestone"],
+          "rows": [
+            ["02-Nov", "Project idea, one paragraph, due end of day."],
+            ["Nov 3 lab", "Instructor discussion, 5-10 minutes per idea."],
+            ["09-Nov", "Proposal due prior to lab start."],
+            ["Nov 9-24", "Execution, weekly attendance, progress monitoring, and troubleshooting."],
+            ["24-Nov", "Demo, video, and code submission."]
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Glossary",
+          "items": [
+            { "term": "Smart system", "description": "Sensing, decision-making, actuation, and interface working toward a purpose." },
+            { "term": "Local HMI", "description": "Nearby interface such as LabVIEW front panel." },
+            { "term": "Web HMI", "description": "Remote browser/dashboard interface." },
+            { "term": "Cloud feature", "description": "Online data transfer, storage, alerting, dashboarding, or remote control." },
+            { "term": "Complexity", "description": "Design effort, integration, and functionality comparable to about three combined labs." }
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "title": "Weekly Planning Table",
+          "columns": ["Week", "Goal", "Hardware progress", "Software progress", "Cloud/HMI progress", "Risks", "Instructor feedback"],
+          "rows": [
+            {
+              "label": "Week 1",
+              "cells": [
+                { "control": "text", "key": "week1-goal", "placeholder": "Freeze scope and verify one sensor path." },
+                { "control": "text", "key": "week1-hardware" },
+                { "control": "text", "key": "week1-software" },
+                { "control": "text", "key": "week1-cloud" },
+                { "control": "text", "key": "week1-risks" },
+                { "control": "text", "key": "week1-feedback" }
+              ]
+            },
+            {
+              "label": "Week 2",
+              "cells": [
+                { "control": "text", "key": "week2-goal", "placeholder": "Integrate actuator and local HMI." },
+                { "control": "text", "key": "week2-hardware" },
+                { "control": "text", "key": "week2-software" },
+                { "control": "text", "key": "week2-cloud" },
+                { "control": "text", "key": "week2-risks" },
+                { "control": "text", "key": "week2-feedback" }
+              ]
+            },
+            {
+              "label": "Week 3",
+              "cells": [
+                { "control": "text", "key": "week3-goal", "placeholder": "Finalize web HMI, test demo, record video." },
+                { "control": "text", "key": "week3-hardware" },
+                { "control": "text", "key": "week3-software" },
+                { "control": "text", "key": "week3-cloud" },
+                { "control": "text", "key": "week3-risks" },
+                { "control": "text", "key": "week3-feedback" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Demonstrate the working system in the lab on 24-Nov; the last hour of the lab is reserved for demos only.",
+    "Submit the 3-4 minute project video and the project code through the course LMS by 24-Nov.",
+    "Confirm the official project weighting and proposal due date in the course LMS before submitting — the dates in this workspace are planning targets."
+  ]
+}

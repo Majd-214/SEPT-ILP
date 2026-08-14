@@ -1,0 +1,865 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-08",
+  "number": 8,
+  "title": "Soil Moisture Monitoring",
+  "summary": [
+    "Native LabVIEW calibration and alarm logic with MQTT telemetry, shared attributes, and ThingsBoard Cloud dashboards.",
+    "**Central question:** How does soil moisture become calibrated telemetry, a cloud-configured threshold, and a reliable local alarm?"
+  ],
+  "cardSummary": "Capacitive sensing, native LabVIEW dry/wet calibration and alarm logic, ThingsBoard JSON telemetry, a shared moisture threshold, dashboard monitoring, and internet-loss testing.",
+  "chips": [
+    "Software: LabVIEW 2026 Q1, Lab8_init.vi, LINX, NI-VISA, ThingsBoard Cloud, MQTT",
+    "Hardware: Arduino Mega, capacitive soil moisture sensor, cup of water"
+  ],
+  "duration": {
+    "prelab": "30-45 min",
+    "lab": "3 hours",
+    "postlab": "45-60 min"
+  },
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "soil-moisture-sensor",
+    "moisture-calibration",
+    "labview-linx",
+    "mqtt-topics",
+    "shared-attributes",
+    "cloud-dashboard",
+    "systematic-troubleshooting"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Moisture Sensor",
+      "subtitle": "A0 sensing and water-near-electronics safety",
+      "handleLabel": "Open hardware reference",
+      "blocks": [
+        {
+          "type": "keyValues",
+          "title": "Pin Map",
+          "items": [
+            { "term": "Sensor GND", "description": "Arduino GND" },
+            { "term": "Sensor VCC", "description": "Arduino 5 V" },
+            { "term": "Sensor SIG", "description": "Arduino A0" },
+            { "term": "Water cup", "description": "1/3 full" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Water caution",
+          "paragraphs": [
+            "Keep hands dry, keep water away from Arduino, breadboard, laptop, and the top electronics of the sensor."
+          ]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "Cloud Settings",
+      "subtitle": "MQTT topics, telemetry, shared attributes, and dashboard outputs",
+      "handleLabel": "Open software reference",
+      "blocks": [
+        {
+          "type": "keyValues",
+          "title": "ThingsBoard Cloud",
+          "items": [
+            { "term": "Broker", "description": "`mqtt.thingsboard.cloud`" },
+            { "term": "Port", "description": "`1883` (classroom) or `8883` with verified TLS support" },
+            { "term": "Publish", "description": "`v1/devices/me/telemetry`" },
+            { "term": "Subscribe", "description": "`v1/devices/me/attributes`" },
+            { "term": "Shared key", "description": "`moisture_threshold`" }
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Knowledge Links",
+          "items": [
+            "[Capacitive sensor and Arduino A0](kb:soil-moisture-sensor)",
+            "[Measurement and calibration](kb:moisture-calibration)",
+            "[LabVIEW LINX](kb:labview-linx)",
+            "[ThingsBoard MQTT topics](kb:mqtt-topics)",
+            "[ThingsBoard shared attributes](kb:shared-attributes)",
+            "[Cloud dashboard widgets](kb:cloud-dashboard)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "prepare",
+      "title": "Scenario and setup",
+      "navLabel": "Prepare",
+      "eyebrow": "Prepare",
+      "intro": [
+        "You are building an IoT plant-monitoring node. Arduino Mega sends sensor voltage to LabVIEW through LINX. LabVIEW performs calibration and the primary low-moisture decision locally, then exchanges telemetry and a persistent threshold with ThingsBoard Cloud over MQTT."
+      ],
+      "blocks": [
+        {
+          "type": "flow",
+          "title": "Soil moisture data chain",
+          "steps": [
+            { "label": "Moisture", "detail": "Soil or water changes dielectric condition." },
+            { "label": "Sensor voltage", "detail": "Capacitive sensor produces SIG voltage." },
+            { "label": "Arduino A0", "detail": "LabVIEW reads analog channel 0." },
+            { "label": "Calibration", "detail": "V_dry and V_wet define range." },
+            { "label": "Percent", "detail": "Native LabVIEW arithmetic clamps 0 to 100." },
+            { "label": "MQTT telemetry", "detail": "Send JSON to ThingsBoard about once per second." },
+            { "label": "Dashboard", "detail": "Value card, gauge, chart, and alarm indicator." },
+            { "label": "Local alarm", "detail": "LabVIEW reports low_moisture_alarm." }
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Threshold control chain",
+          "steps": [
+            { "label": "Threshold control", "detail": "User selects a setpoint." },
+            { "label": "Shared attribute", "detail": "moisture_threshold persists in ThingsBoard." },
+            { "label": "MQTT subscribe", "detail": "LabVIEW receives live changes." },
+            { "label": "Startup request", "detail": "LabVIEW retrieves the current value after reconnect." },
+            { "label": "JSON parse", "detail": "Validate the numeric threshold." },
+            { "label": "Native compare", "detail": "moisture_percent < moisture_threshold." },
+            { "label": "Local alarm", "detail": "Operates even during internet loss." },
+            { "label": "Telemetry feedback", "detail": "Report low_moisture_alarm to ThingsBoard." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Water-near-electronics caution",
+          "paragraphs": [
+            "Fill the cup only one-third with water. Keep hands dry. Do not spill water on Arduino, breadboard, laptop, or the top electronics of the sensor."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Credential caution",
+          "paragraphs": [
+            "A ThingsBoard device access token is a password-equivalent credential. Never include it in this manual, a report screenshot, completion JSON, public GitHub repository, or shared class document."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Required software environment: computer and LabVIEW",
+          "items": [
+            "Windows 10 or Windows 11.",
+            "LabVIEW 2026 Q1; use 64-bit unless the installed MQTT library specifically requires another edition.",
+            "NI-VISA 2026 Q1."
+          ]
+        },
+        {
+          "type": "list",
+          "title": "Required software environment: hardware interface",
+          "items": [
+            "Arduino Mega 2560.",
+            "LabVIEW Hobbyist Toolkit / LINX 2026 Q1.",
+            "The course MQTT library and its required dependencies."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, accounts, and course resources before beginning the lab.",
+          "items": [
+            { "key": "material-labview", "label": "LabVIEW and NI-VISA are installed." },
+            { "key": "material-linx", "label": "LabVIEW Hobbyist Toolkit / LINX and Arduino firmware for LINX are available." },
+            { "key": "material-files", "label": "`Lab8_init.vi` and the required MQTT library are downloaded." },
+            { "key": "material-account", "label": "ThingsBoard Cloud registration and student-email verification are available." },
+            { "key": "material-arduino", "label": "Arduino Mega and a USB data cable are available." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires are available." },
+            { "key": "material-sensor", "label": "Capacitive soil moisture sensor is available." },
+            { "key": "material-cup", "label": "Cup and water are available for the wet calibration measurement." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "predict",
+      "title": "Arrange the moisture data chain",
+      "navLabel": "Predict",
+      "eyebrow": "Predict",
+      "blocks": [
+        {
+          "type": "ordering",
+          "key": "moisture-chain",
+          "prompt": "Number the events from physical moisture to cloud analytics.",
+          "items": [
+            { "key": "chain-sensor", "label": "Capacitive sensor produces voltage" },
+            { "key": "chain-a0", "label": "Arduino A0 is read through LabVIEW LINX" },
+            { "key": "chain-calibration", "label": "V_dry and V_wet calibration maps voltage to percent" },
+            { "key": "chain-percent", "label": "Native LabVIEW arithmetic computes moisture_percent and clamps it" },
+            { "key": "chain-publish", "label": "MQTT publishes a labelled JSON telemetry object" },
+            { "key": "chain-variable", "label": "ThingsBoard stores raw_voltage, moisture_percent, and low_moisture_alarm telemetry" },
+            { "key": "chain-dashboard", "label": "Dashboard cards, gauge, chart, and alarm indicator display the readings" }
+          ],
+          "successMessage": "Correct measurement chain.",
+          "failureMessage": "Not yet. Follow the data from sensor voltage to cloud dashboard and analytics."
+        },
+        {
+          "type": "fields",
+          "title": "Calibration and topic practice",
+          "fields": [
+            {
+              "key": "topic-publish",
+              "label": "Publish topic for telemetry",
+              "control": "text",
+              "expected": { "value": "v1/devices/me/telemetry", "caseSensitive": true }
+            },
+            {
+              "key": "topic-subscribe",
+              "label": "Subscribe topic for live shared-attribute changes",
+              "control": "text",
+              "expected": { "value": "v1/devices/me/attributes", "caseSensitive": true }
+            },
+            {
+              "key": "topic-threshold",
+              "label": "If `moisture_percent` is 18 and threshold is 25, should the LabVIEW Low Moisture LED indicator be on?",
+              "control": "text",
+              "expected": { "value": "yes" }
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "Does Arduino measure moisture directly?",
+            "Why are V_dry and V_wet specific to this sensor and setup?",
+            "Why clamp `moisture_percent` between 0 and 100?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "thingsboard",
+      "title": "Create and Configure Your ThingsBoard Cloud Account",
+      "navLabel": "ThingsBoard",
+      "eyebrow": "Build",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Open [ThingsBoard Cloud](https://thingsboard.cloud).",
+            "Open **Entities → Devices**, select **Add Device**, and name the device `Lab8-Soil-Moisture-StudentName`.",
+            "Leave the device profile as the default, then save.",
+            "Open the device details or connectivity information and copy its access token to a private local location."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "One physical project normally equals one ThingsBoard device",
+          "paragraphs": [
+            "Do not create a separate device for every sensor or actuator. Never paste the real token into this page. Use `YOUR_DEVICE_ACCESS_TOKEN` in examples and redact credentials from evidence."
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "thingsboard-device-name",
+              "label": "ThingsBoard device name",
+              "control": "text",
+              "placeholder": "Lab8-Soil-Moisture-StudentName"
+            },
+            {
+              "key": "thingsboard-tenant-check",
+              "label": "How did you verify this is your own tenant?",
+              "control": "text",
+              "placeholder": "Describe the account/device check"
+            }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            {
+              "key": "thingsboard-token-private",
+              "label": "The device token is stored in a private local location, ready for the next MQTT stage, and is absent from screenshots, reports, HTML, repositories, and completion exports."
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "thingsboard-device-screenshot",
+          "label": "Local evidence reference: device page with the access token hidden (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        },
+        {
+          "type": "cards",
+          "title": "ThingsBoard data model for this lab",
+          "items": [
+            {
+              "title": "Telemetry: measured or calculated state",
+              "body": "LabVIEW publishes `raw_voltage`, `moisture_percent`, and `low_moisture_alarm` to `v1/devices/me/telemetry`."
+            },
+            {
+              "title": "Shared attribute: persistent configuration",
+              "body": "The dashboard writes `moisture_threshold`. LabVIEW receives it on `v1/devices/me/attributes` and retrieves it after startup or reconnection."
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "success",
+          "title": "Keep the meanings separate",
+          "paragraphs": [
+            "`moisture_threshold` is the cloud-configured setpoint; `low_moisture_alarm` is the actual alarm result calculated locally in LabVIEW."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mqtt",
+      "title": "Configure and test LabVIEW MQTT with ThingsBoard",
+      "navLabel": "MQTT",
+      "eyebrow": "Build",
+      "intro": [
+        "Download `Lab8.zip` from Avenue to Learn, extract it, and open `Lab8_init.vi`. Configure the existing MQTT tab without changing the portal's LabVIEW/LINX architecture."
+      ],
+      "blocks": [
+        {
+          "type": "list",
+          "title": "Initial classroom configuration",
+          "items": [
+            "Broker: `mqtt.thingsboard.cloud`; port: `1883`.",
+            "Username: the device access token; password: blank.",
+            "Client ID: `SMRTTECH3CC3-STUDENTNAME-LAB8`.",
+            "QoS: **At least once**.",
+            "Publish: `v1/devices/me/telemetry` (no leading slash).",
+            "Subscribe: `v1/devices/me/attributes`."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Transport security",
+          "paragraphs": [
+            "Port 1883 is unencrypted and is only for the controlled laboratory setup or initial connectivity testing. Use port 8883 only when the MQTT library explicitly supports TLS and certificate verification; entering 8883 alone does not enable TLS. Every simultaneously connected client must use a unique client ID."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "If the MQTT connection or first publish fails",
+          "items": [
+            "Confirm `mqtt.thingsboard.cloud`, the intended port, a unique client ID, the device token as Username, and a blank password.",
+            "Use the exact topic `v1/devices/me/telemetry` with no leading slash and validate the labelled JSON payload.",
+            "Confirm the token belongs to the same ThingsBoard device whose Latest Telemetry tab you are viewing; check whether the network blocks MQTT."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Connection and first-test sequence",
+          "paragraphs": [
+            "Run the VI, select **Connect**, and wait for the connection-success indication before publishing. Send one labelled JSON object such as `{\"raw_voltage\":2.81,\"moisture_percent\":34.6,\"low_moisture_alarm\":true}` to `v1/devices/me/telemetry`; do not publish an unlabelled number. Open **Entities → Devices → your Lab 8 device → Latest Telemetry** and confirm that all three keys appear. Subscribe to `v1/devices/me/attributes` for live threshold changes and configure the response listener for requested attributes. After the VI is running, open **Attributes → Shared Attributes**, add `moisture_threshold` as a numeric value, change it once, and confirm the updated value is received by LabVIEW. Use **Stop**, not **Abort**, so MQTT, LINX/VISA, queues, events, and other references close cleanly."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "title": "Send a labelled JSON test",
+          "code": "{\"raw_voltage\":2.81,\"moisture_percent\":34.6,\"low_moisture_alarm\":true}"
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Build the payload in LabVIEW with **Concatenate Strings**: place the key names, quotation marks, braces, commas, and formatted values in the required order to create one labelled JSON string. Do not publish an unlabelled number such as `42`. Connect, publish once, subscribe, and confirm the JSON keys appear in the device's **Latest Telemetry** tab."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            {
+              "key": "mqtt-test-confirmed",
+              "label": "MQTT connection, JSON telemetry publish, and both subscriptions were tested successfully."
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "latest-telemetry-screenshot",
+          "label": "Local evidence reference: Latest Telemetry with no credential visible (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "circuit",
+      "title": "Create the capacitive soil moisture sensor circuit",
+      "navLabel": "Circuit",
+      "eyebrow": "Build",
+      "intro": [
+        "Review the capacitive sensor datasheet, then build the circuit. Connect sensor GND to Arduino GND, VCC to Arduino 5 V, and SIG to Arduino A0."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab8-pdf-moisture-circuit.png",
+          "alt": "Circuit diagram showing a capacitive soil-moisture sensor connected to Arduino Mega A0, 5 V, and GND.",
+          "caption": "Connect the moisture-sensor SIG pin to Arduino analog channel A0."
+        },
+        {
+          "type": "figure",
+          "src": "lab8-pdf-sensor-depth-warning.png",
+          "alt": "Soil-moisture sensor showing the safe insertion-depth region.",
+          "caption": "Do not submerge the top circuitry; insert only the recommended sensing region."
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "circuit-gnd", "label": "Sensor GND is connected to Arduino GND." },
+            { "key": "circuit-vcc", "label": "Sensor VCC is connected to Arduino 5 V." },
+            { "key": "circuit-sig", "label": "Sensor SIG is connected to Arduino A0." },
+            { "key": "circuit-water", "label": "Cup is one-third full and the top two-thirds are dry." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "If the sensor reading is missing or fixed",
+          "paragraphs": [
+            "Stop the VI, disconnect Arduino USB, dry your hands, and move water away from the electronics. Verify VCC, GND, SIG to A0, sensor depth, USB, serial port, LINX firmware, and NI-VISA before restoring power."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "calibrate",
+      "title": "Flash LINX and measure V_dry and V_wet",
+      "navLabel": "Calibrate",
+      "eyebrow": "Measure",
+      "intro": [
+        "Flash LINX firmware using Tools - MakerHub - LINX - LINX Firmware Wizard. Add LINX Open, LINX Close, and LINX Analog Read in the Control and Data Acquisition loop. Configure the serial port and set analog channel to 0."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab8-pdf-analog-read-block.png",
+          "alt": "LabVIEW block diagram with LINX Open, LINX Analog Read, and LINX Close.",
+          "caption": "First read the sensor voltage without pressing Connect in the MQTT tab."
+        },
+        {
+          "type": "steps",
+          "title": "Calibration steps",
+          "items": [
+            "Run LabVIEW without pressing Connect in the MQTT tab.",
+            "Record average sensor voltage in air as `V_dry` for 0% moisture.",
+            "Slowly dip the sensor until it touches the bottom of the cup.",
+            "Record that voltage as `V_wet` for 100% moisture.",
+            "Stop the VI before editing the block diagram."
+          ]
+        },
+        {
+          "type": "measurementTable",
+          "columns": ["Calibration reading", "Voltage", "Meaning"],
+          "rows": [
+            {
+              "label": "V_dry",
+              "unit": "V",
+              "cells": [
+                { "control": "number", "key": "vdry", "min": 0, "max": 5, "step": 0.001, "rangeMessage": "Voltages must be between 0 and 5 V." },
+                { "control": "static", "value": "0% moisture, sensor in air" }
+              ]
+            },
+            {
+              "label": "V_wet",
+              "unit": "V",
+              "cells": [
+                { "control": "number", "key": "vwet", "min": 0, "max": 5, "step": 0.001, "rangeMessage": "Voltages must be between 0 and 5 V." },
+                { "control": "static", "value": "100% moisture, sensor dipped safely in water" }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "If V_dry and V_wet are invalid or nearly identical",
+          "items": [
+            "Use a consistent sensor depth, keep the top circuitry dry, and allow each reading to settle before averaging.",
+            "Confirm the values are measured, different, assigned to the correct dry/wet endpoints, and within the Arduino input range.",
+            "Recheck A0 wiring and LINX Analog Read before changing the calibration formula."
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "hmi-front-panel",
+          "label": "Local evidence reference: HMI front panel (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        },
+        {
+          "type": "evidence",
+          "key": "hmi-block-diagram",
+          "label": "Local evidence reference: native LabVIEW calibration block diagram (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "percent",
+      "title": "Convert voltage to percent moisture",
+      "navLabel": "Percent",
+      "eyebrow": "Measure",
+      "intro": [
+        "Add a numeric `moisture_threshold` indicator, a LabVIEW front-panel Low Moisture round LED indicator, a `moisture_percent` numeric indicator, and a `moisture_percent` waveform chart. Build the calibration and alarm with native LabVIEW arithmetic, comparison functions, Boolean logic, and Case Structures as needed."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab8-in-range-coerce.png",
+          "alt": "LabVIEW In Range and Coerce function with lower and upper limits, coerced output, and In Range Boolean output.",
+          "caption": "Use **In Range and Coerce** to keep the calculated moisture percentage within 0-100. Wire the scaled value to `x`, set the lower limit to 0 and upper limit to 100, use `coerced(x)` as `moisture_percent`, and use **In Range?** when you need to confirm whether the original value was already inside the limits."
+        },
+        {
+          "type": "code",
+          "language": "pseudocode",
+          "code": "scaled_percent = (raw_voltage - V_dry) / (V_wet - V_dry) * 100\nmoisture_percent = clamp(scaled_percent, 0, 100)\nlow_moisture_alarm = moisture_percent < moisture_threshold"
+        },
+        {
+          "type": "steps",
+          "items": [
+            "Subtract `V_dry` from `raw_voltage`, divide by `V_wet - V_dry`, and multiply by 100.",
+            "Use minimum/maximum or **In Range and Coerce** functions to clamp the result from 0 to 100.",
+            "Use the **Less?** comparison to calculate `low_moisture_alarm`.",
+            "Keep a documented safe local threshold until a valid cloud value arrives."
+          ]
+        },
+        {
+          "type": "calculator",
+          "title": "Moisture calculator",
+          "inputs": [
+            { "key": "vdry", "label": "V_dry", "unit": "V", "min": 0, "max": 5, "step": 0.001 },
+            { "key": "vwet", "label": "V_wet", "unit": "V", "min": 0, "max": 5, "step": 0.001 },
+            { "key": "voltage-test", "label": "Voltage to convert", "unit": "V", "min": 0, "max": 5, "step": 0.001 },
+            { "key": "threshold-test", "label": "Threshold percent", "unit": "%", "min": 0, "max": 100, "step": 1 }
+          ],
+          "outputs": [
+            {
+              "label": "Raw scaled value",
+              "expression": "(voltage-test - vdry) / (vwet - vdry) * 100",
+              "precision": 1,
+              "unit": "%",
+              "emptyText": "Enter V_dry, V_wet, voltage, and threshold."
+            },
+            {
+              "label": "Moisture percent (clamped)",
+              "expression": "clamp((voltage-test - vdry) / (vwet - vdry) * 100, 0, 100)",
+              "precision": 1,
+              "unit": "%",
+              "emptyText": "Enter V_dry, V_wet, voltage, and threshold."
+            }
+          ],
+          "note": "`moisture_percent` is clamped to 0-100. The LabVIEW front-panel Low Moisture LED turns ON and `low_moisture_alarm` is true when the percent is below the threshold. `V_wet` must differ from `V_dry`."
+        }
+      ]
+    },
+    {
+      "id": "publish",
+      "title": "Publish JSON telemetry to ThingsBoard",
+      "navLabel": "Publish",
+      "eyebrow": "Measure",
+      "intro": [
+        "In the Communication Loop, use LabVIEW **Concatenate Strings** to assemble the three current values into one labelled JSON object, then publish it to `v1/devices/me/telemetry`."
+      ],
+      "blocks": [
+        {
+          "type": "code",
+          "language": "json",
+          "code": "{\"raw_voltage\":2.81,\"moisture_percent\":34.6,\"low_moisture_alarm\":true}"
+        },
+        {
+          "type": "evidence",
+          "key": "publish-telemetry-screenshot",
+          "label": "Local evidence reference: streaming Latest Telemetry (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "threshold",
+      "title": "Receive and synchronize moisture_threshold",
+      "navLabel": "Threshold",
+      "eyebrow": "Measure",
+      "intro": [
+        "Use `moisture_threshold` as a ThingsBoard **shared attribute**. Subscribe to `v1/devices/me/attributes` for event-driven live changes such as:"
+      ],
+      "blocks": [
+        {
+          "type": "code",
+          "language": "json",
+          "code": "{\"moisture_threshold\":30}"
+        },
+        {
+          "type": "steps",
+          "title": "Startup and reconnection synchronization",
+          "items": [
+            "Subscribe to `v1/devices/me/attributes`.",
+            "The response may be `{\"moisture_threshold\":30}`. In LabVIEW, wire the received JSON string into **Unflatten From JSON** and provide a typed cluster constant containing a numeric `moisture_threshold` field. Connect the brown cluster output to **Unbundle by Name**, select `moisture_threshold`, and wire the resulting numeric value into the local setpoint logic. Until a valid response arrives, retain a documented safe default. On malformed JSON, show a readable error and preserve the last valid threshold instead of stopping the complete VI."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "success",
+          "title": "Forced receive-path check",
+          "paragraphs": [
+            "Keep the subscription on `v1/devices/me/attributes`, then publish `{\"sharedKeys\":\"moisture_threshold\"}` to `v1/devices/me/attributes/request/1`. Decode the received JSON with **Unflatten From JSON**, connect its brown cluster wire to **Unbundle by Name**, and validate the extracted numeric `moisture_threshold`. After every reconnect, recreate invalid references if needed, resubscribe to the attributes topic, and request the current value again."
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab8-unflatten-from-json.png",
+          "alt": "LabVIEW Unflatten From JSON function converting a JSON string into a typed cluster and numeric moisture_percent output.",
+          "caption": "Use this pattern for the Lab 8 threshold response: wire the JSON string into **Unflatten From JSON**, define the expected numeric field in a typed cluster, then connect the brown cluster wire to **Unbundle by Name**. Select `moisture_threshold` and use the numeric output in the comparison and threshold indicator."
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "threshold-evidence",
+              "label": "What proves LabVIEW received both a live change and the startup-request response?",
+              "control": "textarea"
+            },
+            {
+              "key": "attribute-parse-validation",
+              "label": "How does the VI use Unflatten From JSON and Unbundle by Name to validate received JSON and preserve a safe or last-valid threshold?",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "shared-attributes-screenshot",
+          "label": "Local evidence reference: Shared Attributes (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "dashboard",
+      "title": "Build the Lab 8 Soil Moisture Dashboard",
+      "navLabel": "Dashboard",
+      "eyebrow": "Explain",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Open **Dashboards**, create a dashboard named `Lab 8 Soil Moisture Dashboard`, and open edit mode.",
+            "Create or select an entity alias that points to your `Lab8-Soil-Moisture-StudentName` device.",
+            "Add a value card for `raw_voltage`.",
+            "Add a 0-100 gauge and a time-series chart for `moisture_percent`.",
+            "Add an indicator for the Boolean telemetry key `low_moisture_alarm`.",
+            "Add a numeric threshold control that reads and writes the shared attribute `moisture_threshold`.",
+            "Optionally add an alarm-history, event-history, device-activity, or last-update widget."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Threshold control action",
+          "paragraphs": [
+            "Initial state must read shared attribute `moisture_threshold`; changes must set that shared attribute to a numeric value. Do not write telemetry, set a server-side attribute, or execute RPC. After changing the control, first confirm the value changes under the device's **Shared Attributes** tab, then troubleshoot LabVIEW if needed."
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "If a widget has no value or the threshold control has no effect",
+          "items": [
+            "Confirm the entity alias points to the Lab 8 device and each widget uses the exact telemetry or shared-attribute key.",
+            "Confirm the threshold control sets numeric shared attribute `moisture_threshold`, not telemetry, RPC, or a server attribute.",
+            "Verify the value changes in the Shared Attributes tab before inspecting the LabVIEW subscription and JSON validation path."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "dashboard-gauge", "label": "raw_voltage value card and moisture_percent gauge display measured telemetry." },
+            { "key": "dashboard-slider", "label": "Threshold control updates the shared moisture_threshold attribute." },
+            { "key": "dashboard-line", "label": "Time-series chart shows historical moisture_percent values." },
+            { "key": "dashboard-test", "label": "Moving the sensor updates telemetry and changing the threshold changes the local alarm when appropriate." },
+            { "key": "dashboard-alarm", "label": "low_moisture_alarm indicator is visibly distinct from measured moisture and configured threshold." }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "dashboard-screenshot",
+          "label": "Local evidence reference: completed dashboard (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "reliability",
+      "title": "Validate the local alarm and internet-loss behaviour",
+      "navLabel": "Reliability",
+      "eyebrow": "Revise",
+      "intro": [
+        "The primary decision remains in LabVIEW:"
+      ],
+      "blocks": [
+        {
+          "type": "code",
+          "language": "pseudocode",
+          "code": "low_moisture_alarm = moisture_percent < moisture_threshold"
+        },
+        {
+          "type": "steps",
+          "title": "Normal operation",
+          "items": [
+            "Set a known threshold.",
+            "Move the sensor so moisture crosses the threshold.",
+            "Confirm the local LabVIEW front-panel LED indicator changes immediately.",
+            "Confirm the reported `low_moisture_alarm` follows."
+          ]
+        },
+        {
+          "type": "steps",
+          "title": "Cloud-loss test",
+          "items": [
+            "Record the active threshold.",
+            "Disconnect MQTT or internet access.",
+            "Vary the sensor reading.",
+            "Confirm acquisition, calibration, comparison, and the local LabVIEW indicator continue."
+          ]
+        },
+        {
+          "type": "steps",
+          "title": "Reconnect test",
+          "items": [
+            "Restore connectivity.",
+            "Reconnect and resubscribe.",
+            "Request `moisture_threshold`.",
+            "Confirm telemetry resumes without unsafe output changes."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Cloud communication is not deterministic",
+          "paragraphs": [
+            "Never use ThingsBoard as the inner loop of a fast controller. Stale, delayed, duplicate, or repeated commands must not create unsafe behaviour. A ThingsBoard alarm/history widget may observe `low_moisture_alarm`, but a cloud rule chain must not replace the local decision."
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "alert-evidence",
+              "label": "Record the normal, cloud-loss, and reconnect test results",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "alarm-reliability-screenshot",
+          "label": "Local evidence reference: local alarm and internet-loss test (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Learning Outcomes Achieved",
+      "navLabel": "Reflect",
+      "eyebrow": "Reflect",
+      "submission": true,
+      "blocks": [
+        {
+          "type": "objectives",
+          "items": [
+            "Measure dry and wet reference voltages and implement a bounded native-LabVIEW moisture calibration.",
+            "Calculate a local low-moisture decision from a validated cloud-configured threshold.",
+            "Publish labelled telemetry and receive, validate, and resynchronize a persistent ThingsBoard shared attribute through MQTT.",
+            "Build a dashboard that distinguishes measured moisture, configured threshold, and the locally calculated alarm.",
+            "Verify that sensing and alarm logic remain safe during cloud loss, reconnection, and final hardware cleanup."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Final cleanup warning",
+          "ordered": true,
+          "items": [
+            "Stop the VI with its Stop control, not Abort.",
+            "Disconnect MQTT and close MQTT, LINX/NI-VISA, queue, event, and other references.",
+            "Keep the most recently valid threshold or documented safe default active during disconnect.",
+            "Turn off power, disconnect Arduino USB, remove the sensor, and let it dry.",
+            "Remove real credentials from local examples and clear saved front-panel token defaults before distributing a VI."
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "final-lab8-vi",
+          "label": "Final Lab 8 LabVIEW VI file",
+          "accept": [".vi"]
+        },
+        {
+          "type": "questions",
+          "title": "Submission questions",
+          "items": [
+            { "key": "reflect-1", "prompt": "Draw or describe a system block diagram showing data transfer between web HMI, sensors, and actuators." },
+            { "key": "reflect-2", "prompt": "Compare capacitive and resistive soil moisture sensors. Summarize operation and advantages of the capacitive sensor." },
+            { "key": "reflect-3", "prompt": "Explain the native LabVIEW calibration and alarm logic, and why measuring V_dry and V_wet is important." },
+            { "key": "reflect-4", "prompt": "Provide one real-life soil moisture sensor application and explain the benefits of making it IoT." },
+            { "key": "reflect-5", "prompt": "Include typos or suggestions for improving this lab manual." }
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Glossary",
+          "items": [
+            { "term": "Capacitive soil moisture sensor", "description": "Sensor that responds to changes in dielectric properties around the probe rather than relying on exposed resistive electrodes." },
+            { "term": "Resistive soil moisture sensor", "description": "Sensor that estimates moisture from electrical resistance through soil, often more prone to corrosion." },
+            { "term": "V_dry", "description": "Voltage measured with the sensor in air, used as the 0% moisture calibration point." },
+            { "term": "V_wet", "description": "Voltage measured with the sensor safely dipped in water, used as the 100% moisture calibration point." },
+            { "term": "Calibration", "description": "Mapping raw sensor voltage to a meaningful percent range for this sensor and setup." },
+            { "term": "moisture_percent", "description": "Telemetry key for the locally calibrated and clamped moisture value from 0 to 100." },
+            { "term": "moisture_threshold", "description": "ThingsBoard shared attribute containing the persistent cloud-configured setpoint." },
+            { "term": "low_moisture_alarm", "description": "Boolean telemetry key calculated locally from moisture_percent < moisture_threshold." },
+            { "term": "Arduino A0", "description": "Analog input channel used to read the sensor SIG voltage." },
+            { "term": "LINX", "description": "LabVIEW toolkit used to communicate with Arduino." },
+            { "term": "Native LabVIEW logic", "description": "Arithmetic, clamp, comparison, Boolean, and Case Structure functions that keep calibration and the alarm local." },
+            { "term": "JSON validation", "description": "Parsing and validating a received shared-attribute value before replacing the last valid threshold." },
+            { "term": "Clamp", "description": "Limit a calculated value so it stays within an allowed range." },
+            { "term": "MQTT", "description": "Publish/subscribe protocol used to exchange JSON telemetry and shared attributes with ThingsBoard." },
+            { "term": "Telemetry", "description": "Measurement or actual-state data published by LabVIEW, including raw_voltage, moisture_percent, and low_moisture_alarm." },
+            { "term": "Shared attribute", "description": "Persistent cloud-to-device configuration; this lab uses moisture_threshold." },
+            { "term": "Entity alias", "description": "Dashboard data-source mapping that points widgets to the student's Lab 8 device." },
+            { "term": "Gauge and value card", "description": "Dashboard widgets for current moisture_percent and raw_voltage values." },
+            { "term": "Time-series chart", "description": "Dashboard widget used to show historical moisture_percent telemetry." },
+            { "term": "Alarm indicator", "description": "Dashboard display of the low_moisture_alarm result produced locally by LabVIEW." },
+            { "term": "Aggregation", "description": "Summary calculation such as minimum, maximum, or average over a time span." },
+            { "term": "IoT plant-monitoring node", "description": "Local sensor system connected to a cloud dashboard and alert workflow." }
+          ]
+        }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Sensor circuit evidence and measured `V_dry`/`V_wet`.",
+    "Native LabVIEW calibration and local-alarm explanation.",
+    "HMI screenshot with `raw_voltage`, `moisture_percent`, `moisture_threshold`, front-panel Low Moisture LED indicator, and chart.",
+    "ThingsBoard Latest Telemetry evidence for all three telemetry keys.",
+    "Shared `moisture_threshold` evidence and startup synchronization test.",
+    "Completed dashboard with measured moisture, configured threshold, and locally calculated alarm visibly distinguished.",
+    "Internet-loss and reconnect results.",
+    "System block diagram, sensor comparison, application, suggestions, and cleanup confirmation."
+  ]
+}

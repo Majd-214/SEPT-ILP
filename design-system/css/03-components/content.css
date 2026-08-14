@@ -1,0 +1,546 @@
+/* ==========================================================================
+   Components — content presentation: cards, callouts, chips, figures,
+   formulas, key/value lists, flows, tables, code, disclosures
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Card — the base surface for grouped content
+   -------------------------------------------------------------------------- */
+.c-card {
+  background: var(--md-sys-color-surface-container-lowest);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-lg);
+  box-shadow: var(--md-sys-elevation-1);
+  padding: var(--md-sys-space-6);
+}
+
+.c-card--accent {
+  border-top: 4px solid var(--md-sys-color-primary);
+}
+
+/* Actions inside a card sit clear of the text above them */
+.c-card > .o-cluster {
+  margin-top: var(--md-sys-space-4);
+}
+
+.c-card__eyebrow {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-primary);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+.c-card__title {
+  font-size: var(--md-sys-type-title-lg-size);
+  color: var(--md-sys-color-on-surface);
+  margin-bottom: var(--md-sys-space-3);
+}
+
+/* Small emphasis tiles (metadata snapshots, concept cards) */
+.c-tile {
+  background: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-left: 4px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-md);
+  padding: var(--md-sys-space-4);
+}
+
+.c-tile--gold { border-left-color: var(--md-ref-gold); }
+.c-tile--success { border-left-color: var(--md-sys-color-success); }
+.c-tile--warning { border-left-color: var(--md-sys-color-warning); }
+.c-tile--danger { border-left-color: var(--md-sys-color-error); }
+.c-tile--neutral { border-left-color: var(--md-sys-color-outline); }
+
+.c-tile__eyebrow {
+  font-size: 0.7rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-tile__title {
+  font-size: var(--md-sys-type-body-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  margin-top: var(--md-sys-space-1);
+}
+
+.c-tile__body {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-1);
+}
+
+/* --------------------------------------------------------------------------
+   Callout — meaningful asides
+   -------------------------------------------------------------------------- */
+.c-callout {
+  border-radius: var(--md-sys-shape-md);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-left-width: 4px;
+  padding: var(--md-sys-space-4) var(--md-sys-space-5);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.c-callout__title {
+  font-size: var(--md-sys-type-body-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+.c-callout__body > * + * {
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-callout--note {
+  border-left-color: var(--md-sys-color-primary);
+}
+
+.c-callout--note .c-callout__title {
+  color: var(--md-sys-color-primary);
+}
+
+.c-callout--success {
+  border-left-color: var(--md-sys-color-success);
+  background: var(--md-sys-color-success-container);
+}
+
+.c-callout--success .c-callout__title {
+  color: var(--md-sys-color-success);
+}
+
+.c-callout--warning {
+  border-left-color: var(--md-sys-color-warning);
+  background: var(--md-sys-color-warning-container);
+}
+
+.c-callout--warning .c-callout__title {
+  color: var(--md-sys-color-warning);
+}
+
+.c-callout--danger {
+  border-left-color: var(--md-sys-color-error);
+  background: var(--md-sys-color-error-container);
+}
+
+.c-callout--danger .c-callout__title {
+  color: var(--md-sys-color-error);
+}
+
+/* --------------------------------------------------------------------------
+   Chips — compact facts and sequences
+   -------------------------------------------------------------------------- */
+.c-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  line-height: 1.2;
+  color: var(--md-sys-color-on-surface-variant);
+  white-space: nowrap;
+}
+
+.c-chip--tonal {
+  background: var(--md-sys-color-primary-container);
+  border-color: transparent;
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* --------------------------------------------------------------------------
+   Prose helpers — titled lists, steps, objectives
+   -------------------------------------------------------------------------- */
+.c-block-title {
+  font-size: var(--md-sys-type-title-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-on-surface);
+  padding-left: var(--md-sys-space-3);
+  border-left: 4px solid var(--md-ref-gold);
+  margin-bottom: var(--md-sys-space-3);
+}
+
+.c-steps {
+  counter-reset: step;
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-3);
+}
+
+.c-steps > li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.6rem;
+}
+
+.c-steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+}
+
+.c-objectives {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+  padding-left: 1.4rem;
+}
+
+.c-objectives > li::marker {
+  color: var(--md-sys-color-primary);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+/* --------------------------------------------------------------------------
+   Equipment list with quantities
+   -------------------------------------------------------------------------- */
+.c-equipment {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.c-equipment > li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--md-sys-space-4);
+  padding-block: var(--md-sys-space-2);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-equipment > li:last-child {
+  border-bottom: 0;
+}
+
+.c-equipment__qty {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-primary);
+}
+
+.c-equipment__note {
+  display: block;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* --------------------------------------------------------------------------
+   Key/value list — reference values, pin maps, glossaries
+   -------------------------------------------------------------------------- */
+.c-keyvalues {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) 1fr;
+  gap: var(--md-sys-space-2) var(--md-sys-space-5);
+  margin: 0;
+}
+
+.c-keyvalues dt {
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-primary);
+}
+
+.c-keyvalues dd {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* --------------------------------------------------------------------------
+   Flow — chained stages with arrows
+   -------------------------------------------------------------------------- */
+.c-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--md-sys-space-3);
+}
+
+.c-flow__step {
+  flex: 1 1 9rem;
+  min-width: 8rem;
+  padding: var(--md-sys-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-top: 3px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-sm);
+  background: var(--md-sys-color-surface-container-lowest);
+  text-align: center;
+}
+
+.c-flow__label {
+  display: block;
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.c-flow__detail {
+  display: block;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-1);
+}
+
+.c-flow__arrow {
+  align-self: center;
+  flex: 0 0 auto;
+  color: var(--md-sys-color-outline);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-flow--compact .c-flow__step {
+  flex: 0 1 auto;
+  min-width: 0;
+  border-top-width: 1px;
+  border-radius: var(--md-sys-shape-full);
+  padding: 0.4rem 0.9rem;
+}
+
+.c-flow--compact .c-flow__label {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: var(--md-sys-type-weight-medium);
+}
+
+/* --------------------------------------------------------------------------
+   Figure
+   -------------------------------------------------------------------------- */
+.c-figure {
+  margin: 0;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface-container-lowest);
+  padding: var(--md-sys-space-3);
+  position: relative;
+}
+
+.c-figure__image {
+  border-radius: var(--md-sys-shape-sm);
+  margin-inline: auto;
+}
+
+.c-figure__caption {
+  padding-top: var(--md-sys-space-3);
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: center;
+}
+
+.c-figure__step {
+  position: absolute;
+  top: calc(-1 * var(--md-sys-space-2));
+  left: calc(-1 * var(--md-sys-space-2));
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  font-weight: var(--md-sys-type-weight-bold);
+  font-size: var(--md-sys-type-label-size);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+/* --------------------------------------------------------------------------
+   Formula
+   -------------------------------------------------------------------------- */
+.c-formula {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-left: 4px solid var(--md-ref-gold);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-tertiary-container);
+  padding: var(--md-sys-space-4) var(--md-sys-space-5);
+}
+
+.c-formula__title {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-tertiary-container);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+.c-formula__expression {
+  font-family: var(--md-sys-font-mono);
+  font-size: 1.05rem;
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-formula__note {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-2);
+}
+
+/* --------------------------------------------------------------------------
+   Static table
+   -------------------------------------------------------------------------- */
+.c-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-table th {
+  text-align: left;
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  font-weight: var(--md-sys-type-weight-bold);
+  padding: var(--md-sys-space-3);
+  border-bottom: 2px solid var(--md-sys-color-outline-variant);
+}
+
+.c-table td {
+  padding: var(--md-sys-space-3);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  vertical-align: top;
+}
+
+.c-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.c-table__note {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-2);
+}
+
+/* --------------------------------------------------------------------------
+   Code — build-time highlighted listings
+   -------------------------------------------------------------------------- */
+.c-code {
+  border-radius: var(--md-sys-shape-md);
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-code__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-2) var(--md-sys-space-4);
+  background: var(--md-sys-color-surface-container-high);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-code__language {
+  font-family: var(--md-sys-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-code__copy {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  line-height: 1;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-code__copy:hover {
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-code__pre {
+  margin: 0;
+  padding: var(--md-sys-space-4) var(--md-sys-space-5);
+  background: var(--md-ref-code-bg);
+  color: #ABB2BF;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* Token colours tuned for AA contrast on the dark code surface */
+.c-code__comment { color: #9CA3AF; font-style: italic; }
+.c-code__string { color: #98C379; }
+.c-code__number { color: #D19A66; }
+.c-code__keyword { color: #C678DD; }
+.c-code__type { color: #E5C07B; }
+.c-code__preproc { color: #56B6C2; }
+
+/* --------------------------------------------------------------------------
+   Details — disclosures and gated hints
+   -------------------------------------------------------------------------- */
+.c-details {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.c-details > summary {
+  cursor: pointer;
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-md);
+}
+
+.c-details[open] > summary {
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-md) var(--md-sys-shape-md) 0 0;
+}
+
+.c-details__body {
+  padding: var(--md-sys-space-4);
+}
+
+.c-details__body > * + * {
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-details.is-locked > summary {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-details.is-locked > summary::after {
+  content: " (locked)";
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-details__gate-message {
+  padding: var(--md-sys-space-2) var(--md-sys-space-4) var(--md-sys-space-3);
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-warning);
+}

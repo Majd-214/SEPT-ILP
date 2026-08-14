@@ -1,0 +1,796 @@
+{
+  "schemaVersion": 1,
+  "id": "sensors",
+  "title": "Sensors",
+  "blurb": "How physical quantities become electrical signals.",
+  "order": 2,
+  "topics": [
+    {
+      "id": "photoresistor",
+      "kind": "spec",
+      "name": "Photoresistor (LDR)",
+      "question": "What is a photoresistor and how do you read it",
+      "asset": "LDR_Photoresistor.jpg",
+      "assetAlt": "Annotated photoresistor reference: the two LDR circuit symbols, a photo of the component, and a labelled cutaway showing the serpentine photoconductive track, electrodes, ceramic substrate and wire terminals.",
+      "summary": "Light-dependent resistance via a divider.",
+      "keywords": [
+        "ldr",
+        "light",
+        "divider",
+        "analog"
+      ],
+      "sections": [
+        {
+          "heading": "How it senses",
+          "paragraphs": [
+            "An LDR's resistance falls as light increases — from hundreds of kΩ in darkness to a few kΩ in bright light. Wired as one leg of a voltage divider, the divider output tracks brightness."
+          ]
+        },
+        {
+          "heading": "Reading it",
+          "paragraphs": [
+            "Feed the divider midpoint into an analog pin. A ≈10 kΩ fixed resistor gives usable swing for room lighting. The response is nonlinear, so calibrate against the conditions you care about."
+          ]
+        }
+      ],
+      "hint": "If readings barely change between light and dark, the divider resistor is far from the LDR's working resistance — measure the LDR in your actual lighting and match it.",
+      "related": [
+        "voltage-divider",
+        "calibrate-sensor",
+        "arduino"
+      ]
+    },
+    {
+      "id": "thermistor",
+      "kind": "spec",
+      "name": "Thermistor (NTC)",
+      "question": "What is an NTC thermistor and how do you convert it to °C",
+      "asset": "NTC_Thermistor.jpg",
+      "assetAlt": "Photo of three NTC 5D-20 thermistor discs next to a signal-conditioning schematic in which a 10 kΩ NTC thermistor and a 10 kΩ sense resistor feed the analog inputs of a precision ADC.",
+      "summary": "A steeply nonlinear temperature resistor.",
+      "keywords": [
+        "ntc",
+        "temperature",
+        "beta",
+        "steinhart"
+      ],
+      "sections": [
+        {
+          "heading": "Negative coefficient",
+          "paragraphs": [
+            "An NTC thermistor's resistance drops as temperature rises. Like the LDR it is read through a voltage divider, but its resistance-vs-temperature curve is steep and strongly nonlinear."
+          ]
+        },
+        {
+          "heading": "Converting to °C",
+          "paragraphs": [
+            "Do not use a linear map. Apply the Beta-parameter equation or Steinhart-Hart with the datasheet coefficients to convert resistance to temperature accurately."
+          ]
+        }
+      ],
+      "hint": "Readings that look right at room temperature but drift badly when hot or cold mean a linear conversion — switch to the Beta equation with the part's datasheet constants.",
+      "related": [
+        "voltage-divider",
+        "calibrate-sensor"
+      ]
+    },
+    {
+      "id": "tilt-switch",
+      "kind": "spec",
+      "name": "Tilt Ball Switch",
+      "question": "What is a tilt ball switch and how do you wire it",
+      "asset": "Tilt_Ball_Switch.jpg",
+      "assetAlt": "Diagram of a tilt ball switch: a metal ball inside a tube with two wire pins; when the tube tilts, the ball slides down and bridges both contacts, shown with open- and closed-switch schematic equivalents.",
+      "summary": "An orientation-sensitive contact switch.",
+      "keywords": [
+        "tilt",
+        "ball",
+        "orientation",
+        "debounce"
+      ],
+      "sections": [
+        {
+          "heading": "How it works",
+          "paragraphs": [
+            "A conductive ball rolls to bridge two contacts when tilted past a threshold, closing the circuit. It is effectively an orientation-sensitive switch — good for detecting flips, knocks or vibration."
+          ]
+        },
+        {
+          "heading": "Wiring",
+          "paragraphs": [
+            "Treat it like any momentary switch: it needs a pull resistor for a defined open state, and benefits from software debouncing because the rolling ball chatters."
+          ]
+        }
+      ],
+      "hint": "Multiple triggers per single tilt mean contact bounce — add INPUT_PULLUP and debounce in software (ignore changes within ≈20–50 ms).",
+      "related": [
+        "pullup-pulldown",
+        "arduino"
+      ]
+    },
+    {
+      "id": "strain-gauge",
+      "kind": "spec",
+      "name": "Strain Gauge / Load Cell",
+      "question": "What is a strain gauge and how does it measure force",
+      "asset": "Strain_Gauge_LoadCell.jpg",
+      "assetAlt": "Labelled load-cell diagram: a metal beam bolted to a base at its fixed end, strain gauges bonded above and below the machined cutouts, and a force arrow pressing down on the free (live) end.",
+      "summary": "Force as a tiny resistance change.",
+      "keywords": [
+        "strain",
+        "load cell",
+        "force",
+        "gauge factor",
+        "hx711"
+      ],
+      "sections": [
+        {
+          "heading": "How it senses",
+          "paragraphs": [
+            "A bonded foil grid changes resistance slightly when stretched or compressed (its gauge factor relates ΔR/R to strain). Mounted on a flexure and wired into a Wheatstone bridge, four gauges form a load cell."
+          ]
+        },
+        {
+          "heading": "Conditioning the signal",
+          "paragraphs": [
+            "Bridge output is on the order of millivolts per volt of excitation, so it must be amplified — a dedicated 24-bit bridge ADC (HX711) or an op-amp instrumentation stage."
+          ]
+        }
+      ],
+      "hint": "A reading that drifts with no load change is usually thermal drift or a loose mount — use the opposite bridge arm for temperature compensation, tighten the fixture, and warm up before zeroing.",
+      "related": [
+        "wheatstone",
+        "opamp-gain",
+        "lmc6484",
+        "wire-bridge"
+      ]
+    },
+    {
+      "id": "ultrasonic",
+      "kind": "spec",
+      "name": "Ultrasonic (HC-SR04)",
+      "question": "What is the HC-SR04 and how does time-of-flight give distance",
+      "asset": "HCSR04_Ultrasonic.jpg",
+      "assetAlt": "HC-SR04 ultrasonic module with its Vcc, Trig, Echo and GND pins labelled, beside a diagram of the transmitted sound burst reflecting off an object and returning to the receiver across the measured distance.",
+      "summary": "Distance from an echo round-trip.",
+      "keywords": [
+        "ultrasonic",
+        "distance",
+        "echo",
+        "trigger",
+        "hc-sr04"
+      ],
+      "sections": [
+        {
+          "heading": "Time of flight",
+          "paragraphs": [
+            "A 10 µs trigger pulse fires a burst of ultrasound; the echo pin then stays HIGH for the round-trip time. Distance is `time × 343 / 2` (speed of sound, there and back)."
+          ]
+        },
+        {
+          "heading": "Practical range",
+          "paragraphs": [
+            "Reliable from roughly 2 cm to 4 m, within a cone. Soft or angled surfaces scatter the echo. It is a 5 V part with separate trigger and echo pins."
+          ]
+        }
+      ],
+      "hint": "Distance that reads zero, max, or wildly unstable means a missed or scattered echo — aim at a flat hard surface within ≈4 m, keep the trigger at ≈10 µs, and add a timeout on pulseIn().",
+      "related": [
+        "arduino",
+        "arduino-threshold"
+      ]
+    },
+    {
+      "id": "soil-moisture",
+      "kind": "spec",
+      "name": "Soil Moisture",
+      "question": "What is a capacitive soil moisture sensor and how is it calibrated",
+      "asset": "Capacitive_Soil_Moisture.jpg",
+      "assetAlt": "Capacitive soil-moisture probe v2.0 with its tongue-shaped copper sensing traces (which act as a capacitor), on-board 555 timer IC, and GND, VCC and AOUT connector pins labelled.",
+      "summary": "Water content via dielectric constant.",
+      "keywords": [
+        "soil",
+        "moisture",
+        "capacitive",
+        "calibrate"
+      ],
+      "sections": [
+        {
+          "heading": "Capacitive sensing",
+          "paragraphs": [
+            "It measures the dielectric constant of the surrounding soil, which rises with water content, and outputs an analog voltage. Capacitive probes avoid the electrode corrosion that plagues resistive sensors."
+          ]
+        },
+        {
+          "heading": "Calibration",
+          "paragraphs": [
+            "Raw readings are arbitrary, so record the value fully dry (in air) and fully wet (to the line in water) and map between them. Never submerge the electronics at the top of the board."
+          ]
+        }
+      ],
+      "hint": "A moisture percentage that makes no sense is uncalibrated — capture the dry-in-air and wet-in-water raw values, map() between them, and keep the circuitry out of the soil.",
+      "related": [
+        "voltage-divider",
+        "calibrate-sensor",
+        "thingsboard"
+      ]
+    },
+    {
+      "id": "load-cell",
+      "kind": "theory",
+      "name": "Load cell",
+      "question": "How does load cell support the 3CC3 lab workflow",
+      "asset": "Strain_Gauge_LoadCell.jpg",
+      "assetAlt": "Labelled load-cell diagram: a metal beam bolted to a base at its fixed end, strain gauges bonded above and below the machined cutouts, and a force arrow pressing down on the free (live) end.",
+      "summary": "Convert applied force into a tiny electrical bridge signal through strain.",
+      "keywords": [
+        "force",
+        "load cell",
+        "SIG+",
+        "SIG-",
+        "Lab 4",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Convert applied force into a tiny electrical bridge signal through strain."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 4. Prerequisites: measuring-voltage."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Convert applied force into a tiny electrical bridge signal through strain.",
+      "related": [
+        "strain-gauge",
+        "wheatstone-bridge",
+        "signal-amplification",
+        "measuring-voltage"
+      ]
+    },
+    {
+      "id": "wheatstone-bridge",
+      "kind": "theory",
+      "name": "Wheatstone Bridge",
+      "question": "How does wheatstone bridge support the 3CC3 lab workflow",
+      "asset": "Wheatstone_Bridge_Diagram.jpg",
+      "assetAlt": "Wheatstone bridge schematic: four resistors P, Q, R and S arranged in a diamond, a galvanometer G bridging the two middle nodes, and a battery E driving the outer corners.",
+      "summary": "Convert small resistance changes into a measurable differential voltage.",
+      "keywords": [
+        "bridge",
+        "differential voltage",
+        "SIG+",
+        "SIG-",
+        "Lab 4",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Convert small resistance changes into a measurable differential voltage."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 4. Prerequisites: strain-gauge, resistor-values."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Convert small resistance changes into a measurable differential voltage.",
+      "related": [
+        "signal-amplification",
+        "strain-gauge",
+        "resistor-values"
+      ]
+    },
+    {
+      "id": "signal-amplification",
+      "kind": "theory",
+      "name": "Signal amplification",
+      "question": "How does signal amplification support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Increase tiny sensor voltages so Arduino analog input can use more of its measurement range.",
+      "keywords": [
+        "amplifier",
+        "V2",
+        "V3",
+        "LMC6484",
+        "Lab 4",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Increase tiny sensor voltages so Arduino analog input can use more of its measurement range."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 4. Prerequisites: wheatstone-bridge, measuring-voltage."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Increase tiny sensor voltages so Arduino analog input can use more of its measurement range.",
+      "related": [
+        "op-amp-gain",
+        "analog-input",
+        "wheatstone-bridge",
+        "measuring-voltage"
+      ]
+    },
+    {
+      "id": "resistance-to-voltage",
+      "kind": "theory",
+      "name": "Resistance-to-voltage conversion",
+      "question": "How does resistance-to-voltage conversion support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Use a divider to convert resistance changes into voltage changes.",
+      "keywords": [
+        "sensor interface",
+        "Lab 1",
+        "Lab 2",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Use a divider to convert resistance changes into voltage changes."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2. Prerequisites: photoresistor, thermistor, voltage-divider."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Use a divider to convert resistance changes into voltage changes.",
+      "related": [
+        "analog-input",
+        "photoresistor",
+        "thermistor",
+        "voltage-divider"
+      ]
+    },
+    {
+      "id": "sensor-calibration",
+      "kind": "skill",
+      "name": "Sensor calibration",
+      "question": "How does sensor calibration support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Choose a threshold or mapping using measured sensor readings and operating conditions.",
+      "keywords": [
+        "calibration",
+        "mapping",
+        "Lab 1",
+        "Lab 2",
+        "Sensors and interfaces",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Choose a threshold or mapping using measured sensor readings and operating conditions."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2. Prerequisites: analog-sensor-signals."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Choose a threshold or mapping using measured sensor readings and operating conditions.",
+      "related": [
+        "threshold-selection",
+        "sampled-data",
+        "temperature-conversion",
+        "analog-sensor-signals"
+      ]
+    },
+    {
+      "id": "potentiometer",
+      "kind": "spec",
+      "name": "Potentiometer",
+      "question": "How does potentiometer support the 3CC3 lab workflow",
+      "asset": "PWM_DutyCycle_Waveforms.png",
+      "assetAlt": "Three stacked waveforms illustrating pulse-width modulation: a smooth modulating signal, a constant-width pulsed carrier, and the resulting PWM signal whose pulse widths vary to track the modulating signal.",
+      "summary": "Create a variable voltage from a physical rotation command.",
+      "keywords": [
+        "potentiometer",
+        "wiper",
+        "middle terminal",
+        "manual control",
+        "Lab 5",
+        "Sensors and interfaces",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Create a variable voltage from a physical rotation command."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 5. Prerequisites: power-rails-common-ground."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Create a variable voltage from a physical rotation command.",
+      "related": [
+        "analog-input",
+        "servo-motor",
+        "power-rails-common-ground"
+      ]
+    },
+    {
+      "id": "ultrasonic-sensor",
+      "kind": "spec",
+      "name": "HC-SR04 ultrasonic sensor",
+      "question": "How does hc-sr04 ultrasonic sensor support the 3CC3 lab workflow",
+      "asset": "HCSR04_Ultrasonic.jpg",
+      "assetAlt": "HC-SR04 ultrasonic module with its Vcc, Trig, Echo and GND pins labelled, beside a diagram of the transmitted sound burst reflecting off an object and returning to the receiver across the measured distance.",
+      "summary": "Measure distance by sending a pulse on Trig and timing the returned Echo signal.",
+      "keywords": [
+        "ultrasonic",
+        "HC-SR04",
+        "Trig",
+        "Echo",
+        "distance",
+        "Lab 7",
+        "Sensors and interfaces",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Measure distance by sending a pulse on Trig and timing the returned Echo signal."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 7. Prerequisites: power-rails-common-ground, digital-output."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Measure distance by sending a pulse on Trig and timing the returned Echo signal.",
+      "related": [
+        "sampled-data",
+        "cloud-hmi",
+        "power-rails-common-ground",
+        "digital-output"
+      ]
+    },
+    {
+      "id": "soil-moisture-sensor",
+      "kind": "spec",
+      "name": "Capacitive soil moisture sensor",
+      "question": "How does capacitive soil moisture sensor support the 3CC3 lab workflow",
+      "asset": "Capacitive_Soil_Moisture.jpg",
+      "assetAlt": "Capacitive soil-moisture probe v2.0 with its tongue-shaped copper sensing traces (which act as a capacitor), on-board 555 timer IC, and GND, VCC and AOUT connector pins labelled.",
+      "summary": "Respond to moisture around the probe and produce an analog voltage for Arduino A0.",
+      "keywords": [
+        "soil moisture",
+        "SEN0193",
+        "SIG",
+        "A0",
+        "plant monitoring",
+        "Lab 8",
+        "Sensors and interfaces",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Respond to moisture around the probe and produce an analog voltage for Arduino A0."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 8. Prerequisites: power-rails-common-ground, analog-input."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Respond to moisture around the probe and produce an analog voltage for Arduino A0.",
+      "related": [
+        "capacitive-sensing",
+        "moisture-calibration",
+        "percent-moisture",
+        "power-rails-common-ground",
+        "analog-input"
+      ]
+    },
+    {
+      "id": "capacitive-sensing",
+      "kind": "theory",
+      "name": "Capacitive sensing",
+      "question": "How does capacitive sensing support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Infer moisture from changes in capacitance rather than current through exposed resistive probes.",
+      "keywords": [
+        "capacitive",
+        "resistive",
+        "corrosion",
+        "dielectric",
+        "Lab 8",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Infer moisture from changes in capacitance rather than current through exposed resistive probes."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 8. Prerequisites: soil-moisture-sensor."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Infer moisture from changes in capacitance rather than current through exposed resistive probes.",
+      "related": [
+        "source-evaluation",
+        "measurement-uncertainty",
+        "soil-moisture-sensor"
+      ]
+    },
+    {
+      "id": "moisture-calibration",
+      "kind": "skill",
+      "name": "Dry/wet moisture calibration",
+      "question": "How does dry/wet moisture calibration support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Measure V~dry~ and V~wet~ so this sensor setup maps voltage to 0-100 percent moisture.",
+      "keywords": [
+        "V_dry",
+        "V_wet",
+        "calibration",
+        "water cup",
+        "Lab 8",
+        "Sensors and interfaces",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Measure V~dry~ and V~wet~ so this sensor setup maps voltage to 0-100 percent moisture."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 8. Prerequisites: measuring-voltage, soil-moisture-sensor."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Measure V~dry~ and V~wet~ so this sensor setup maps voltage to 0-100 percent moisture.",
+      "related": [
+        "percent-moisture",
+        "native-labview-calibration",
+        "measuring-voltage",
+        "soil-moisture-sensor"
+      ]
+    },
+    {
+      "id": "percent-moisture",
+      "kind": "theory",
+      "name": "Percent moisture",
+      "question": "How does percent moisture support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Convert calibrated voltage into a bounded 0-100 moisture value for cloud display and logic.",
+      "keywords": [
+        "percent_moisture",
+        "clamp",
+        "0 to 100",
+        "Lab 8",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Convert calibrated voltage into a bounded 0-100 moisture value for cloud display and logic."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 8. Prerequisites: moisture-calibration."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Convert calibrated voltage into a bounded 0-100 moisture value for cloud display and logic.",
+      "related": [
+        "threshold-control",
+        "cloud-dashboard",
+        "moisture-calibration"
+      ]
+    },
+    {
+      "id": "analog-sensor-signals",
+      "kind": "theory",
+      "name": "Analog sensor signals",
+      "question": "How does analog sensor signals support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Treat sensor output as a range of values rather than only on or off.",
+      "keywords": [
+        "analog",
+        "potentiometer",
+        "thermistor",
+        "soil moisture",
+        "Lab 1",
+        "Lab 2",
+        "Lab 5",
+        "Lab 8",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Treat sensor output as a range of values rather than only on or off."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2, Lab 5, Lab 8. Prerequisites: resistance-to-voltage."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Treat sensor output as a range of values rather than only on or off.",
+      "related": [
+        "analog-input",
+        "sampled-data",
+        "potentiometer",
+        "soil-moisture-sensor",
+        "resistance-to-voltage"
+      ]
+    },
+    {
+      "id": "threshold-selection",
+      "kind": "skill",
+      "name": "Threshold selection",
+      "question": "How does threshold selection support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Choose the comparison value that separates desired operating states.",
+      "keywords": [
+        "lowLightLim",
+        "400",
+        "Lab 1",
+        "Sensors and interfaces",
+        "Skill"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Choose the comparison value that separates desired operating states."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: sensor-calibration, analog-input."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Choose the comparison value that separates desired operating states.",
+      "related": [
+        "threshold-control",
+        "sensor-calibration",
+        "analog-input"
+      ]
+    },
+    {
+      "id": "sensor-nonlinearity",
+      "kind": "theory",
+      "name": "Sensor response and nonlinearity",
+      "question": "How does sensor response and nonlinearity support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Recognize that sensor readings may not change evenly across all operating ranges.",
+      "keywords": [
+        "nonlinear",
+        "Lab 1",
+        "Lab 2",
+        "Sensors and interfaces",
+        "Concept"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Recognize that sensor readings may not change evenly across all operating ranges."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1, Lab 2. Prerequisites: photoresistor, thermistor."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Recognize that sensor readings may not change evenly across all operating ranges.",
+      "related": [
+        "measurement-uncertainty",
+        "photoresistor",
+        "thermistor"
+      ]
+    },
+    {
+      "id": "ms15-interface",
+      "kind": "spec",
+      "name": "MS15 interface signals",
+      "question": "How does ms15 interface signals support the 3CC3 lab workflow",
+      "asset": "Sensor_Calibration_Curve.png",
+      "assetAlt": "Calibration curve for a temperature sensor: measured sensor output voltage plotted against temperature, with experimental data points falling close to a straight-line fit.",
+      "summary": "Identify MS15 power rails, 0 V references, position feedback, tachogenerator feedback, and motor-drive command before wiring.",
+      "keywords": [
+        "MS15",
+        "tachogenerator",
+        "position potentiometer",
+        "motor drive",
+        "Sensors and interfaces",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Identify MS15 power rails, 0 V references, position feedback, tachogenerator feedback, and motor-drive command before wiring."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in course practice. Prerequisites: power-rails-common-ground, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Identify MS15 power rails, 0 V references, position feedback, tachogenerator feedback, and motor-drive command before wiring.",
+      "related": [
+        "sensor-calibration",
+        "actuator-command",
+        "power-rails-common-ground",
+        "safe-bench-practice"
+      ]
+    }
+  ]
+}

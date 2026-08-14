@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "id": "platforms",
+  "title": "Boards & Chips",
+  "blurb": "The controller and the conditioning silicon.",
+  "order": 4,
+  "topics": [
+    {
+      "id": "arduino",
+      "kind": "spec",
+      "name": "Arduino Mega 2560",
+      "question": "What is the Arduino Mega 2560 and what are its limits",
+      "asset": "Arduino_Mega_2560_Pinout.png",
+      "assetAlt": "Official Arduino Mega 2560 Rev3 pinout diagram, colour-coding the power pins, the sixteen analog inputs A0–A15, PWM-capable digital pins, the four serial ports, and the microcontroller port names.",
+      "summary": "The central 5 V microcontroller board.",
+      "keywords": [
+        "arduino",
+        "mega",
+        "adc",
+        "digital",
+        "analog"
+      ],
+      "sections": [
+        {
+          "heading": "What it offers",
+          "paragraphs": [
+            "The Mega gives 54 digital I/O pins (15 PWM-capable), 16 analog inputs with a 10-bit ADC (0–1023), and multiple hardware serial ports. It is the hub every sensor and actuator connects to."
+          ]
+        },
+        {
+          "heading": "Logic levels",
+          "paragraphs": [
+            "It runs 5 V logic. Analog reads return 0–1023 across 0–5 V; digital writes are a clean 0 V / 5 V. Respect the ≈20 mA per-pin limit and never back-power motors through the board."
+          ]
+        }
+      ],
+      "hint": "A board that resets or behaves randomly when a motor runs is being overdrawn — power actuators from a separate supply and tie the grounds together.",
+      "related": [
+        "pwm",
+        "common-ground",
+        "arduino-threshold",
+        "labview-linx"
+      ]
+    },
+    {
+      "id": "lmc6484",
+      "kind": "spec",
+      "name": "LMC6484 Op-Amp",
+      "question": "What is the LMC6484, and why a rail-to-rail single-supply part",
+      "asset": "LMC6484_Pinout.png",
+      "assetAlt": "LMC6484 quad op-amp pinout: a 14-pin package containing four amplifiers, showing each amplifier’s inverting input, non-inverting input and output, plus the shared V+ and V− supply pins.",
+      "summary": "A rail-to-rail CMOS quad op-amp.",
+      "keywords": [
+        "lmc6484",
+        "op-amp",
+        "rail-to-rail",
+        "cmos"
+      ],
+      "sections": [
+        {
+          "heading": "Why this part",
+          "paragraphs": [
+            "The LMC6484 packs four CMOS op-amps with rail-to-rail input and output, running from a single supply — ideal for 5 V Arduino projects where signals live close to ground or the rail."
+          ]
+        },
+        {
+          "heading": "Using it well",
+          "paragraphs": [
+            "Add a decoupling capacitor near the supply pins, mind the pinout when wiring all four amplifiers, and remember the output still cannot quite reach the rails under load."
+          ]
+        }
+      ],
+      "hint": "An amplifier output that cannot reach the value you expect near 0 V or 5 V is losing headroom under load — lower the gain or bias the signal away from the rails.",
+      "related": [
+        "opamp-gain",
+        "strain-gauge"
+      ]
+    },
+    {
+      "id": "arduino-uno-pin-map",
+      "kind": "spec",
+      "name": "Arduino Uno pin map",
+      "question": "How does arduino uno pin map support the 3CC3 lab workflow",
+      "asset": "Arduino_Mega_2560_Pinout.png",
+      "assetAlt": "Official Arduino Mega 2560 Rev3 pinout diagram, colour-coding the power pins, the sixteen analog inputs A0–A15, PWM-capable digital pins, the four serial ports, and the microcontroller port names.",
+      "summary": "Identify power, ground, analog input, and digital output pins.",
+      "keywords": [
+        "Arduino Uno",
+        "pins",
+        "Lab 1",
+        "Arduino and embedded programming",
+        "Reference"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Identify power, ground, analog input, and digital output pins."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 1. Prerequisites: power-rails-common-ground."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Identify power, ground, analog input, and digital output pins.",
+      "related": [
+        "analog-input",
+        "digital-output",
+        "power-rails-common-ground"
+      ]
+    },
+    {
+      "id": "matlab-hardware-connection",
+      "kind": "spec",
+      "name": "MATLAB hardware connection",
+      "question": "How does matlab hardware connection support the 3CC3 lab workflow",
+      "asset": "Dataflow_Execution_Model.png",
+      "assetAlt": "Example data-flow diagram of an online purchase: labelled arrows carry data between customer, shopping cart, checkout, payment, accounting and inventory nodes, so each process can run only once its input data has arrived.",
+      "summary": "Confirm MATLAB can identify supported hardware before wiring sensors or actuators.",
+      "keywords": [
+        "MATLAB",
+        "hardware setup",
+        "port",
+        "support package",
+        "Arduino and embedded programming",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Confirm MATLAB can identify supported hardware before wiring sensors or actuators."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in course practice. Prerequisites: technical-documentation, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Confirm MATLAB can identify supported hardware before wiring sensors or actuators.",
+      "related": [
+        "analog-input",
+        "digital-output",
+        "technical-documentation",
+        "safe-bench-practice"
+      ]
+    },
+    {
+      "id": "arduino-ide",
+      "kind": "spec",
+      "name": "Arduino IDE firmware upload",
+      "question": "How does arduino ide firmware upload support the 3CC3 lab workflow",
+      "asset": "Arduino_Threshold_Sketch.png",
+      "assetAlt": "Arduino threshold sketch listing: constants set the sensor pin A0, the LED pin and a threshold of 500; setup() configures the pins and serial port; loop() reads the sensor, prints the value, and drives the LED HIGH below the threshold and LOW otherwise.",
+      "summary": "Compile and upload Arduino code that reads serial commands and actuates hardware.",
+      "keywords": [
+        "Arduino IDE",
+        "Verify",
+        "Upload",
+        "Stepper.h",
+        "firmware",
+        "Lab 6",
+        "Arduino and embedded programming",
+        "Tool"
+      ],
+      "sections": [
+        {
+          "heading": "Core idea",
+          "paragraphs": [
+            "Compile and upload Arduino code that reads serial commands and actuates hardware."
+          ]
+        },
+        {
+          "heading": "Where it is used",
+          "paragraphs": [
+            "Used in Lab 6. Prerequisites: technical-documentation, safe-bench-practice."
+          ]
+        }
+      ],
+      "hint": "If this topic is blocking your progress, trace one example through the lab system and connect it to: Compile and upload Arduino code that reads serial commands and actuates hardware.",
+      "related": [
+        "serial-communication",
+        "command-parsing",
+        "technical-documentation",
+        "safe-bench-practice"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "sept-ilp",
+  "version": "1.0.0",
+  "description": "SEPT Interactive Laboratory Platform — schema-first authoring and deterministic rendering of scenario-based laboratory instruction.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Majd Aburas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Majd-214/SEPT-ILP.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node renderer/src/cli.js build content/courses/smrttech-3cc3",
+    "build:all": "node renderer/src/cli.js build-all content",
+    "validate": "node renderer/src/cli.js validate content/courses/smrttech-3cc3",
+    "gates": "node renderer/src/cli.js build content/courses/smrttech-3cc3 --strict",
+    "preview": "node renderer/src/cli.js preview",
+    "test": "node --test renderer/test/*.test.js"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "playwright": "^1.49.0"
+  }
+}

@@ -1,0 +1,901 @@
+{
+  "schemaVersion": 1,
+  "kind": "lab",
+  "id": "lab-07",
+  "number": 7,
+  "title": "Ultrasonic Sensor and Remote LED Control",
+  "summary": [
+    "ThingsBoard Cloud telemetry and shared-attribute control from local ultrasonic sensing to a remote LED command.",
+    "**Central question:** How does a local sensor measurement become cloud data, and how does a cloud command control a local actuator?"
+  ],
+  "cardSummary": "ThingsBoard device telemetry and shared attributes, ultrasonic distance sensing, LabVIEW LINX HMI, MQTT JSON publishing, dashboard monitoring, and remote LED control.",
+  "chips": [
+    "Software: LabVIEW 2026 Q1, Lab7_init.vi, ThingsBoard Cloud, MQTT",
+    "Hardware: Arduino Mega, HC-SR04, LED, 220 Ω resistor"
+  ],
+  "duration": {
+    "prelab": "30-45 min",
+    "lab": "3 hours",
+    "postlab": "45-60 min"
+  },
+  "contentVersion": "1",
+  "knowledgeTopics": [
+    "labview-linx",
+    "digital-output",
+    "digital-input",
+    "mqtt-topics",
+    "shared-attributes",
+    "cloud-dashboard",
+    "systematic-troubleshooting",
+    "technical-documentation"
+  ],
+  "sidebars": [
+    {
+      "side": "left",
+      "title": "Sensor and LED",
+      "subtitle": "HC-SR04 plus Arduino pin 12 LED output",
+      "handleLabel": "Open hardware reference",
+      "blocks": [
+        {
+          "type": "keyValues",
+          "title": "Pin Map",
+          "items": [
+            { "term": "HC-SR04 VCC", "description": "5 V rail" },
+            { "term": "HC-SR04 GND", "description": "GND rail" },
+            { "term": "Echo", "description": "Digital 9" },
+            { "term": "Trig", "description": "Digital 8" },
+            { "term": "LED output", "description": "Digital 12" },
+            { "term": "LED resistor", "description": "220 Ω" }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Before rewiring",
+          "paragraphs": ["Disconnect Arduino USB, verify HC-SR04 pin order, and confirm the LED resistor is in series."]
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "title": "MQTT and ThingsBoard",
+      "subtitle": "Broker, topics, device token, telemetry, and shared attributes",
+      "handleLabel": "Open cloud reference",
+      "blocks": [
+        {
+          "type": "keyValues",
+          "title": "Required Settings",
+          "items": [
+            { "term": "Broker", "description": "`mqtt.thingsboard.cloud`" },
+            { "term": "Initial port", "description": "`1883`" },
+            { "term": "User name", "description": "Device access token" },
+            { "term": "Password", "description": "Leave blank" },
+            { "term": "QoS", "description": "`1` (at least once)" }
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Topics",
+          "items": [
+            { "term": "Publish telemetry", "description": "`v1/devices/me/telemetry`" },
+            { "term": "Receive live shared attributes", "description": "`v1/devices/me/attributes`" },
+            { "term": "Request current attributes", "description": "`v1/devices/me/attributes/request/1`" }
+          ]
+        },
+        {
+          "type": "text",
+          "paragraphs": ["Topics have no leading slash. Treat the device access token like a password."]
+        },
+        {
+          "type": "list",
+          "title": "Knowledge Links",
+          "items": [
+            "[LabVIEW LINX](kb:labview-linx)",
+            "[Arduino digital outputs: Trig and LED](kb:digital-output)",
+            "[Arduino digital input: Echo](kb:digital-input)",
+            "[ThingsBoard MQTT topics](kb:mqtt-topics)",
+            "[ThingsBoard shared attributes](kb:shared-attributes)",
+            "[Cloud dashboard widgets](kb:cloud-dashboard)",
+            "[Troubleshooting sequence](kb:systematic-troubleshooting)",
+            "[Documentation and source use](kb:technical-documentation)"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "prepare",
+      "title": "Scenario, outcomes, and setup",
+      "navLabel": "Prepare",
+      "eyebrow": "Prepare",
+      "intro": [
+        "You are building a cloud-connected distance-monitoring node. The Arduino Mega and LabVIEW measure distance locally, publish JSON telemetry to ThingsBoard Cloud, and receive a persistent shared-attribute command that controls a local LED. This is the first full monitoring-and-control IoT loop in the course."
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": ["This lab introduces both IoT monitoring and IoT control. The distance path moves measured data upward to the cloud; the control path moves a cloud command back down to local hardware."]
+        },
+        {
+          "type": "flow",
+          "title": "Distance monitoring signal chain",
+          "steps": [
+            { "label": "Object distance", "detail": "Physical target changes position." },
+            { "label": "Ultrasonic sensor", "detail": "Trig/Echo timing produces distance." },
+            { "label": "Arduino/LabVIEW", "detail": "LINX reads the sensor value." },
+            { "label": "JSON object", "detail": "LabVIEW formats telemetry." },
+            { "label": "Telemetry topic", "detail": "MQTT sends the JSON object." },
+            { "label": "ThingsBoard telemetry", "detail": "`distance_cm` and `led_state` are stored." },
+            { "label": "Dashboard gauge", "detail": "Web HMI displays distance." }
+          ]
+        },
+        {
+          "type": "flow",
+          "title": "Remote control signal chain",
+          "steps": [
+            { "label": "Dashboard switch", "detail": "User changes web HMI." },
+            { "label": "Shared attribute", "detail": "`led_switch` stores desired state." },
+            { "label": "Attribute topic", "detail": "LabVIEW receives JSON." },
+            { "label": "Parse JSON", "detail": "Read the Boolean command." },
+            { "label": "Local logic", "detail": "Resolve desired and safe local state." },
+            { "label": "Digital pin 12", "detail": "Arduino output is written." },
+            { "label": "LED state", "detail": "Local actuator turns on/off." }
+          ]
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "title": "Cloud workflow", "body": "The ThingsBoard stage will create the cloud account and device. This stage only introduces how local sensing, telemetry, and remote control fit together." },
+            { "title": "Device model", "body": "Create one device named `Lab7-Ultrasonic-StudentName`. One physical project normally equals one ThingsBoard device, not one device per sensor or actuator." },
+            { "title": "Data model", "body": "Publish `distance_cm` and actual `led_state` as telemetry. Receive desired `led_switch` as a shared attribute." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Course software environment",
+          "paragraphs": ["Use Windows 10 or 11, Arduino Mega 2560, LabVIEW 2026 Q1, NI-VISA 2026 Q1, and the LabVIEW Hobbyist Toolkit/LINX 2026 Q1. Prefer 64-bit LabVIEW unless the installed MQTT library specifically requires another bitness."]
+        },
+        {
+          "type": "checklist",
+          "role": "materials",
+          "title": "Confirm the required materials",
+          "description": "Gather the following software, hardware, accounts, and course resources before beginning the lab.",
+          "items": [
+            { "key": "material-labview", "label": "LabVIEW, NI-VISA, and the LabVIEW Hobbyist Toolkit / LINX are installed." },
+            { "key": "material-files", "label": "`Lab7.zip`, `Lab7_init.vi`, and the required MQTT library are downloaded." },
+            { "key": "material-account", "label": "Student email is available for the ThingsBoard account setup in the ThingsBoard stage." },
+            { "key": "material-arduino", "label": "Arduino Mega and a USB data cable are available." },
+            { "key": "material-breadboard", "label": "Breadboard and jumper wires are available." },
+            { "key": "material-sensor", "label": "HC-SR04 ultrasonic sensor is available." },
+            { "key": "material-led", "label": "LED and 220 Ω resistor are available." },
+            { "key": "material-port", "label": "The Arduino serial port can be identified on this computer." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Credential warning",
+          "paragraphs": ["A device access token is a credential. Anyone who possesses it may be able to send data as that device. Use `YOUR_DEVICE_ACCESS_TOKEN` in examples; never hardcode a real token in public GitHub repositories, screenshots, reports, shared documents, HTML, or completion JSON. If a configuration file is needed, distribute only a token-free `thingsboard-config.example.json`, keep the real local copy excluded by `.gitignore`, and clear saved front-panel defaults before distributing a LabVIEW VI."]
+        }
+      ]
+    },
+    {
+      "id": "predict-flow",
+      "title": "Sort the IoT data flow",
+      "navLabel": "Predict Flow",
+      "eyebrow": "Predict",
+      "intro": [
+        "Number each event in the monitoring path and then the control path. This is a quick mental model check before you wire or configure anything."
+      ],
+      "blocks": [
+        {
+          "type": "ordering",
+          "key": "distance-path",
+          "title": "Distance path",
+          "items": [
+            { "key": "mon-sensor", "label": "Sensor measures distance" },
+            { "key": "mon-labview", "label": "LabVIEW reads the value" },
+            { "key": "mon-publish", "label": "MQTT publish sends the value" },
+            { "key": "mon-variable", "label": "ThingsBoard stores `distance_cm` telemetry" },
+            { "key": "mon-dashboard", "label": "Dashboard gauge displays it" }
+          ],
+          "successMessage": "Correct distance monitoring path.",
+          "failureMessage": "Not yet. Follow sensor data from the local measurement to the dashboard gauge."
+        },
+        {
+          "type": "ordering",
+          "key": "control-path",
+          "title": "Control path",
+          "items": [
+            { "key": "ctrl-dashboard", "label": "Dashboard switch changes" },
+            { "key": "ctrl-variable", "label": "Shared attribute `led_switch` updates" },
+            { "key": "ctrl-subscribe", "label": "MQTT attribute subscription receives JSON" },
+            { "key": "ctrl-labview", "label": "LabVIEW parses the Boolean desired state" },
+            { "key": "ctrl-write", "label": "Digital Write commands pin 12" },
+            { "key": "ctrl-led", "label": "LED turns on or off" }
+          ],
+          "successMessage": "Correct remote control path.",
+          "failureMessage": "Not yet. Follow the ThingsBoard shared-attribute command back to Digital Write and the LED."
+        },
+        {
+          "type": "cards",
+          "title": "ThingsBoard data model and topic practice",
+          "items": [
+            { "title": "Telemetry", "body": "Measurement or reported state sent by LabVIEW: `distance_cm` and `led_state`. Publish JSON to `v1/devices/me/telemetry`." },
+            { "title": "Shared attribute", "body": "Persistent desired state sent from ThingsBoard: `led_switch`. Receive live changes on `v1/devices/me/attributes`." },
+            { "title": "Desired versus actual", "body": "`led_switch` is the dashboard user's desired state; `led_state` is the actual state LabVIEW reports after applying local logic." }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "title": "Lab 7 ThingsBoard telemetry JSON example",
+          "code": "{\n  \"distance_cm\": 42.7,\n  \"led_state\": true\n}"
+        },
+        {
+          "type": "fields",
+          "title": "Topic practice",
+          "fields": [
+            {
+              "key": "topic-publish",
+              "label": "Publish topic for telemetry",
+              "control": "text",
+              "placeholder": "v1/devices/me/telemetry",
+              "expected": { "value": "v1/devices/me/telemetry", "caseSensitive": true }
+            },
+            {
+              "key": "topic-subscribe",
+              "label": "Subscribe topic for live shared-attribute changes",
+              "control": "text",
+              "expected": { "value": "v1/devices/me/attributes", "caseSensitive": true }
+            },
+            {
+              "key": "topic-trig",
+              "label": "Which pin on the ultrasonic sensor sends the pulse?",
+              "control": "text",
+              "expected": { "value": "trig", "alternatives": ["trigger"] }
+            },
+            {
+              "key": "topic-echo",
+              "label": "Which pin on the ultrasonic sensor returns timing information?",
+              "control": "text",
+              "expected": { "value": "echo" }
+            },
+            {
+              "key": "security-reflection",
+              "label": "Security reflection: why must a ThingsBoard device access token stay out of public repositories, screenshots, saved VI defaults, and completion exports?",
+              "control": "textarea",
+              "optional": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "thingsboard",
+      "title": "Create and Configure Your ThingsBoard Cloud Account",
+      "navLabel": "ThingsBoard",
+      "eyebrow": "Build",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Open [ThingsBoard Cloud](https://thingsboard.cloud), create an individual account with your student email address, and complete email verification if requested.",
+            "Sign in and confirm that you are viewing your own tenant account.",
+            "Open **Entities → Devices**, select **Add Device**, and create `Lab7-Ultrasonic-StudentName`. Leave the device profile as the default unless your instructor provides another profile.",
+            "Create only one device for this physical laboratory setup. Do not create a separate device for the ultrasonic sensor and LED.",
+            "Save the device, open its details or connectivity information, locate its device access token, and copy it temporarily to a private local location.",
+            "Never enter the token into a response field on this page. Use the placeholder `YOUR_DEVICE_ACCESS_TOKEN` in documentation."
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-signup.png",
+          "alt": "ThingsBoard Cloud account registration page with sign-up providers, email field, password field, and Sign up button",
+          "caption": "Create the ThingsBoard Cloud account from this registration page, then complete email verification if requested.",
+          "step": 1
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-add-device.png",
+          "alt": "ThingsBoard Add new device dialog with the Lab7-Ultrasonic-StudentName name and default device profile selected.",
+          "caption": "Enter the device name and retain the default device profile before selecting Add.",
+          "step": 2
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Ignore the connectivity prompt",
+          "paragraphs": ["After selecting **Add**, ThingsBoard may display a connectivity prompt like the example below. This prompt is not part of the Lab 7 workflow. Do not run its shell command; press **Close** and continue to the device details page."]
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-connectivity-ignore.png",
+          "alt": "ThingsBoard Device created connectivity prompt with a Close button and shell command instructions.",
+          "caption": "Ignore the HTTP/cURL instructions and select Close.",
+          "step": 3
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-devices.png",
+          "alt": "ThingsBoard Entities Devices page showing the Lab7-Ultrasonic-StudentName device in the device list",
+          "caption": "After closing the connectivity prompt, open **Entities → Devices** and confirm that the Lab 7 device appears in the list.",
+          "step": 4
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-device-credentials.png",
+          "alt": "ThingsBoard device details page showing the Manage credentials button and a device credentials dialog with the access token redacted.",
+          "caption": "Open device credentials and copy the access token privately. The example token is redacted and must never appear in submitted evidence.",
+          "step": 5
+        },
+        {
+          "type": "fields",
+          "title": "Evidence capture",
+          "fields": [
+            {
+              "key": "evidence-device-label",
+              "label": "ThingsBoard device name",
+              "control": "text",
+              "placeholder": "Lab7-Ultrasonic-StudentName"
+            },
+            {
+              "key": "evidence-variable-labels",
+              "label": "Planned telemetry keys and shared attribute (do not enter the token)",
+              "control": "text",
+              "placeholder": "distance_cm, led_state; led_switch",
+              "optional": true
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "thingsboard-device-screenshot",
+          "label": "Local evidence reference: device-list screenshot with no token visible (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "thingsboard-account-verified", "label": "My ThingsBoard Cloud account is verified, and I confirmed I am viewing my own tenant." },
+            { "key": "thingsboard-device-created", "label": "The Lab 7 device exists with the intended name and device profile." },
+            { "key": "thingsboard-token-private", "label": "I copied the device access token to a private local location without entering it into this portal or evidence." }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "Does ThingsBoard measure distance, or does it store telemetry sent by LabVIEW?",
+            "Why is one physical project represented by one device?",
+            "Why is `led_switch` a shared attribute while `led_state` is telemetry?"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mqtt-test",
+      "title": "Configure LabVIEW MQTT and test publish/subscribe",
+      "navLabel": "MQTT Test",
+      "eyebrow": "Build",
+      "intro": [
+        "Download `Lab7.zip` from Avenue to Learn, extract it, and open `Lab7_init.vi`. On the MQTT tab, configure ThingsBoard authentication and topics. Use 64-bit LabVIEW 2026 Q1 unless your installed MQTT library requires otherwise."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab7-mqtt-configuration.png",
+          "alt": "LabVIEW MQTT tab showing the broker, port 1883, unique client ID, telemetry topic, attribute subscription, QoS, and a redacted user name.",
+          "caption": "Configure the broker, port, unique client ID, QoS, and ThingsBoard topics. Keep the device-token field redacted in all screenshots."
+        },
+        {
+          "type": "keyValues",
+          "title": "MQTT tab settings",
+          "items": [
+            { "term": "Client ID", "description": "Unique to every simultaneous connection, such as `SMRTTECH3CC3-STUDENTNAME-LAB7`." },
+            { "term": "Broker", "description": "`mqtt.thingsboard.cloud`" },
+            { "term": "Port", "description": "`1883`" },
+            { "term": "TLS port", "description": "`8883`, only when TLS and certificate verification are explicitly enabled." },
+            { "term": "User Name", "description": "The ThingsBoard device access token." },
+            { "term": "Password", "description": "Leave blank." },
+            { "term": "QoS", "description": "`1`, at least once." },
+            { "term": "Publish topic", "description": "`v1/devices/me/telemetry`" },
+            { "term": "Subscribe topic", "description": "The live shared-attribute topic `v1/devices/me/attributes`; configure the library's response listener for requested attributes." }
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Transport security",
+          "paragraphs": ["Port `1883` is unencrypted and is provided for the controlled classroom setup or initial connectivity testing. If the MQTT library reliably supports TLS and certificate verification, explicitly enable TLS and use port `8883`. Entering `8883` alone does not enable or verify TLS."]
+        },
+        {
+          "type": "details",
+          "summary": "If the MQTT connection or first publish fails",
+          "items": [
+            "Confirm `mqtt.thingsboard.cloud`, the intended port, a unique client ID, the device token as User Name, and a blank password.",
+            "Use the exact topic `v1/devices/me/telemetry` with no leading slash and validate the labelled JSON payload.",
+            "Confirm the token belongs to the same ThingsBoard device whose Latest Telemetry tab you are viewing; check whether the network blocks MQTT."
+          ]
+        },
+        {
+          "type": "steps",
+          "title": "First MQTT test",
+          "items": [
+            "Run the LabVIEW program.",
+            "Press Connect and confirm the MQTT connection succeeds.",
+            "Publish `{\"distance_cm\":42.7,\"led_state\":false}` to `v1/devices/me/telemetry`. Do not publish an unlabelled number such as `42`.",
+            "Open **Entities → Devices → your Lab 7 device → Latest Telemetry** and confirm both keys appear.",
+            "Subscribe to `v1/devices/me/attributes` and configure the MQTT library's response listener for requested attributes. A subscribe-success indicator only confirms that the broker accepted the subscription.",
+            "Open the device's **Attributes → Shared Attributes** tab, select **Add attribute**, name the attribute `led_switch`, choose a Boolean value, and save it initially as `false`. After the LabVIEW file is running, change the value to `true` and back to `false` to confirm that each update is received.",
+            "Use Stop, not Abort, so MQTT, LINX/VISA, queues, events, and other references can close cleanly."
+          ]
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-latest-telemetry.png",
+          "alt": "ThingsBoard Latest telemetry tab for Lab7-Ultrasonic-StudentName showing distance_cm and led_state values, with LabVIEW publish controls below.",
+          "caption": "Confirm that both `distance_cm` and `led_state` appear for the Lab 7 device after a publish."
+        },
+        {
+          "type": "evidence",
+          "key": "mqtt-latest-telemetry-screenshot",
+          "label": "Local evidence reference: Latest Telemetry showing both keys and no access token (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "circuit",
+      "title": "Create the ultrasonic sensor and LED circuit",
+      "navLabel": "Circuit",
+      "eyebrow": "Build",
+      "intro": [
+        "Wire the local sensing and actuation hardware. The ultrasonic sensor provides distance measurement; the LED provides a visible actuator controlled locally and from the cloud."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab7-pdf-ultrasonic-led-schematic.png",
+          "alt": "Schematic showing an Arduino Mega, HC-SR04 ultrasonic sensor, and LED with resistor.",
+          "caption": "Connect Echo to D9, Trig to D8, and the LED output to D12 through a 220 Ω resistor."
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "circuit-led-resistor", "label": "Digital 12 connects to LED in series with a 220 Ω resistor." },
+            { "key": "circuit-vcc-gnd", "label": "HC-SR04 VCC and GND are connected to the correct rails." },
+            { "key": "circuit-echo", "label": "Echo is connected to Digital 9." },
+            { "key": "circuit-trig", "label": "Trig is connected to Digital 8." }
+          ]
+        },
+        {
+          "type": "details",
+          "summary": "Think it through",
+          "items": [
+            "What does the ultrasonic sensor physically measure?",
+            "What evidence would prove Trig and Echo are not swapped?",
+            "Why does the LED need a current-limiting resistor?"
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "If local hardware behaviour is wrong",
+          "paragraphs": ["Stop the VI and disconnect Arduino USB before rewiring. Then verify LED polarity and its 220 Ω series resistor, D12, HC-SR04 power and ground, Trig D8, and Echo D9 before restoring power."]
+        }
+      ]
+    },
+    {
+      "id": "hmi",
+      "title": "Build the LabVIEW HMI and local sensor read",
+      "navLabel": "HMI",
+      "eyebrow": "Measure",
+      "intro": [
+        "On the HMI tab, add a Waveform Chart labelled `Distance (cm)` and a Push Button labelled `LED`. In the block diagram, use LINX Open, LINX Close, Digital Write, and the provided `Ultrasonic Read Fixed.vi` from the Lab7 folder. Keep sensing and actuation local; the cloud is not the inner loop of the controller."
+      ],
+      "blocks": [
+        {
+          "type": "figure",
+          "src": "lab7-pdf-labview-hmi.png",
+          "alt": "LabVIEW front panel with a Distance chart and LED push button.",
+          "caption": "Add a Distance (cm) waveform chart and an LED push button."
+        },
+        {
+          "type": "figure",
+          "src": "lab7-pdf-labview-ultrasonic-block.png",
+          "alt": "LabVIEW block diagram with LINX, ultrasonic-read, and digital-write logic.",
+          "caption": "Wire Centimetres to Distance (cm) and Digital Write Output Value to the LED."
+        },
+        {
+          "type": "evidence",
+          "key": "hmi-waveform-chart",
+          "label": "Screenshot evidence: populated Distance (cm) waveform chart",
+          "accept": ["image/*", ".pdf"],
+          "note": "Upload a screenshot showing multiple distance readings across a measurable range, such as near and far target positions. Keep the chart title, axis labels, and plotted values visible."
+        },
+        {
+          "type": "evidence",
+          "key": "hmi-front-panel",
+          "label": "Local evidence reference: LabVIEW HMI front panel (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        },
+        {
+          "type": "evidence",
+          "key": "hmi-block-diagram",
+          "label": "Local evidence reference: LabVIEW block diagram (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "publish",
+      "title": "Publish ThingsBoard JSON telemetry",
+      "navLabel": "Publish",
+      "eyebrow": "Measure",
+      "intro": [
+        "Build one valid JSON object containing the measured distance and actual LED state, then publish it to `v1/devices/me/telemetry`. Use LabVIEW string formatting, arithmetic, comparison, and Boolean logic."
+      ],
+      "blocks": [
+        {
+          "type": "code",
+          "language": "json",
+          "title": "Required Lab 7 telemetry payload",
+          "code": "{\n  \"distance_cm\": 42.7,\n  \"led_state\": true\n}"
+        },
+        {
+          "type": "text",
+          "paragraphs": ["Your final string should resemble the example above."]
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Timing",
+          "paragraphs": ["Keep the local Arduino/LabVIEW loop at approximately 100–250 ms."]
+        },
+        {
+          "type": "figure",
+          "src": "lab7-publish-json-local-variable.png",
+          "alt": "LabVIEW Communication Loop publish event showing a JSON indicator, a JSON local variable read, value and valueSent wires, and the MQTT Publish API.",
+          "caption": "Wire the output JSON string to a string indicator named `JSON`. In the publish communication loop, create a **local variable** for `JSON`, right-click it, select **Change to Read**, and use its read value as the publish payload. Remove the old wire connection between `value` and the wire branch so the JSON local-variable read is the only payload source."
+        },
+        {
+          "type": "evidence",
+          "key": "publish-json-conversion",
+          "label": "Screenshot evidence: LabVIEW JSON conversion logic",
+          "accept": ["image/*", ".pdf"],
+          "note": "Upload a screenshot of the block diagram showing the `distance_cm` double and Boolean `led_state` being converted or formatted into one labelled JSON string before it is published. Keep the relevant wires, conversion nodes, and JSON output visible."
+        }
+      ]
+    },
+    {
+      "id": "receive",
+      "title": "Receive `led_switch` and synchronize at startup",
+      "navLabel": "Receive",
+      "eyebrow": "Measure",
+      "intro": [
+        "Use `led_switch` as the desired dashboard state. Subscribe to live shared-attribute changes, request the current value after every connection, and decode each received JSON string with LabVIEW's **Unflatten From JSON** function before applying the Boolean through local logic."
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": ["**Live update:** subscribe to `v1/devices/me/attributes`."]
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "code": "{\"led_switch\":true}"
+        },
+        {
+          "type": "text",
+          "paragraphs": ["The value may also be Boolean `false`.", "The response may resemble:"]
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "title": "ThingsBoard shared attribute response JSON",
+          "code": "{\"led_switch\":true}"
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-shared-attributes.png",
+          "alt": "ThingsBoard Shared attributes tab showing the Boolean led_switch attribute.",
+          "caption": "Confirm that `led_switch` is a Boolean shared attribute and that no credential is visible."
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "LabVIEW receive path",
+          "paragraphs": ["Subscribe to the live-attribute topic, pass the received JSON string into **Unflatten From JSON**, and wire a typed cluster constant that contains the expected `led_switch` Boolean field. The function returns the populated brown cluster wire; connect that wire to an **Unbundle by Name** block, select `led_switch`, and use the resulting typed Boolean in the local Digital Write logic. For a numeric field such as `moisture_threshold`, select that numeric field instead and wire its numeric output into the comparison or indicator that uses it. Request the current shared value immediately after every connection or reconnection."]
+        },
+        {
+          "type": "figure",
+          "src": "lab7-unflatten-from-json.png",
+          "alt": "LabVIEW Unflatten From JSON function converting a JSON string containing moisture_percent into a typed output cluster and numeric indicator.",
+          "caption": "Use **Unflatten From JSON** to decode the cloud message. Wire the incoming JSON string to the function, create a typed cluster constant or control with the expected field name and data type (for example, `led_switch` as Boolean), then connect the function's brown cluster output wire to an **Unbundle by Name** block. Select the field you need, such as `led_switch` or a numeric `moisture_threshold`, and wire that typed output into the indicator, comparison, or Digital Write logic that manipulates the value. The field names in the type definition must match the JSON keys exactly; simply displaying the cluster does not extract or apply the variable."
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "rx-value-meaning",
+              "label": "What can the JSON payloads contain, and how does LabVIEW validate `led_switch`?",
+              "control": "textarea",
+              "optional": true
+            },
+            {
+              "key": "led-control-source",
+              "label": "Explain how ThingsBoard desired `led_switch`, local LabVIEW logic, Arduino output, and reported `led_state` differ.",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "shared-manual-change", "label": "A manual edit in the device Shared Attributes tab produced a live `led_switch` message after subscription." },
+            { "key": "shared-startup-sync", "label": "The attribute request returned the current `led_switch` value after connection or reconnection." },
+            { "key": "troubleshoot-internet-loss", "label": "I tested or explained internet-loss behaviour: local logic continued, the last valid desired state was handled safely, and startup synchronization restored cloud state after reconnect." }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "shared-attribute-screenshot",
+          "label": "Local evidence reference: Shared Attributes with no access token visible (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "dashboard",
+      "title": "Create the ThingsBoard dashboard",
+      "navLabel": "Dashboard",
+      "eyebrow": "Explain",
+      "blocks": [
+        {
+          "type": "steps",
+          "items": [
+            "Open **Dashboards**, create a dashboard, and name it `Lab 7 Ultrasonic Dashboard`.",
+            "Open edit mode and select the `Lab7-Ultrasonic-StudentName` device as the datasource when configuring each widget.",
+            "Add exactly three widgets: a time-series chart, an LED indicator, and a single switch. Follow the configuration screenshots below for each widget.",
+            "For the time-series chart, add the `distance_cm` telemetry series and label its units in centimetres.",
+            "For the LED indicator, use `led_state` telemetry, disable the RPC device-status check, and subscribe for time-series updates.",
+            "For the single switch, use the shared attribute `led_switch`; get its initial value from the shared attribute and set Boolean `true` or `false` when toggled.",
+            "Do not configure the switch to write telemetry, set a server-side attribute, add a time series, or execute RPC. Save the dashboard and exit edit mode."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "note",
+          "title": "Widget configuration sequence",
+          "paragraphs": ["Create the dashboard first, then configure the time-series chart, LED indicator, and single switch in that order. Keep the device and data keys consistent across all three widgets."]
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-dashboard-create.png",
+          "alt": "ThingsBoard Add dashboard dialog opened from the Dashboards page.",
+          "caption": "Create and name `Lab 7 Ultrasonic Dashboard`."
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-widget-configuration.png",
+          "alt": "ThingsBoard Time series chart configuration for a distance series and LED indicator configuration using led_state telemetry.",
+          "caption": "Configure the time-series chart for `distance_cm` and the LED indicator for `led_state`; the two widget dialogs are shown together."
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-switch-configuration.png",
+          "alt": "ThingsBoard Single Switch configuration showing the led_switch shared attribute for initial state and true or false actions.",
+          "caption": "Configure get/set access to the Boolean shared attribute `led_switch`."
+        },
+        {
+          "type": "figure",
+          "src": "lab7-thingsboard-dashboard-complete.png",
+          "alt": "Completed Lab 7 ThingsBoard dashboard with a distance time-series chart, LED indicator, and LED switch.",
+          "caption": "Verify the completed dashboard displays the distance chart, actual-state indicator, and LED switch together."
+        },
+        {
+          "type": "callout",
+          "variant": "success",
+          "title": "Verify cloud configuration first",
+          "paragraphs": ["Toggle the dashboard switch and confirm that `led_switch` changes under the device's **Shared Attributes** tab. Complete this check before troubleshooting LabVIEW."]
+        },
+        {
+          "type": "details",
+          "summary": "If the dashboard has no value or the switch has no effect",
+          "items": [
+            "Confirm the entity alias points to the Lab 7 device and each widget uses the exact `distance_cm`, `led_state`, or `led_switch` key.",
+            "Confirm the switch sets a shared attribute, not telemetry, RPC, or a server attribute.",
+            "Verify `led_switch` changes in the Shared Attributes tab before inspecting the LabVIEW subscription and JSON path."
+          ]
+        },
+        {
+          "type": "checklist",
+          "role": "tasks",
+          "items": [
+            { "key": "dashboard-gauge", "label": "The `distance_cm` numeric/gauge and time-series widgets update." },
+            { "key": "dashboard-switch", "label": "The switch changes shared `led_switch`, and LabVIEW receives the command." },
+            { "key": "dashboard-autopublish", "label": "LabVIEW publishes telemetry about once per second and resubscribes/requests current state after reconnecting." },
+            { "key": "dashboard-activity-indicator", "label": "The optional activity/last-update indicator was added or intentionally omitted." },
+            { "key": "dashboard-shared-attribute", "label": "The Shared Attributes tab proves the switch writes `led_switch`, not telemetry, RPC, or a server attribute." },
+            { "key": "dashboard-led-state", "label": "The Arduino LED responds, and the separate `led_state` indicator reports actual state." }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "dashboard-url",
+              "label": "Dashboard URL or instructor demo evidence",
+              "control": "text",
+              "optional": true
+            }
+          ]
+        },
+        {
+          "type": "evidence",
+          "key": "thingsboard-dashboard-screenshot",
+          "label": "Local evidence reference: Final ThingsBoard dashboard with no access token visible (image or PDF)",
+          "accept": ["image/*", ".pdf"],
+          "note": "Accepted: image file or PDF. This chooser records only the filename; it does not upload or submit the artifact."
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "title": "Extend automation below 5 cm",
+      "navLabel": "Extend",
+      "eyebrow": "Revise",
+      "intro": [
+        "Modify the local LabVIEW logic so the LED turns on automatically when distance is less than 5 cm. Decide whether this local rule should override, combine with, or be separate from desired `led_switch`. Publish the resulting physical output as actual `led_state`."
+      ],
+      "blocks": [
+        {
+          "type": "formula",
+          "title": "Automation logic",
+          "expression": "Distance (cm) < 5 cm  OR  Dashboard switch ON  =  LED ON"
+        },
+        {
+          "type": "cards",
+          "items": [
+            { "eyebrow": "Optional", "title": "Add a local distance threshold slider instead of a fixed 5 cm threshold.", "accent": "gold" },
+            { "eyebrow": "Optional", "title": "Add an alert widget when an object is too close.", "accent": "gold" },
+            { "eyebrow": "Optional", "title": "Add a historical distance chart to show sensor behavior over time.", "accent": "gold" },
+            { "eyebrow": "Optional", "title": "Test the dashboard on a phone and describe the responsive layout.", "accent": "gold" },
+            { "eyebrow": "Optional", "title": "Document how repeated or stale cloud commands remain safe and idempotent.", "accent": "gold" },
+            { "eyebrow": "Optional", "title": "Reflect on the risk of sharing a dashboard link.", "accent": "gold" }
+          ]
+        },
+        {
+          "type": "fields",
+          "fields": [
+            {
+              "key": "extend-code",
+              "label": "Describe your extension logic or paste pseudocode",
+              "control": "textarea"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflect",
+      "title": "Learning outcomes and submission",
+      "navLabel": "Reflect",
+      "eyebrow": "Reflect",
+      "submission": true,
+      "blocks": [
+        {
+          "type": "objectives",
+          "title": "Learning Outcomes Achieved",
+          "items": [
+            "Configure a ThingsBoard device and protect its password-equivalent access token.",
+            "Publish labelled distance and actual LED-state telemetry through MQTT and verify it in the cloud.",
+            "Receive, validate, and synchronize a persistent shared-attribute command after startup and reconnection.",
+            "Integrate HC-SR04 sensing and D12 LED actuation through LabVIEW LINX while keeping local logic safe during cloud loss.",
+            "Build and test a dashboard that distinguishes desired `led_switch` from reported `led_state`."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "danger",
+          "title": "Safe cleanup",
+          "paragraphs": ["Stop with the VI Stop control, turn the LED off, close MQTT, LINX/VISA, queue, event, and other references, then disconnect Arduino USB before changing or storing the circuit. Remove real tokens from saved front-panel defaults and local examples before distributing the VI."]
+        },
+        {
+          "type": "evidence",
+          "key": "final-lab7-vi",
+          "label": "Final Lab 7 LabVIEW VI file",
+          "accept": [".vi"]
+        },
+        {
+          "type": "evidence",
+          "key": "reflect-1",
+          "label": "Submission question 1: draw a system block diagram with arrows showing data transfer between the web HMI, sensors, and actuators.",
+          "accept": ["image/*", ".pdf"],
+          "note": "Upload a clear image or PDF of your hand-drawn or digital diagram."
+        },
+        {
+          "type": "fields",
+          "title": "Submission questions 2-5",
+          "fields": [
+            {
+              "key": "reflect-2",
+              "label": "2. Explain ultrasonic sensor operation and the purpose of Trig and Echo pins.",
+              "control": "textarea"
+            },
+            {
+              "key": "reflect-3",
+              "label": "3. What are the advantages of using LabVIEW instead of Arduino IDE for this application?",
+              "control": "textarea"
+            },
+            {
+              "key": "reflect-4",
+              "label": "4. Include the new code or logic corresponding to the extension.",
+              "control": "textarea"
+            },
+            {
+              "key": "reflect-5",
+              "label": "5. Include typos or suggestions for improving the lab manual.",
+              "control": "textarea"
+            }
+          ]
+        },
+        {
+          "type": "keyValues",
+          "title": "Glossary",
+          "items": [
+            { "term": "ThingsBoard Cloud account", "description": "An individual tenant account used to manage devices, telemetry, shared attributes, and dashboards." },
+            { "term": "Device", "description": "A ThingsBoard entity representing one physical project; this lab uses `Lab7-Ultrasonic-StudentName`." },
+            { "term": "Telemetry", "description": "Measurement or reported-state data sent by LabVIEW, including `distance_cm` and actual `led_state`." },
+            { "term": "Shared attribute", "description": "A persistent cloud-configured value sent to the device, including desired `led_switch`." },
+            { "term": "MQTT", "description": "Lightweight publish/subscribe messaging protocol used for IoT data exchange." },
+            { "term": "Broker", "description": "Server that routes MQTT messages between publishers and subscribers." },
+            { "term": "Client", "description": "Program connected to the MQTT broker, such as the LabVIEW VI." },
+            { "term": "Device access token", "description": "Private credential used as the MQTT user name to authenticate one ThingsBoard device." },
+            { "term": "Publish", "description": "Send a JSON payload to an MQTT topic, such as telemetry or an attribute request." },
+            { "term": "Subscribe", "description": "Listen to an MQTT topic, such as live or requested shared-attribute messages." },
+            { "term": "Topic", "description": "MQTT address string that identifies where a message is sent or received." },
+            { "term": "Dashboard", "description": "Web HMI that displays sensor data and offers controls." },
+            { "term": "Widget", "description": "Dashboard element such as a gauge or switch." },
+            { "term": "Gauge", "description": "Widget that displays numeric distance values." },
+            { "term": "Switch", "description": "Widget configured to get and set the Boolean shared attribute `led_switch`." },
+            { "term": "HC-SR04", "description": "Ultrasonic distance sensor with VCC, Trig, Echo, and GND pins." },
+            { "term": "Trig", "description": "Sensor input pin used to start the ultrasonic pulse." },
+            { "term": "Echo", "description": "Sensor output pin whose pulse width represents return time." },
+            { "term": "LINX", "description": "LabVIEW toolkit used to communicate with Arduino hardware." },
+            { "term": "Local variable", "description": "LabVIEW object used here to read Distance or RX Value inside another structure." },
+            { "term": "RX Value", "description": "Received MQTT JSON string that is decoded with **Unflatten From JSON** and type-checked before applying `led_switch`." },
+            { "term": "Unflatten From JSON", "description": "LabVIEW function that converts a JSON string into a typed cluster or data structure. The expected field names and data types must match the JSON keys and values." },
+            { "term": "Cloud monitoring", "description": "Viewing local sensor data through ThingsBoard telemetry and dashboard widgets." },
+            { "term": "Remote control", "description": "Using a cloud command to affect local hardware behavior." }
+          ]
+        }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "ThingsBoard account and Lab 7 device created.",
+    "Device token entered privately into LabVIEW and excluded from submitted evidence.",
+    "Test `distance_cm`/`led_state` telemetry visible under Latest Telemetry.",
+    "LabVIEW MQTT configuration with the token redacted.",
+    "Sensor/LED circuit and local LabVIEW HMI evidence.",
+    "JSON telemetry updating about once per second.",
+    "Manual shared `led_switch` update and startup request response.",
+    "Dashboard switch changes `led_switch`; LabVIEW receives it; Arduino LED responds.",
+    "Actual `led_state` returns to ThingsBoard separately from desired state.",
+    "Final dashboard screenshot or instructor demonstration.",
+    "Reconnect, malformed-message, safe-shutdown, and internet-loss behaviour.",
+    "System explanation, local extension, reflection, and suggestions."
+  ]
+}
