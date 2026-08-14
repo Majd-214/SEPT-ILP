@@ -46,7 +46,10 @@ export class Html {
     if (Html.#VOID.has(tag)) {
       return `<${tag}${attrs}>`;
     }
-    const inner = children.flat().filter((child) => child != null).join('');
+    // Children flatten to any depth: templates may pass arrays of arrays
+    // (e.g. a dl's dt/dd pairs), and a partially flattened array would
+    // stringify with stray commas as text nodes.
+    const inner = children.flat(Infinity).filter((child) => child != null).join('');
     return `<${tag}${attrs}>${inner}</${tag}>`;
   }
 

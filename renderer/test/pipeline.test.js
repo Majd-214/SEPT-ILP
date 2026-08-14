@@ -81,7 +81,7 @@ test('the renderer refuses links to unknown knowledge topics', async () => {
     fs.writeFileSync(labPath, lab);
     await assert.rejects(
       () => new Pipeline(REPO_ROOT).build(brokenDir, { ...OPTIONS, outDir }),
-      /unknown knowledge topic/,
+      (error) => error.violations?.some((violation) => /unknown knowledge topic/.test(violation)) ?? false,
     );
   } finally {
     fs.rmSync(outDir, { recursive: true, force: true });
