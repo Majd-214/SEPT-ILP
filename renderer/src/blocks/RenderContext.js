@@ -21,11 +21,14 @@ export class RenderContext {
    * @param {string} options.relativeRoot Prefix from the page to the site root ('' | '../' | '../../').
    * @param {Set<string>} options.knownTopics Valid knowledge topic ids.
    * @param {Set<string>} options.knownLabs Valid lab ids.
+   * @param {boolean} [options.kbPanel] Decorate kb: links to open in the
+   *   page's reference panel instead of navigating away (lab pages).
    */
-  constructor({ relativeRoot, knownTopics, knownLabs }) {
+  constructor({ relativeRoot, knownTopics, knownLabs, kbPanel = false }) {
     this.relativeRoot = relativeRoot;
     this.knownTopics = knownTopics;
     this.knownLabs = knownLabs;
+    this.kbPanel = kbPanel;
 
     /** Runtime config accumulated while blocks render. */
     this.config = {
@@ -38,15 +41,19 @@ export class RenderContext {
     this.currentRequirements = null;
     /** @type {object[]} One requirements record per checkpoint, in order. */
     this.checkpointRequirements = [];
+    /** @type {Set<string>} Knowledge topics this page's content links to. */
+    this.usedTopics = new Set();
   }
 
   /**
    * Begin collecting requirements for a checkpoint.
    * @param {string} checkpointId
+   * @param {string} [title] Plain-text label for runtime progress surfaces.
    */
-  beginCheckpoint(checkpointId) {
+  beginCheckpoint(checkpointId, title = '') {
     this.currentRequirements = {
       id: checkpointId,
+      title,
       quizzes: [],
       checks: [],
       fields: [],
@@ -77,7 +84,8 @@ export class RenderContext {
 
   /**
    * @param {string} href Authored link target.
-   * @returns {string | null} Resolved URL, or null to reject the link.
+   * @returns {string | { href: string, attributes: Record<string, string> } | null}
+   *   Resolved URL (optionally with link attributes), or null to reject.
    */
   resolveHref(href) {
     if (href.startsWith('kb:')) {
@@ -85,7 +93,15 @@ export class RenderContext {
       if (!this.knownTopics.has(topic)) {
         throw new Error(`Link to unknown knowledge topic "${topic}"`);
       }
-      return `${this.relativeRoot}knowledge/${topic}.html`;
+      this.usedTopics.add(topic);
+      const resolved = `${this.relativeRoot}knowledge/${topic}.html`;
+      if (this.kbPanel) {
+        // On lab pages the link stays a real link (it works without
+        // scripting), but the runtime intercepts it and opens the topic
+        // in the reference panel so the laboratory is never left.
+        return { href: resolved, attributes: { class: 'c-kb-link', 'data-kb-open': topic } };
+      }
+      return resolved;
     }
     if (href.startsWith('lab:')) {
       const lab = href.slice(4);

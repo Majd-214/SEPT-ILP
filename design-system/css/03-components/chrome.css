@@ -148,6 +148,38 @@
   white-space: nowrap;
 }
 
+/* The score chip is a control: it opens the progress drawer */
+.c-appbar__chip--action {
+  cursor: pointer;
+  transition: background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-appbar__chip--action:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+/* Autosave indicator — a quiet pulse each time browser storage accepts a
+   write. Purely visual reassurance; the progress drawer carries the
+   authoritative record for assistive technology. */
+.c-appbar__saved {
+  flex: 0 0 auto;
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-success);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+.c-appbar__saved.is-visible {
+  opacity: 1;
+}
+
+.c-appbar__saved.is-error {
+  color: var(--md-sys-color-warning);
+  opacity: 1;
+}
+
 /* --------------------------------------------------------------------------
    Shell — navigation rail beside a centred content column
    -------------------------------------------------------------------------- */
@@ -279,12 +311,32 @@
   color: var(--md-sys-color-success);
 }
 
+.c-nav__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .c-nav__text {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Live requirement count under a started, unconfirmed checkpoint */
+.c-nav__meta {
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-regular);
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.c-nav__item.is-active .c-nav__meta {
+  color: var(--md-sys-color-on-primary-container);
 }
 
 .c-nav__check {
@@ -296,6 +348,13 @@
 
 .c-nav__item.is-complete .c-nav__check {
   visibility: visible;
+  animation: nav-check-pop var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-emphasized);
+}
+
+@keyframes nav-check-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.25); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .c-nav-scrim {
@@ -449,6 +508,23 @@
   color: var(--md-sys-color-on-primary);
 }
 
+/* A red-dot alert on a dock button (e.g. work not yet downloaded) */
+.c-dock__btn.has-alert::after {
+  content: "";
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-warning);
+  box-shadow: 0 0 0 2px var(--md-sys-color-surface);
+}
+
+.c-dock__btn {
+  position: relative;
+}
+
 .c-sidebar {
   position: fixed;
   top: 3.5rem;
@@ -460,11 +536,16 @@
   transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
 }
 
+.c-sidebar--wide {
+  width: min(30rem, calc(100vw - 7rem));
+}
+
 .c-sidebar.is-open {
   transform: none;
 }
 
 .c-sidebar__body {
+  position: relative;
   height: 100%;
   overflow-y: auto;
   padding: var(--md-sys-space-5);
@@ -473,9 +554,37 @@
   box-shadow: var(--md-sys-elevation-2);
 }
 
+.c-sidebar__close {
+  position: absolute;
+  top: var(--md-sys-space-3);
+  right: var(--md-sys-space-3);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: var(--md-sys-shape-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-sidebar__close:hover {
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-sidebar__close svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .c-sidebar__title {
   font-size: var(--md-sys-type-title-size);
   color: var(--md-sys-color-primary);
+  /* Clear the close control in the corner */
+  padding-right: var(--md-sys-space-6);
 }
 
 .c-sidebar__subtitle {
@@ -483,6 +592,154 @@
   color: var(--md-sys-color-on-surface-variant);
   margin-top: var(--md-sys-space-1);
   margin-bottom: var(--md-sys-space-4);
+}
+
+.c-sidebar__heading {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-5);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+/* --------------------------------------------------------------------------
+   Narrow screens: the dock becomes a bottom bar and drawers become sheets
+   --------------------------------------------------------------------------
+   A permanent right-edge column would cost a seventh of a phone's width.
+   Instead the dock sits along the bottom within thumb reach, and each
+   drawer rises as a bottom sheet above it.
+   -------------------------------------------------------------------------- */
+@media (max-width: 639.98px) {
+  .c-dock {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 66;
+    width: auto;
+    height: 3.25rem;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding-block: 0;
+    border-left: 0;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+  }
+
+  .has-dock .l-main {
+    padding-right: 0;
+    padding-bottom: 3.25rem;
+  }
+
+  .c-sidebar {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 3.25rem;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--md-sys-shape-lg) var(--md-sys-shape-lg) 0 0;
+    overflow: hidden;
+    transform: translateY(110%);
+  }
+
+  .c-sidebar--wide {
+    width: auto;
+  }
+
+  .c-sidebar.is-open {
+    transform: none;
+  }
+
+  .c-sidebar__body {
+    height: auto;
+    max-height: min(72vh, 34rem);
+    border-left: 0;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    box-shadow: var(--md-sys-elevation-3);
+    /* Sheet grab-handle affordance */
+    background-image: radial-gradient(
+      closest-side,
+      var(--md-sys-color-outline-variant) 98%,
+      transparent
+    );
+    background-size: 2.4rem 0.3rem;
+    background-position: top 0.45rem center;
+    background-repeat: no-repeat;
+  }
+}
+
+/* Very narrow app bar: the course code matters more than the crest */
+@media (max-width: 419.98px) {
+  .c-appbar__logo {
+    display: none;
+  }
+
+  .c-appbar {
+    gap: var(--md-sys-space-2);
+    padding-inline: var(--md-sys-space-3);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Toast — a brief, dismissible notice (resume position, restore results)
+   -------------------------------------------------------------------------- */
+.c-toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--md-sys-space-5);
+  z-index: 90;
+  transform: translate(-50%, 0.5rem);
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  max-width: min(34rem, calc(100vw - 2rem));
+  padding: var(--md-sys-space-3) var(--md-sys-space-5);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  font-size: var(--md-sys-type-body-sm-size);
+  box-shadow: var(--md-sys-elevation-3);
+  opacity: 0;
+  pointer-events: none;
+  /* visibility keeps the hidden toast (and its dismiss button) out of
+     the tab order and the accessibility tree; its delayed transition
+     lets the fade-out finish first. */
+  visibility: hidden;
+  transition:
+    opacity var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard),
+    transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-emphasized),
+    visibility 0s linear var(--md-sys-motion-duration-medium);
+}
+
+.c-toast.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+
+.c-toast__dismiss {
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--md-sys-shape-sm);
+  background: transparent;
+  color: inherit;
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-toast__dismiss:hover {
+  background: color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 14%, transparent);
+}
+
+@media (max-width: 639.98px) {
+  .c-toast {
+    bottom: calc(3.25rem + var(--md-sys-space-4));
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -503,6 +760,7 @@
   .c-nav-scrim,
   .c-sidebar,
   .c-dock,
+  .c-toast,
   .c-skip-link {
     display: none;
   }

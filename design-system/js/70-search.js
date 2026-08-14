@@ -18,12 +18,20 @@ class KnowledgeSearch {
     this.empty = document.querySelector('[data-kb-empty]');
     this.root = document.querySelector('[data-kb-root]');
     this.viewButtons = Dom.all('[data-kb-view]');
+    this.count = document.querySelector('[data-kb-count]');
+    this.clear = document.querySelector('[data-kb-clear]');
     this.viewKey = `sept-ilp:${SeptLabs.config.course.id}:kb-view`;
     this.kind = 'all';
 
     if (!this.input || this.topics.length === 0) return;
 
     this.input.addEventListener('input', () => this.apply());
+    this.clear?.addEventListener('click', () => {
+      this.input.value = '';
+      this.apply();
+      this.input.focus();
+    });
+    this.#renderCount(this.topics.length);
     for (const filter of this.filters) {
       filter.addEventListener('click', () => {
         this.kind = filter.dataset.kbFilter;
@@ -116,5 +124,18 @@ class KnowledgeSearch {
     this.#collapseAll(filtering ? false : this.root?.classList.contains('is-tree') ?? false);
 
     if (this.empty) this.empty.hidden = visible > 0;
+    if (this.clear) this.clear.hidden = query === '';
+    this.#renderCount(visible, filtering);
+  }
+
+  /**
+   * @param {number} visible
+   * @param {boolean} [filtering]
+   */
+  #renderCount(visible, filtering = false) {
+    if (!this.count) return;
+    this.count.textContent = filtering
+      ? `${visible} of ${this.topics.length} topics`
+      : `${this.topics.length} topics`;
   }
 }

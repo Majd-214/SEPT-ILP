@@ -22,7 +22,11 @@ class Navigation {
     });
     this.scrim?.addEventListener('click', () => this.close());
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') this.close();
+      if (event.key !== 'Escape') return;
+      // One Escape dismisses one layer: while a reference drawer is
+      // open, that press belongs to the drawer, not to this menu.
+      if (Sidebar.instances.some((sidebar) => sidebar.open)) return;
+      this.close();
     });
 
     // Selecting a destination closes the drawer on narrow screens.

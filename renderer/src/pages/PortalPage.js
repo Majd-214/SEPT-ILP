@@ -18,9 +18,22 @@ export class PortalPage extends Page {
   }
 
   runtimeConfig() {
+    // The card progress and the continue control need to know, for every
+    // lab, how many checkpoints exist and which storage key holds its
+    // state. All reading happens in the student's browser; nothing here
+    // identifies a student.
     return {
       page: 'portal',
       course: { id: this.course.id, code: this.course.code },
+      labs: [...this.repository.labs, ...(this.repository.project ? [this.repository.project] : [])]
+        .map((lab) => ({
+          id: lab.id,
+          title: lab.title,
+          number: lab.number ?? null,
+          kind: lab.kind ?? 'lab',
+          contentVersion: lab.contentVersion,
+          checkpoints: lab.checkpoints.map((checkpoint) => checkpoint.id),
+        })),
     };
   }
 
@@ -61,6 +74,12 @@ export class PortalPage extends Page {
           Html.el('span', { class: 'c-chip c-chip--tonal' }, Html.escape(this.course.code)),
           Html.el('span', { class: 'c-chip' }, Html.escape(this.course.term)),
           (portal.chips ?? []).map((chip) => Html.el('span', { class: 'c-chip' }, this.context.rich(chip))),
+        ),
+        // Filled by the runtime when this browser holds saved work:
+        // one click back to the most recently touched laboratory.
+        Html.el('div', { class: 'c-hero__resume', 'data-continue': true, hidden: true },
+          Html.el('a', { class: 'c-btn c-btn--filled', 'data-continue-link': true, href: 'index.html' }, 'Continue'),
+          Html.el('span', { class: 'c-hero__resume-note', 'data-continue-note': true }),
         ),
       ),
       portal.about ? this.#about(portal.about) : null,
@@ -118,6 +137,17 @@ export class PortalPage extends Page {
     Html.el('span', { class: 'c-labcard__badge' }, project ? 'Design project' : `Lab ${lab.number}`),
     Html.el('h3', { class: 'c-labcard__title' }, Html.escape(lab.title)),
     Html.el('p', { class: 'c-labcard__description' }, this.context.rich(lab.cardSummary)),
+    // Revealed by the runtime when this browser holds saved work for the
+    // lab: a quiet bar of confirmed checkpoints and a one-line status.
+    Html.el('span', { class: 'c-labcard__progress', 'data-lab-progress': lab.id, hidden: true },
+      Html.el('progress', {
+        class: 'c-labcard__bar',
+        max: String(lab.checkpoints.length),
+        value: '0',
+        'aria-hidden': 'true',
+      }),
+      Html.el('span', { class: 'c-labcard__progress-text' }),
+    ),
     );
   }
 

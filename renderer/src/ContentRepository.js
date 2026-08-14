@@ -114,6 +114,26 @@ export class ContentRepository {
     this.knownTopics = new Set(this.topicById.keys());
     this.knownLabs = new Set(this.allLabs.map((lab) => lab.id));
 
+    /**
+     * Reverse index: topic id → the labs whose authored content links to
+     * it, in course order. Built from the `kb:` link targets in each lab
+     * document, so a topic page can say where it is used.
+     * @type {Map<string, object[]>}
+     */
+    this.labsUsingTopic = new Map();
+    for (const lab of [...this.labs, ...(this.project ? [this.project] : [])]) {
+      const referenced = new Set();
+      // Match the full link form `](kb:id)` so a bare "(kb:…)" in prose
+      // or a code span never counts as a reference.
+      for (const match of JSON.stringify(lab).matchAll(/\]\(kb:([a-z][a-z0-9-]*)\)/g)) {
+        referenced.add(match[1]);
+      }
+      for (const topicId of referenced) {
+        if (!this.labsUsingTopic.has(topicId)) this.labsUsingTopic.set(topicId, []);
+        this.labsUsingTopic.get(topicId).push(lab);
+      }
+    }
+
     violations.push(...this.#crossReferenceViolations());
     if (violations.length > 0) {
       throw new ContentRepository.ValidationError(violations);

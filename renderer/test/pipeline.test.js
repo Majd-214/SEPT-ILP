@@ -88,3 +88,32 @@ test('the renderer refuses links to unknown knowledge topics', async () => {
     fs.rmSync(brokenDir, { recursive: true, force: true });
   }
 });
+
+test('lab pages embed the reference panel for every linked topic', async () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sept-ilp-test-'));
+  try {
+    const { failures, siteDir } = await new Pipeline(REPO_ROOT).build(FIXTURE, { ...OPTIONS, outDir });
+    assert.deepEqual(failures, []);
+    const labHtml = fs.readFileSync(path.join(siteDir, 'labs', 'lab-01', 'index.html'), 'utf8');
+
+    // Knowledge links stay real links but are marked for the panel.
+    assert.match(labHtml, /class="c-kb-link" data-kb-open="voltage-divider"/);
+    // The linked topic is embedded as an inert article template…
+    assert.match(labHtml, /<template data-kb-article="voltage-divider"/);
+    // …and so is its related topic, one hop out, for in-panel browsing.
+    assert.match(labHtml, /<template data-kb-article="multimeter"/);
+    // The concepts drawer and the progress drawer are always present.
+    assert.match(labHtml, /data-sidebar="knowledge"/);
+    assert.match(labHtml, /data-sidebar="progress"/);
+    // The panel never replaces the real page: the full-page link works
+    // without scripting and the topic page still exists.
+    assert.ok(fs.existsSync(path.join(siteDir, 'knowledge', 'multimeter.html')));
+
+    // Topic pages say which laboratories reference them.
+    const topicHtml = fs.readFileSync(path.join(siteDir, 'knowledge', 'voltage-divider.html'), 'utf8');
+    assert.match(topicHtml, /Referenced in/);
+    assert.match(topicHtml, /href="\.\.\/labs\/lab-01\/index\.html"/);
+  } finally {
+    fs.rmSync(outDir, { recursive: true, force: true });
+  }
+});

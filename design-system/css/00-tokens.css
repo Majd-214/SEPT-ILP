@@ -169,7 +169,9 @@
      ------------------------------------------------------------------ */
   --md-sys-motion-duration-short:  150ms;
   --md-sys-motion-duration-medium: 300ms;
-  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-duration-long:   450ms;
+  --md-sys-motion-easing-standard:   cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.3, 0, 0, 1);
 
   /* ------------------------------------------------------------------
      Layout
