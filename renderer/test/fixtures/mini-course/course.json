@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "mini",
+  "code": "TEST 1AA3",
+  "title": "Pipeline Fixture Course",
+  "term": "Fall 2026",
+  "institution": "McMaster University",
+  "school": "W Booth School of Engineering Practice and Technology",
+  "portal": {
+    "headline": "A fixture for the *rendering pipeline*",
+    "lead": ["One small course that exercises every block in the vocabulary."],
+    "chips": ["Fixture", "All block types"],
+    "about": {
+      "cards": [
+        { "eyebrow": "Purpose", "title": "Coverage", "body": "Every block type renders at least once." }
+      ],
+      "flow": ["Author", "Validate", "Render", "Gate"]
+    }
+  },
+  "knowledge": {
+    "title": "Fixture Knowledge Base",
+    "description": "Two topics that exercise the knowledge templates."
+  },
+  "footer": "McMaster University | Pipeline fixture — not for students"
+}

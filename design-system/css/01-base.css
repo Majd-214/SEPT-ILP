@@ -1,0 +1,113 @@
+/* ==========================================================================
+   Base layer — reset, document defaults, typography, accessibility
+   --------------------------------------------------------------------------
+   Element-level rules only. No component styling belongs here.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--md-sys-font-plain);
+  font-size: var(--md-sys-type-body-size);
+  line-height: var(--md-sys-type-line-height);
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--md-sys-type-line-height-tight);
+  font-weight: var(--md-sys-type-weight-bold);
+  overflow-wrap: break-word;
+}
+
+p, li, td, th, figcaption {
+  overflow-wrap: break-word;
+}
+
+img, svg, video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+code, pre, kbd, samp {
+  font-family: var(--md-sys-font-mono);
+  font-size: 0.925em;
+}
+
+a {
+  color: var(--md-sys-color-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+ul, ol {
+  padding-left: 1.4rem;
+}
+
+/* Keyboard focus — one visible, high-contrast treatment everywhere */
+:focus-visible {
+  outline: 3px solid var(--md-sys-color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--md-sys-shape-xs);
+}
+
+/* Respect users who opt out of animation */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print: labs remain useful on paper */
+@media print {
+  body {
+    background: none;
+  }
+}

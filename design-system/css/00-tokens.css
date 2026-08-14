@@ -1,0 +1,178 @@
+/* ==========================================================================
+   SEPT Laboratory Design System — Design Tokens
+   --------------------------------------------------------------------------
+   The single place where visual decisions live. Three tiers, following
+   Material Design 3:
+
+     1. Reference tokens (--md-ref-*)  — raw brand palette values.
+     2. System tokens    (--md-sys-*)  — semantic roles. Components consume
+                                         ONLY these.
+     3. Component tokens               — defined locally in each component
+                                         file when a value is reused there.
+
+   Changing a system token here restyles every published lab on its next
+   build. Nothing outside this file may introduce a new colour, font, size,
+   or shadow value.
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------
+     1. Reference palette — McMaster University brand
+     Maroon and gold are the institutional identity colours; the tint
+     ramps are shared with McMaster's digital brand guidance.
+     ------------------------------------------------------------------ */
+  --md-ref-maroon:      #7A003C;
+  --md-ref-maroon-80:   #953360;
+  --md-ref-maroon-60:   #AF6689;
+  --md-ref-maroon-40:   #CA99B1;
+  --md-ref-maroon-20:   #E4CCDA;
+  --md-ref-maroon-10:   #F2E5EC;
+
+  --md-ref-gold:        #FDBF57;
+  --md-ref-gold-80:     #FECC78;
+  --md-ref-gold-60:     #FED999;
+  --md-ref-gold-40:     #FEE5BC;
+  --md-ref-gold-20:     #FFF2DD;
+
+  --md-ref-grey:        #495965;
+  --md-ref-grey-80:     #6D7A82;
+  --md-ref-grey-60:     #929BA3;
+  --md-ref-grey-40:     #B6BDC1;
+  --md-ref-grey-20:     #DBDEE0;
+  --md-ref-grey-10:     #EDEFF1;
+
+  --md-ref-white:       #FFFFFF;
+  --md-ref-ink:         #2D3338;
+  --md-ref-code-bg:     #282C34;
+
+  /* Semantic accents (WCAG AA against white) */
+  --md-ref-green:       #287A4B;
+  --md-ref-green-tint:  #E3F1E9;
+  --md-ref-amber:       #9A5C00;
+  --md-ref-amber-tint:  #FFF4E2;
+  --md-ref-red:         #B42318;
+  --md-ref-red-tint:    #FBEAE8;
+  --md-ref-blue:        #1B5E9E;
+  --md-ref-blue-tint:   #E7F0F8;
+
+  /* ------------------------------------------------------------------
+     2. System colour roles (Material Design 3, light scheme)
+     ------------------------------------------------------------------ */
+  --md-sys-color-primary:              var(--md-ref-maroon);
+  --md-sys-color-on-primary:           var(--md-ref-white);
+  --md-sys-color-primary-container:    var(--md-ref-maroon-10);
+  --md-sys-color-on-primary-container: #4A0024;
+
+  --md-sys-color-secondary:              var(--md-ref-grey);
+  --md-sys-color-on-secondary:           var(--md-ref-white);
+  --md-sys-color-secondary-container:    var(--md-ref-grey-10);
+  --md-sys-color-on-secondary-container: #232C33;
+
+  --md-sys-color-tertiary:              #8A6100;
+  --md-sys-color-on-tertiary:           var(--md-ref-white);
+  --md-sys-color-tertiary-container:    var(--md-ref-gold-20);
+  --md-sys-color-on-tertiary-container: #4F3700;
+
+  --md-sys-color-surface:            #FBF9FA;
+  --md-sys-color-surface-dim:        #F1EDEF;
+  --md-sys-color-surface-container-lowest: var(--md-ref-white);
+  --md-sys-color-surface-container-low:    #F6F3F4;
+  --md-sys-color-surface-container:        #F1ECEE;
+  --md-sys-color-surface-container-high:   #EBE5E8;
+  --md-sys-color-on-surface:         var(--md-ref-ink);
+  --md-sys-color-on-surface-variant: var(--md-ref-grey);
+
+  --md-sys-color-outline:            var(--md-ref-grey-60);
+  --md-sys-color-outline-variant:    var(--md-ref-grey-20);
+
+  --md-sys-color-success:            var(--md-ref-green);
+  --md-sys-color-success-container:  var(--md-ref-green-tint);
+  --md-sys-color-warning:            var(--md-ref-amber);
+  --md-sys-color-warning-container:  var(--md-ref-amber-tint);
+  --md-sys-color-error:              var(--md-ref-red);
+  --md-sys-color-error-container:    var(--md-ref-red-tint);
+  --md-sys-color-info:               var(--md-ref-blue);
+  --md-sys-color-info-container:     var(--md-ref-blue-tint);
+
+  --md-sys-color-inverse-surface:    #32282D;
+  --md-sys-color-inverse-on-surface: #F8EEF2;
+
+  /* Focus indicator (never brand maroon: must contrast with primary UI) */
+  --md-sys-color-focus-ring:         #1B5E9E;
+
+  /* ------------------------------------------------------------------
+     Typography — system stack; bundles must load no external fonts.
+     Scale follows the MD3 type roles the platform actually uses.
+     ------------------------------------------------------------------ */
+  --md-sys-font-plain: system-ui, -apple-system, "Segoe UI", Roboto,
+                       "Helvetica Neue", Arial, sans-serif;
+  --md-sys-font-mono:  ui-monospace, "Cascadia Code", "SF Mono", Menlo,
+                       Consolas, "Liberation Mono", monospace;
+
+  --md-sys-type-display-size:   2.5rem;   /* lab title in hero        */
+  --md-sys-type-headline-size:  1.75rem;  /* checkpoint headings      */
+  --md-sys-type-title-lg-size:  1.3rem;   /* section headings         */
+  --md-sys-type-title-size:     1.075rem; /* card / block headings    */
+  --md-sys-type-body-size:      1rem;     /* running text             */
+  --md-sys-type-body-sm-size:   0.9rem;   /* captions, secondary text */
+  --md-sys-type-label-size:     0.8rem;   /* buttons, chips, badges   */
+
+  --md-sys-type-weight-regular: 400;
+  --md-sys-type-weight-medium:  550;
+  --md-sys-type-weight-bold:    700;
+
+  --md-sys-type-line-height:       1.65;
+  --md-sys-type-line-height-tight: 1.25;
+
+  /* ------------------------------------------------------------------
+     Spacing — 4 px base grid
+     ------------------------------------------------------------------ */
+  --md-sys-space-1: 0.25rem;
+  --md-sys-space-2: 0.5rem;
+  --md-sys-space-3: 0.75rem;
+  --md-sys-space-4: 1rem;
+  --md-sys-space-5: 1.5rem;
+  --md-sys-space-6: 2rem;
+  --md-sys-space-7: 3rem;
+  --md-sys-space-8: 4rem;
+
+  /* ------------------------------------------------------------------
+     Shape — MD3 shape scale
+     ------------------------------------------------------------------ */
+  --md-sys-shape-xs:   0.25rem;
+  --md-sys-shape-sm:   0.5rem;
+  --md-sys-shape-md:   0.75rem;
+  --md-sys-shape-lg:   1rem;
+  --md-sys-shape-xl:   1.75rem;
+  --md-sys-shape-full: 999rem;
+
+  /* ------------------------------------------------------------------
+     Elevation — MD3 levels 0-3 (higher levels unused by this system)
+     ------------------------------------------------------------------ */
+  --md-sys-elevation-0: none;
+  --md-sys-elevation-1: 0 1px 2px rgba(45, 51, 56, 0.10),
+                        0 1px 3px 1px rgba(45, 51, 56, 0.06);
+  --md-sys-elevation-2: 0 1px 2px rgba(45, 51, 56, 0.10),
+                        0 2px 6px 2px rgba(45, 51, 56, 0.08);
+  --md-sys-elevation-3: 0 4px 8px 3px rgba(45, 51, 56, 0.10),
+                        0 1px 3px rgba(45, 51, 56, 0.12);
+
+  /* ------------------------------------------------------------------
+     State layers — MD3 hover/pressed opacities
+     ------------------------------------------------------------------ */
+  --md-sys-state-hover-opacity:   8%;
+  --md-sys-state-pressed-opacity: 12%;
+
+  /* ------------------------------------------------------------------
+     Motion
+     ------------------------------------------------------------------ */
+  --md-sys-motion-duration-short:  150ms;
+  --md-sys-motion-duration-medium: 300ms;
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ------------------------------------------------------------------
+     Layout
+     ------------------------------------------------------------------ */
+  --md-sys-layout-max-width:      1180px;
+  --md-sys-layout-max-width-prose: 76ch;
+}

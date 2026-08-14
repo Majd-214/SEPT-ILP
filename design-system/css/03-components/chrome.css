@@ -1,0 +1,306 @@
+/* ==========================================================================
+   Components — page chrome: skip link, top bar, hero, sidebars, footer
+   ========================================================================== */
+
+/* Skip link for keyboard users; visible only on focus */
+.c-skip-link {
+  position: absolute;
+  top: var(--md-sys-space-2);
+  left: var(--md-sys-space-2);
+  z-index: 100;
+  padding: var(--md-sys-space-2) var(--md-sys-space-4);
+  background: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  border-radius: var(--md-sys-shape-sm);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.c-skip-link:focus {
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Top bar — fixed course navigation with the checkpoint stepper
+   -------------------------------------------------------------------------- */
+.c-topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--md-sys-color-surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-topbar__inner {
+  max-width: var(--md-sys-layout-max-width);
+  margin-inline: auto;
+  padding: var(--md-sys-space-2) var(--md-sys-space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-2);
+  overflow-x: auto;
+}
+
+.c-topbar__label {
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+  margin-right: var(--md-sys-space-1);
+}
+
+.c-topbar__link,
+.c-topbar__step {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid transparent;
+  border-radius: var(--md-sys-shape-full);
+  background: transparent;
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-topbar__link:hover,
+.c-topbar__step:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-topbar__current {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  white-space: nowrap;
+}
+
+.c-topbar__step.is-active {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.c-topbar__step.is-complete:not(.is-active)::after {
+  content: "✓";
+  margin-left: 0.4em;
+  color: var(--md-sys-color-success);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-topbar__step.is-complete.is-active::after {
+  content: "✓";
+  margin-left: 0.4em;
+}
+
+.c-topbar__score {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-lowest);
+  white-space: nowrap;
+}
+
+/* Push page content below the fixed bar */
+.c-page {
+  padding-top: 4.5rem;
+  padding-bottom: var(--md-sys-space-8);
+}
+
+/* --------------------------------------------------------------------------
+   Hero — course or lab masthead
+   -------------------------------------------------------------------------- */
+.c-hero {
+  padding-block: var(--md-sys-space-7) var(--md-sys-space-6);
+}
+
+.c-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-4);
+  margin-bottom: var(--md-sys-space-5);
+}
+
+.c-hero__logo {
+  height: 3.25rem;
+  width: auto;
+}
+
+.c-hero__divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--md-sys-color-outline-variant);
+}
+
+.c-hero__eyebrow {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-primary);
+}
+
+.c-hero__title {
+  font-size: var(--md-sys-type-display-size);
+  letter-spacing: -0.015em;
+  margin-top: var(--md-sys-space-2);
+  max-width: 24ch;
+}
+
+.c-hero__title-accent {
+  background: linear-gradient(
+    100deg,
+    var(--md-ref-maroon) 0%,
+    var(--md-ref-maroon-80) 55%,
+    #B8860B 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--md-sys-color-primary);
+}
+
+@media (forced-colors: active) {
+  .c-hero__title-accent {
+    background: none;
+    -webkit-text-fill-color: CanvasText;
+  }
+}
+
+.c-hero__lead {
+  margin-top: var(--md-sys-space-4);
+  max-width: var(--md-sys-layout-max-width-prose);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-hero__chips {
+  margin-top: var(--md-sys-space-5);
+}
+
+/* --------------------------------------------------------------------------
+   Sidebars — slide-out reference drawers on lab pages
+   -------------------------------------------------------------------------- */
+.c-sidebar {
+  position: fixed;
+  top: 5.5rem;
+  bottom: var(--md-sys-space-4);
+  z-index: 60;
+  width: min(26rem, calc(100vw - 4rem));
+  transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+.c-sidebar--left {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.c-sidebar--right {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.c-sidebar.is-open {
+  transform: none;
+}
+
+.c-sidebar__body {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--md-sys-space-5);
+  background: var(--md-sys-color-surface-container-lowest);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  box-shadow: var(--md-sys-elevation-3);
+}
+
+.c-sidebar--left .c-sidebar__body {
+  border-left: 0;
+  border-radius: 0 var(--md-sys-shape-lg) var(--md-sys-shape-lg) 0;
+}
+
+.c-sidebar--right .c-sidebar__body {
+  border-right: 0;
+  border-radius: var(--md-sys-shape-lg) 0 0 var(--md-sys-shape-lg);
+}
+
+.c-sidebar__handle {
+  position: absolute;
+  top: 4rem;
+  width: 2.1rem;
+  height: 4rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.c-sidebar--left .c-sidebar__handle {
+  right: -2.1rem;
+  border-left: 0;
+  border-radius: 0 var(--md-sys-shape-md) var(--md-sys-shape-md) 0;
+}
+
+.c-sidebar--right .c-sidebar__handle {
+  left: -2.1rem;
+  border-right: 0;
+  border-radius: var(--md-sys-shape-md) 0 0 var(--md-sys-shape-md);
+}
+
+.c-sidebar__handle-icon {
+  transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+.c-sidebar.is-open .c-sidebar__handle-icon {
+  transform: rotate(180deg);
+}
+
+.c-sidebar__title {
+  font-size: var(--md-sys-type-title-size);
+  color: var(--md-sys-color-primary);
+}
+
+.c-sidebar__subtitle {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-1);
+  margin-bottom: var(--md-sys-space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+.c-footer {
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  padding: var(--md-sys-space-6) 0;
+  text-align: center;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Print: drop fixed chrome, reveal all content */
+@media print {
+  .c-topbar,
+  .c-sidebar,
+  .c-skip-link {
+    display: none;
+  }
+
+  .c-page {
+    padding-top: 0;
+  }
+}

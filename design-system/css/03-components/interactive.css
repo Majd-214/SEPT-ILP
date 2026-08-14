@@ -1,0 +1,754 @@
+/* ==========================================================================
+   Components — interactive: buttons, checkpoints, tabs, quizzes, fields,
+   checklists, measurement tables, calculators, ordering, evidence,
+   progress file
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Buttons — MD3 filled / tonal / outlined / text
+   -------------------------------------------------------------------------- */
+.c-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--md-sys-space-2);
+  min-height: 2.6rem;
+  padding: 0.55rem 1.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--md-sys-shape-full);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition:
+    background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-btn--filled {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.c-btn--filled:hover {
+  background: color-mix(in srgb, var(--md-sys-color-primary) 92%, white);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+.c-btn--tonal {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.c-btn--tonal:hover {
+  background: color-mix(in srgb, var(--md-sys-color-primary-container) 92%, var(--md-sys-color-primary));
+}
+
+.c-btn--outlined {
+  border-color: var(--md-sys-color-outline);
+  background: transparent;
+  color: var(--md-sys-color-primary);
+}
+
+.c-btn--outlined:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-btn--text {
+  background: transparent;
+  color: var(--md-sys-color-primary);
+  padding-inline: var(--md-sys-space-3);
+}
+
+.c-btn--text:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-btn--danger {
+  background: var(--md-sys-color-error);
+  color: var(--md-sys-color-surface-container-lowest);
+}
+
+.c-btn--danger:hover {
+  background: color-mix(in srgb, var(--md-sys-color-error) 90%, black);
+}
+
+.c-btn:disabled {
+  background: var(--md-sys-color-surface-container-high);
+  border-color: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   Checkpoint panel
+   -------------------------------------------------------------------------- */
+.c-checkpoint {
+  position: relative;
+  padding-left: var(--md-sys-space-6);
+  border-left: 2px solid var(--md-sys-color-outline-variant);
+}
+
+.c-checkpoint__marker {
+  position: absolute;
+  top: 0;
+  left: -1.15rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  font-weight: var(--md-sys-type-weight-bold);
+  box-shadow: 0 0 0 4px var(--md-sys-color-surface);
+}
+
+.c-checkpoint__eyebrow {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-primary);
+}
+
+.c-checkpoint__title {
+  font-size: var(--md-sys-type-headline-size);
+  margin-top: var(--md-sys-space-1);
+}
+
+.c-checkpoint__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--md-sys-space-3);
+  margin-bottom: var(--md-sys-space-4);
+}
+
+.c-checkpoint__context {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-checkpoint--submission {
+  border-left-color: var(--md-ref-gold);
+}
+
+.c-checkpoint--submission .c-checkpoint__marker {
+  background: var(--md-sys-color-tertiary);
+}
+
+.c-checkpoint__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-sys-space-3);
+  margin-top: var(--md-sys-space-6);
+  padding-top: var(--md-sys-space-4);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-checkpoint__message {
+  flex: 1 1 100%;
+  border-radius: var(--md-sys-shape-sm);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-checkpoint__message.is-visible {
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+}
+
+.c-checkpoint__message.is-error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+}
+
+.c-checkpoint__message.is-success {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-success);
+}
+
+/* --------------------------------------------------------------------------
+   Tabs — MD3 secondary tabs with underline indicator
+   -------------------------------------------------------------------------- */
+.c-tabs {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-md);
+  overflow: hidden;
+}
+
+.c-tabs__list {
+  display: flex;
+  overflow-x: auto;
+  background: var(--md-sys-color-surface-container-low);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-tabs__tab {
+  flex: 0 0 auto;
+  padding: 0.8rem 1.2rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
+  white-space: nowrap;
+}
+
+.c-tabs__tab:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-tabs__tab.is-active {
+  color: var(--md-sys-color-primary);
+  font-weight: var(--md-sys-type-weight-bold);
+  border-bottom-color: var(--md-sys-color-primary);
+}
+
+.c-tabs__panel {
+  padding: var(--md-sys-space-5);
+}
+
+.c-tabs__panel > * + * {
+  margin-top: var(--md-sys-space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Quiz
+   -------------------------------------------------------------------------- */
+.c-quiz {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-left: 4px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-md);
+  padding: var(--md-sys-space-4) var(--md-sys-space-5);
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.c-quiz.is-correct {
+  border-left-color: var(--md-sys-color-success);
+}
+
+.c-quiz.is-incorrect {
+  border-left-color: var(--md-sys-color-error);
+}
+
+.c-quiz__question {
+  font-weight: var(--md-sys-type-weight-bold);
+  padding: 0;
+}
+
+.c-quiz__points {
+  display: inline-block;
+  margin-left: var(--md-sys-space-2);
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  vertical-align: middle;
+}
+
+.c-quiz__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+  margin-top: var(--md-sys-space-3);
+}
+
+.c-quiz__option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-sm);
+  cursor: pointer;
+  transition: background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-quiz__option:hover {
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.c-quiz__option:has(input:checked) {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+}
+
+.c-quiz__option:has(input:disabled) {
+  cursor: default;
+}
+
+.c-quiz__option input {
+  margin-top: 0.2rem;
+  accent-color: var(--md-sys-color-primary);
+}
+
+.c-quiz__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  margin-top: var(--md-sys-space-3);
+}
+
+.c-quiz__attempts {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.c-quiz__feedback {
+  margin-top: var(--md-sys-space-3);
+  border-radius: var(--md-sys-shape-sm);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-quiz__feedback.is-visible {
+  padding: var(--md-sys-space-3);
+}
+
+.c-quiz__feedback.is-success {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-success);
+}
+
+.c-quiz__feedback.is-error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+}
+
+/* --------------------------------------------------------------------------
+   Fields
+   -------------------------------------------------------------------------- */
+.c-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-1);
+}
+
+.c-field__label {
+  font-size: var(--md-sys-type-body-sm-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-field__optional {
+  font-weight: var(--md-sys-type-weight-regular);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-field__row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-2);
+}
+
+.c-field__control {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-sm);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-field__control:hover {
+  border-color: var(--md-sys-color-on-surface-variant);
+}
+
+textarea.c-field__control {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.c-field__unit {
+  flex: 0 0 auto;
+  font-family: var(--md-sys-font-mono);
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-field__note {
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-field__note.is-success {
+  color: var(--md-sys-color-success);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-field__note.is-error {
+  color: var(--md-sys-color-error);
+}
+
+.c-field-grid {
+  display: grid;
+  gap: var(--md-sys-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+/* --------------------------------------------------------------------------
+   Checklist
+   -------------------------------------------------------------------------- */
+.c-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+}
+
+.c-checklist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-sm);
+  background: var(--md-sys-color-surface-container-lowest);
+  cursor: pointer;
+  transition: background var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-checklist__item:hover {
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.c-checklist__item:has(input:checked) {
+  border-color: var(--md-sys-color-success);
+  background: var(--md-sys-color-success-container);
+}
+
+.c-checklist__item input {
+  margin-top: 0.25rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--md-sys-color-success);
+}
+
+/* --------------------------------------------------------------------------
+   Measurement table
+   -------------------------------------------------------------------------- */
+.c-mtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-mtable th {
+  text-align: left;
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-weight: var(--md-sys-type-weight-bold);
+  padding: var(--md-sys-space-3);
+}
+
+.c-mtable td {
+  padding: var(--md-sys-space-2) var(--md-sys-space-3);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  vertical-align: middle;
+}
+
+.c-mtable__rowlabel {
+  font-weight: var(--md-sys-type-weight-medium);
+  white-space: nowrap;
+}
+
+.c-mtable__unit {
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--md-sys-font-mono);
+  font-size: 0.78rem;
+  margin-left: var(--md-sys-space-1);
+}
+
+.c-mtable__input {
+  width: 100%;
+  min-width: 5.5rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-xs);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-family: var(--md-sys-font-mono);
+  font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   Calculator
+   -------------------------------------------------------------------------- */
+.c-calc {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface-container-low);
+  padding: var(--md-sys-space-5);
+}
+
+.c-calc__inputs {
+  display: grid;
+  gap: var(--md-sys-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+.c-calc__outputs {
+  margin-top: var(--md-sys-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+}
+
+.c-calc__result {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--md-sys-space-4);
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+  border-radius: var(--md-sys-shape-sm);
+  background: var(--md-sys-color-surface-container-lowest);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.c-calc__result-label {
+  font-size: var(--md-sys-type-body-sm-size);
+  font-weight: var(--md-sys-type-weight-medium);
+}
+
+.c-calc__result-value {
+  font-family: var(--md-sys-font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-calc__result-value.is-live {
+  color: var(--md-sys-color-success);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+/* --------------------------------------------------------------------------
+   Ordering
+   -------------------------------------------------------------------------- */
+.c-ordering__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-2);
+  counter-reset: order;
+}
+
+.c-ordering__item {
+  counter-increment: order;
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-sm);
+  background: var(--md-sys-color-surface-container-lowest);
+  cursor: grab;
+}
+
+.c-ordering__item::before {
+  content: counter(order);
+  flex: 0 0 auto;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-ordering__item.is-dragging {
+  opacity: 0.6;
+  box-shadow: var(--md-sys-elevation-2);
+}
+
+.c-ordering.is-solved .c-ordering__item {
+  border-color: var(--md-sys-color-success);
+  cursor: default;
+}
+
+.c-ordering.is-solved .c-ordering__item::before {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-success);
+}
+
+.c-ordering__label {
+  flex: 1 1 auto;
+}
+
+.c-ordering__moves {
+  display: flex;
+  gap: var(--md-sys-space-1);
+}
+
+.c-ordering__move {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: var(--md-sys-type-weight-bold);
+}
+
+.c-ordering__move:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-ordering__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  margin-top: var(--md-sys-space-3);
+}
+
+.c-ordering__feedback {
+  border-radius: var(--md-sys-shape-sm);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-ordering__feedback.is-visible {
+  padding: var(--md-sys-space-2) var(--md-sys-space-3);
+}
+
+.c-ordering__feedback.is-success {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-success);
+}
+
+.c-ordering__feedback.is-error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+}
+
+/* --------------------------------------------------------------------------
+   Evidence dropbox
+   -------------------------------------------------------------------------- */
+.c-evidence {
+  display: block;
+  padding: var(--md-sys-space-4);
+  border: 2px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface-container-lowest);
+  cursor: pointer;
+}
+
+.c-evidence:hover {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.c-evidence__label {
+  display: block;
+  font-weight: var(--md-sys-type-weight-medium);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+.c-evidence__input {
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-evidence__name {
+  display: block;
+  margin-top: var(--md-sys-space-2);
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-evidence__name.is-success {
+  color: var(--md-sys-color-success);
+  font-weight: var(--md-sys-type-weight-medium);
+}
+
+.c-evidence__name.is-error {
+  color: var(--md-sys-color-error);
+}
+
+.c-evidence__note {
+  display: block;
+  margin-top: var(--md-sys-space-1);
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* --------------------------------------------------------------------------
+   Progress file card
+   -------------------------------------------------------------------------- */
+.c-progressfile {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-top: 4px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-lg);
+  background: var(--md-sys-color-surface-container-lowest);
+  box-shadow: var(--md-sys-elevation-1);
+  padding: var(--md-sys-space-6);
+}
+
+.c-progressfile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-space-3);
+  margin-top: var(--md-sys-space-4);
+}
+
+.c-progressfile__status {
+  margin-top: var(--md-sys-space-3);
+  border-radius: var(--md-sys-shape-sm);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-progressfile__status.is-visible {
+  padding: var(--md-sys-space-3);
+}
+
+.c-progressfile__status.is-success {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-success);
+}
+
+.c-progressfile__status.is-error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+}
+
+/* Storage availability warning */
+.c-storage-warning {
+  border-radius: var(--md-sys-shape-md);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-left: 4px solid var(--md-sys-color-warning);
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-warning);
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+/* Print: interactive chrome becomes plain content */
+@media print {
+  .c-checkpoint__footer,
+  .c-progressfile__actions,
+  .c-quiz__actions,
+  .c-ordering__actions,
+  .c-ordering__moves {
+    display: none;
+  }
+
+  .c-checkpoint {
+    border-left: 0;
+    padding-left: 0;
+  }
+}

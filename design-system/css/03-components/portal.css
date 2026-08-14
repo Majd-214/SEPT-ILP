@@ -1,0 +1,265 @@
+/* ==========================================================================
+   Components — course portal and knowledge base
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Section headers on the portal
+   -------------------------------------------------------------------------- */
+.c-section {
+  padding-block: var(--md-sys-space-6);
+}
+
+.c-section__eyebrow {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-section__title {
+  font-size: var(--md-sys-type-headline-size);
+  margin-top: var(--md-sys-space-1);
+  margin-bottom: var(--md-sys-space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Lab cards
+   -------------------------------------------------------------------------- */
+.c-labcard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-5);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-top: 5px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-lg);
+  background: var(--md-sys-color-surface-container-lowest);
+  box-shadow: var(--md-sys-elevation-1);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.c-labcard:hover {
+  box-shadow: var(--md-sys-elevation-3);
+  transform: translateY(-2px);
+}
+
+.c-labcard--project {
+  border-top-color: var(--md-ref-gold);
+}
+
+.c-labcard__badge {
+  align-self: flex-start;
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.c-labcard--project .c-labcard__badge {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.c-labcard__title {
+  font-size: var(--md-sys-type-title-size);
+  line-height: var(--md-sys-type-line-height-tight);
+}
+
+.c-labcard__number {
+  color: var(--md-sys-color-primary);
+}
+
+.c-labcard__description {
+  flex: 1 1 auto;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-labcard__cta {
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Knowledge hub — domain groups and topic rows
+   -------------------------------------------------------------------------- */
+.c-kb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-sys-space-3);
+  margin-bottom: var(--md-sys-space-5);
+}
+
+.c-kb-toolbar__search {
+  flex: 1 1 16rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-body-sm-size);
+}
+
+.c-kb-filter {
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-kb-filter:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.c-kb-filter.is-active {
+  background: var(--md-sys-color-primary);
+  border-color: transparent;
+  color: var(--md-sys-color-on-primary);
+}
+
+.c-kb-domain {
+  margin-bottom: var(--md-sys-space-6);
+}
+
+.c-kb-domain__title {
+  font-size: var(--md-sys-type-title-lg-size);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-kb-domain__blurb {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-1);
+  margin-bottom: var(--md-sys-space-4);
+}
+
+.c-kb-topic {
+  display: flex;
+  align-items: baseline;
+  gap: var(--md-sys-space-3);
+  padding: var(--md-sys-space-3) var(--md-sys-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface-container-lowest);
+  text-decoration: none;
+  color: inherit;
+}
+
+.c-kb-topic:hover {
+  border-color: var(--md-sys-color-primary);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+.c-kb-topic__name {
+  font-weight: var(--md-sys-type-weight-bold);
+  color: var(--md-sys-color-on-surface);
+}
+
+.c-kb-topic__summary {
+  flex: 1 1 auto;
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Topic kind badge, shared by hub rows and topic pages */
+.c-kb-kind {
+  flex: 0 0 auto;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--md-sys-shape-full);
+  font-size: 0.72rem;
+  font-weight: var(--md-sys-type-weight-bold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.c-kb-kind--theory {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.c-kb-kind--skill {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.c-kb-kind--spec {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.c-kb-empty {
+  padding: var(--md-sys-space-5);
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-md);
+  text-align: center;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* --------------------------------------------------------------------------
+   Knowledge topic page
+   -------------------------------------------------------------------------- */
+.c-kb-page__breadcrumb {
+  font-size: var(--md-sys-type-body-sm-size);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-bottom: var(--md-sys-space-4);
+}
+
+.c-kb-page__name {
+  font-size: var(--md-sys-type-display-size);
+  letter-spacing: -0.015em;
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-kb-page__question {
+  font-size: var(--md-sys-type-title-lg-size);
+  font-weight: var(--md-sys-type-weight-regular);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: var(--md-sys-space-2);
+}
+
+.c-kb-page__section-title {
+  font-size: var(--md-sys-type-title-lg-size);
+  margin-bottom: var(--md-sys-space-2);
+}
+
+.c-kb-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-space-2);
+}
+
+.c-kb-related__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-sys-space-2);
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-full);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-size: var(--md-sys-type-label-size);
+  font-weight: var(--md-sys-type-weight-medium);
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+}
+
+.c-kb-related__chip:hover {
+  background: var(--md-sys-color-primary-container);
+}
+
+.c-kb-related__domain {
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: var(--md-sys-type-weight-regular);
+}
