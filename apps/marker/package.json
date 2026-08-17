@@ -1,0 +1,14 @@
+{
+  "name": "sept-ilp-marker",
+  "version": "1.0.0",
+  "description": "Fully client-side instructor auto-marker. Submissions are read in the instructor's browser and never leave it; the only network traffic is same-origin GETs for answer keys.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

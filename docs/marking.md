@@ -107,3 +107,46 @@ Runs on every build, after rendering:
    student to recall — and their config is still hash-only. Values
    under 3 characters are skipped (a literal "5" appears everywhere);
    the skip is reported in the build log, never silent.
+
+## The instructor marker
+
+`apps/marker/` is the summative half of the model: a fully client-side
+app served at `/marker/` behind the instructor session. Instructors
+drop the submission ZIPs students download at the end of a lab (or raw
+progress files); the marker matches each one to its answer key by
+`labId` + `contentVersion` — keys load automatically from the live
+release, or from dropped `.key.json` files when working offline — and
+re-marks every item from the student's recorded responses:
+
+- **choice** — the recorded selection against the key's accepted
+  options. The page's own `correct` claim is used only for old exports
+  that predate recorded selections, and doing so raises a flag.
+- **value** — the typed answer against the plaintext expected value,
+  with the item's absolute or percent tolerance and optional partial
+  band.
+- **formula** — the key's expression evaluated over the *student's own*
+  submitted inputs (a wrong resistance reading with a correct
+  calculation still earns the calculation marks). Expressions run
+  through a recursive-descent evaluator (numbers, `+ - * /`,
+  parentheses, `min`/`max`/`abs`/`round`/`clamp`); there is no `eval`.
+- **evidence** — the file must actually be inside the ZIP; a recorded
+  name without its file is flagged for review.
+- **checkpoint** — confirmed-at timestamps, cross-checked against the
+  recorded requirement counts.
+
+Anything anomalous — integrity-hash mismatches, content-version drift,
+identical response sets under different identities, confirmed
+checkpoints with unsatisfied requirements — becomes an **advisory
+flag**: "review suggested", never a verdict. Totals scale to the lab's
+`markingTotal` override when one is set.
+
+Exports: a Brightspace-compatible grade CSV (one row per student
+number, importable through Grades → Import), a full per-item breakdown
+CSV, and per-submission markdown feedback files bundled as a ZIP.
+
+Submissions never leave the instructor's browser. Three layers enforce
+this, each asserted by tests: the page's Content-Security-Policy
+(`connect-src 'self'`, `form-action 'none'`), the absence of any
+student-data route on the platform, and a source-level test that
+forbids every network primitive in the marker beyond same-origin
+answer-key GETs.

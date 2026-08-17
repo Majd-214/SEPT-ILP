@@ -1,1 +1,88 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Marker</title></head><body>Marker app arrives in M3.</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Instructor marker | SEPT-ILP Platform</title>
+<link rel="stylesheet" href="/admin/assets/sept-labs.css">
+</head>
+<body class="c-admin-shell">
+<a class="c-skip-link" href="#main">Skip to content</a>
+<header class="c-appbar">
+  <a class="c-appbar__brand" href="/admin"><span class="c-appbar__course">SEPT-ILP Platform</span></a>
+  <nav class="c-appbar__nav c-admin-nav" aria-label="Platform sections">
+    <a class="c-appbar__navlink" href="/admin">Dashboard</a>
+    <a class="c-appbar__navlink" href="/admin/links">Link sheet</a>
+    <a class="c-appbar__navlink is-active" aria-current="page" href="/marker/">Marker</a>
+  </nav>
+</header>
+<main id="main" class="c-admin-main o-stack">
+
+<section class="c-card o-stack o-stack--tight" aria-label="About the marker">
+  <h1 class="c-card__title">Instructor auto-marker</h1>
+  <p>Drop student submission packages (the ZIPs students download at the end of a lab) or raw
+  progress files below. Marks are re-derived from each student's recorded responses against the
+  published answer key — never from the page's own score claims — and anything worth a second
+  look is raised as an advisory note, not a verdict.</p>
+  <p><strong>Nothing you drop here leaves this computer.</strong> Files are read in your browser;
+  this page's security policy forbids sending data anywhere, and the platform has no endpoint
+  that could receive it.</p>
+</section>
+
+<section class="c-card o-stack o-stack--tight" aria-label="Answer keys">
+  <h2 class="c-card__title">Answer keys</h2>
+  <p id="keys-status" role="status">Loading answer keys from the live release…</p>
+  <div class="o-scroll-x"><table class="c-admin-table">
+    <thead><tr><th scope="col">Course</th><th scope="col">Lab</th><th scope="col">Content version</th>
+    <th scope="col">Items</th><th scope="col">Points</th><th scope="col">Source</th></tr></thead>
+    <tbody id="keys-table"></tbody>
+  </table></div>
+</section>
+
+<section class="c-card o-stack o-stack--tight" aria-label="Submissions">
+  <h2 class="c-card__title">Submissions</h2>
+  <div class="c-admin-drop" id="dropzone" role="button" tabindex="0"
+       aria-label="Add submission ZIPs, progress files, or answer keys">
+    <strong>Drop submission ZIPs or progress files here</strong>
+    <span>…or click to browse. Answer-key files (.key.json) are accepted here too, for marking offline.</span>
+  </div>
+  <input type="file" id="file-input" class="u-visually-hidden" multiple
+         accept=".zip,.json,application/zip,application/json"
+         aria-label="Choose submission or key files">
+  <div id="failures" role="status"></div>
+  <div class="o-cluster">
+    <button class="c-btn c-btn--text" type="button" id="clear-failures">Clear notices</button>
+  </div>
+</section>
+
+<section class="c-card o-stack o-stack--tight" aria-label="Results">
+  <h2 class="c-card__title">Results</h2>
+  <p id="batch-summary" role="status"></p>
+  <div class="o-scroll-x"><table class="c-admin-table">
+    <thead><tr><th scope="col">File</th><th scope="col">Students</th><th scope="col">Lab</th>
+    <th scope="col">Auto mark</th><th scope="col">Review</th><th scope="col">Actions</th></tr></thead>
+    <tbody id="batch-table"></tbody>
+  </table></div>
+  <div class="o-stack o-stack--tight" id="export-tools" hidden>
+    <div class="c-field-grid">
+      <label class="c-field"><span class="c-field__label">Brightspace grade item name</span>
+        <span class="c-field__row"><input class="c-field__control" type="text" id="grade-item-name"
+          placeholder="Leave empty to use the lab title"></span></label>
+    </div>
+    <div class="o-cluster">
+      <button class="c-btn c-btn--filled" type="button" id="export-brightspace">Brightspace CSV</button>
+      <button class="c-btn c-btn--tonal" type="button" id="export-generic">Full breakdown CSV</button>
+      <button class="c-btn c-btn--tonal" type="button" id="export-feedback">Feedback files</button>
+    </div>
+    <p>The Brightspace CSV imports directly through Grades → Import (one row per student number).
+    The breakdown CSV carries per-item marks and every review note. Feedback files are one
+    markdown file per submission, bundled as a ZIP.</p>
+  </div>
+</section>
+
+</main>
+<footer class="c-footer">SEPT Interactive Laboratory Platform · instructor marker · submissions never leave this browser</footer>
+<script type="module" src="/marker/js/app.js"></script>
+</body>
+</html>

@@ -192,6 +192,7 @@ class SubmissionPackage {
         fields: state.fields,
         checks: state.checks,
         ordering: state.ordering,
+        quizzes: state.quizzes,
         evidence_files: state.evidence,
       },
       integrity_notice: {

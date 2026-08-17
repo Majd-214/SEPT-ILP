@@ -137,6 +137,25 @@ test('the platform accepts no student data: no student routes exist', async () =
   }
 });
 
+test('the marker is session-gated and carries the no-egress CSP', async () => {
+  const { app, outbox, cleanup } = await testApp();
+  try {
+    const anonymous = await app.inject({ url: '/marker/' });
+    assert.equal(anonymous.statusCode, 302);
+    assert.equal(anonymous.headers.location, '/login');
+
+    const cookie = await signIn(app, outbox, 'prof@demo', 'instructor', ['smrttech-3cc3']);
+    const page = await app.inject({ url: '/marker/', headers: { cookie } });
+    assert.equal(page.statusCode, 200);
+    const csp = page.headers['content-security-policy'];
+    assert.match(csp, /default-src 'self'/);
+    assert.match(csp, /connect-src 'self'/, 'submissions cannot be sent anywhere else');
+    assert.match(csp, /form-action 'none'/, 'no form can post the data out');
+  } finally {
+    await cleanup();
+  }
+});
+
 test('rate limiting slows brute force on the magic-link endpoints', async () => {
   const { app, cleanup } = await testApp();
   try {
