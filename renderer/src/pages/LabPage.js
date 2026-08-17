@@ -3,6 +3,7 @@ import { Html } from '../lib/Html.js';
 import { Icons } from '../lib/Icons.js';
 import { RichText } from '../lib/RichText.js';
 import { TopicArticle } from '../lib/TopicArticle.js';
+import { MarkingModel } from '../marking/MarkingModel.js';
 import { Page } from './Page.js';
 
 /**
@@ -30,6 +31,9 @@ export class LabPage extends Page {
     this.lab = options.lab;
     this.registry = new BlockRegistry(this.context);
     this.isProject = this.lab.kind === 'project';
+    /** Answer hashing and instructor-key collection for this lab. */
+    this.markingModel = new MarkingModel({ courseId: this.course.id, lab: this.lab });
+    this.context.markingModel = this.markingModel;
   }
 
   title() {
@@ -59,6 +63,7 @@ export class LabPage extends Page {
       calculators: this.context.config.calculators,
       orderings: this.context.config.orderings,
       checkpoints: this.context.checkpointRequirements,
+      marking: this.markingModel.publicConfig(),
     };
   }
 
@@ -359,6 +364,7 @@ export class LabPage extends Page {
    */
   #checkpoint(checkpoint, index) {
     this.context.beginCheckpoint(checkpoint.id, RichText.plain(checkpoint.navLabel ?? checkpoint.title));
+    this.markingModel.registerCheckpoint(checkpoint);
     const last = index === this.lab.checkpoints.length - 1;
     const next = this.lab.checkpoints[index + 1];
     const body = this.registry.renderAll(checkpoint.blocks);

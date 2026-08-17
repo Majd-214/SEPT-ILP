@@ -159,7 +159,7 @@ class Checkpoints {
           problem = field.rangeMessage ?? `“${field.label}” is above ${field.max}`;
         }
       }
-      if (problem === null && field.expected && !Fields.matchesExpected(field.expected, raw)) {
+      if (problem === null && field.expected && !Fields.matchesExpected(field.expected, raw, field.key)) {
         problem = field.expected.message ?? `“${field.label}” does not match the expected value yet`;
       }
       if (problem === null && field.minLength && raw.length < field.minLength) {

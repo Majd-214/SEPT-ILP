@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://majd-214.github.io/SEPT-ILP/schema/v1/answer-key.schema.json",
+  "title": "SEPT-ILP instructor answer key v1",
+  "description": "The per-lab marking key the build derives from the marking specs in content. Written to dist/keys/<course>/<labId>.key.json — never inside dist/site/ — and served only to the course's instructors. The public site carries salted hashes of these values; this file carries the plaintext, which is why it never travels with student-facing artifacts.",
+  "type": "object",
+  "properties": {
+    "platform": { "const": "sept-ilp" },
+    "keyVersion": { "const": 1 },
+    "courseId": { "type": "string" },
+    "labId": { "type": "string" },
+    "labTitle": { "type": "string" },
+    "contentVersion": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "salt": {
+      "type": "string",
+      "description": "The public salt used for the site's answer hashes, recorded for verification."
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "Stable item id: <type>:<key>." },
+          "type": { "enum": ["choice", "value", "formula", "evidence", "checkpoint"] },
+          "ref": {
+            "type": "object",
+            "description": "What the item marks: the quiz id, field key, evidence key, or checkpoint id.",
+            "properties": {
+              "quiz": { "type": "string" },
+              "field": { "type": "string" },
+              "evidence": { "type": "string" },
+              "checkpoint": { "type": "string" }
+            },
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false
+          },
+          "label": { "type": "string", "description": "Plain-text label shown in the marker." },
+          "checkpointId": { "type": "string", "description": "The checkpoint the item lives in." },
+          "points": { "type": "number", "minimum": 0 },
+          "correct": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "description": "choice: accepted option value(s) (a–f)."
+          },
+          "expected": {
+            "type": ["number", "string"],
+            "description": "value: the expected answer."
+          },
+          "alternatives": {
+            "type": "array",
+            "items": { "type": ["number", "string"] },
+            "description": "value: additional accepted answers."
+          },
+          "caseSensitive": { "type": "boolean" },
+          "tolerance": {
+            "type": "object",
+            "properties": {
+              "type": { "enum": ["absolute", "percent"] },
+              "value": { "type": "number", "exclusiveMinimum": 0 }
+            },
+            "required": ["type", "value"],
+            "additionalProperties": false
+          },
+          "partial": {
+            "type": "object",
+            "description": "Partial credit: a wider tolerance band worth fewer points.",
+            "properties": {
+              "points": { "type": "number", "minimum": 0 },
+              "tolerance": {
+                "type": "object",
+                "properties": {
+                  "type": { "enum": ["absolute", "percent"] },
+                  "value": { "type": "number", "exclusiveMinimum": 0 }
+                },
+                "required": ["type", "value"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["points", "tolerance"],
+            "additionalProperties": false
+          },
+          "formula": {
+            "type": "object",
+            "description": "formula: expected value computed from the student's own submitted fields plus constants.",
+            "properties": {
+              "expression": { "type": "string", "minLength": 1 },
+              "inputs": { "type": "object", "additionalProperties": { "type": "string" } },
+              "constants": { "type": "object", "additionalProperties": { "type": "number" } }
+            },
+            "required": ["expression", "inputs"],
+            "additionalProperties": false
+          },
+          "unitsNote": { "type": "string" }
+        },
+        "required": ["id", "type", "ref", "label", "checkpointId", "points"],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": { "properties": { "type": { "const": "choice" } } },
+            "then": { "required": ["correct"] }
+          },
+          {
+            "if": { "properties": { "type": { "const": "value" } } },
+            "then": { "required": ["expected"] }
+          },
+          {
+            "if": { "properties": { "type": { "const": "formula" } } },
+            "then": { "required": ["formula", "tolerance"] }
+          }
+        ]
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "items": { "type": "integer", "minimum": 1 },
+        "points": { "type": "number", "minimum": 0 },
+        "override": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Present when the lab declares markingTotal; the marker reports marks out of this figure."
+        }
+      },
+      "required": ["items", "points"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["platform", "keyVersion", "courseId", "labId", "contentVersion", "generatedAt", "salt", "items", "totals"],
+  "additionalProperties": false
+}

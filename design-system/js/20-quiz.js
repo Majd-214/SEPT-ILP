@@ -17,7 +17,8 @@ class Quiz {
   constructor(root) {
     this.root = root;
     this.id = root.dataset.quiz;
-    this.answer = SeptLabs.config.quizzes[this.id]?.correct ?? null;
+    /** Salted hashes of accepted options — the page never knows the answer. */
+    this.answerHashes = SeptLabs.config.quizzes[this.id]?.answers ?? [];
     this.inputs = Dom.all(`input[type="radio"]`, root);
     this.checkButton = root.querySelector('[data-quiz-check]');
     this.feedback = root.querySelector('[data-quiz-feedback]');
@@ -54,7 +55,7 @@ class Quiz {
       Dom.status(this.feedback, 'Select an answer first.', 'error');
       return;
     }
-    const correct = selected.value === this.answer;
+    const correct = MarkingCheck.matchesString(this.id, selected.value, this.answerHashes, true);
     SeptLabs.store.update((state) => {
       const record = state.quizzes[this.id] ?? { selection: null, correct: false, attempts: 0 };
       record.attempts += 1;

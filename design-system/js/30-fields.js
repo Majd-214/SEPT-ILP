@@ -44,25 +44,21 @@ class Fields {
   }
 
   /**
-   * Test a value against a config `expected` rule.
-   * @param {{ value: string | number, alternatives?: (string | number)[], tolerance?: number, caseSensitive?: boolean }} expected
+   * Test a value against a config `expected` rule. Rules carry salted
+   * hashes, never plaintext: numeric rules hash the value's tolerance
+   * bucket, string rules hash the normalized text, and the check is
+   * hash-set membership.
+   * @param {{ hashes: string[], numeric?: boolean, step?: number, caseSensitive?: boolean }} expected
    * @param {string} raw
+   * @param {string} key The field key (the hash scope).
    * @returns {boolean}
    */
-  static matchesExpected(expected, raw) {
-    const value = raw.trim();
-    if (value === '') return false;
-    const accepted = [expected.value, ...(expected.alternatives ?? [])];
-    return accepted.some((candidate) => {
-      if (typeof candidate === 'number') {
-        const numeric = Number(value);
-        return Number.isFinite(numeric)
-          && Math.abs(numeric - candidate) <= (expected.tolerance ?? 0.01);
-      }
-      return expected.caseSensitive
-        ? value === candidate
-        : value.toLowerCase() === candidate.toLowerCase();
-    });
+  static matchesExpected(expected, raw, key) {
+    if (raw.trim() === '') return false;
+    if (expected.numeric) {
+      return MarkingCheck.matchesNumber(key, raw, expected.hashes, expected.step ?? 0.01);
+    }
+    return MarkingCheck.matchesString(key, raw, expected.hashes, expected.caseSensitive === true);
   }
 
   /**
@@ -77,7 +73,7 @@ class Fields {
     if (expectedSlot && rules.expected) {
       if (value.trim() === '') {
         Dom.status(expectedSlot, 'Awaiting answer', '');
-      } else if (Fields.matchesExpected(rules.expected, value)) {
+      } else if (Fields.matchesExpected(rules.expected, value, key)) {
         Dom.status(expectedSlot, 'Correct', 'success');
       } else {
         Dom.status(expectedSlot, rules.expected.message ?? 'Not yet — check your work.', 'error');

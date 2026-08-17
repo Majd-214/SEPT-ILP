@@ -10,9 +10,11 @@ export class GateContext {
    * @param {string} outputDir Absolute path of the rendered site root.
    * @param {Set<string>} classManifest Classes exported by the design system.
    */
-  constructor(outputDir, classManifest) {
+  constructor(outputDir, classManifest, { leak } = {}) {
     this.outputDir = outputDir;
     this.classManifest = classManifest;
+    /** Leak candidates for the answer-leak gate (plaintext expected values). */
+    this.leak = leak ?? { scanned: [], skipped: [] };
     /** @type {{ relativePath: string, html: string }[]} */
     this.pages = GateContext.#collectPages(outputDir);
   }

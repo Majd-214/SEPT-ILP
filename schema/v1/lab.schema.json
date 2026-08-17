@@ -60,6 +60,11 @@
       "minLength": 1,
       "description": "Bump when published edits invalidate stored student state (changed keys, changed answers). The runtime resets saved work whose version no longer matches."
     },
+    "markingTotal": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Optional override of the lab's total marks in the answer key; when absent the total is the sum of item points."
+    },
     "sidebars": {
       "type": "array",
       "maxItems": 2,
@@ -114,6 +119,10 @@
             "type": "boolean",
             "default": false,
             "description": "Marks the closing checkpoint: rendered with the submission treatment and hosting the progress-file controls."
+          },
+          "marking": {
+            "$ref": "blocks.schema.json#/$defs/marking",
+            "description": "Points awarded in the instructor key for completing (confirming) this checkpoint."
           }
         },
         "required": ["id", "title", "blocks"],

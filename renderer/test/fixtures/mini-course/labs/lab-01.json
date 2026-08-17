@@ -51,14 +51,17 @@
         { "type": "list", "title": "Watch for", "items": ["Loose probe contact.", "A meter left in current mode."] },
         { "type": "figure", "src": "fixture-diagram.png", "alt": "Fixture wiring diagram for the divider measurement", "caption": "The fixture circuit.", "step": 1 },
         { "type": "fields", "title": "Readings", "fields": [
-          { "key": "r2-measured", "label": "Measured R2", "control": "number", "unit": "Ω", "min": 0, "step": 0.1, "placeholder": "e.g., 4700", "rangeNote": { "min": 1000, "max": 10000, "message": "Expected a few kΩ — check the meter mode." } },
+          { "key": "r2-measured",
+              "expected": { "value": 4.68, "tolerance": 0.25, "message": "Measure the resistor again - it should be near 4.7 kOhm." },
+              "marking": { "points": 2, "tolerance": { "type": "absolute", "value": 0.25 }, "partial": { "points": 1, "tolerance": { "type": "absolute", "value": 0.5 } }, "unitsNote": "kOhm" }, "label": "Measured R2", "control": "number", "unit": "Ω", "min": 0, "step": 0.1, "placeholder": "e.g., 4700", "rangeNote": { "min": 1000, "max": 10000, "message": "Expected a few kΩ — check the meter mode." } },
           { "key": "meter-mode", "label": "Meter mode used", "control": "select", "options": ["Resistance", "Voltage", "Current"], "expected": { "value": "Resistance", "message": "Resistance is measured in resistance mode." } },
           { "key": "prediction", "label": "Predict: what happens to Vout when R2 grows?", "control": "textarea", "placeholder": "Write at least a sentence…" }
         ] },
         { "type": "details", "summary": "Hint after your prediction", "paragraphs": ["A larger `R2` claims a larger share of `Vin`, so Vout rises."], "gatedBy": { "field": "prediction", "minLength": 10 } },
         { "type": "details", "summary": "Troubleshooting", "items": ["Check the common ground first.", "Reseat the divider junction wire."], "open": false },
         { "type": "measurementTable", "title": "Table 1 — Divider voltage", "columns": ["Light level", "0%", "100%"], "rows": [
-          { "label": "Voltage", "unit": "V", "cells": [ { "control": "number", "key": "t1-v-0", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20", "rangeMessage": "Divider output must stay between 0 and 5 V." }, { "control": "number", "key": "t1-v-100", "min": 0, "max": 5, "step": 0.01 } ] },
+          { "label": "Voltage", "unit": "V", "cells": [ { "control": "number", "key": "t1-v-0", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20", "rangeMessage": "Divider output must stay between 0 and 5 V." }, { "control": "number", "key": "t1-v-100",
+                    "marking": { "points": 2, "tolerance": { "type": "percent", "value": 10 }, "formula": { "expression": "vin * r2 / (r2 + rfixed)", "inputs": { "r2": "r2-measured" }, "constants": { "vin": 5, "rfixed": 4.7 } }, "unitsNote": "V" }, "min": 0, "max": 5, "step": 0.01 } ] },
           { "label": "Within expectation", "cells": [ { "control": "check", "key": "t1-ok-0" }, { "control": "check", "key": "t1-ok-100" } ] },
           { "label": "Reference", "cells": [ { "control": "static", "value": "Dark bench" }, { "control": "static", "value": "Flashlight" } ] }
         ], "note": "Enter volts, not millivolts." },
@@ -73,10 +76,12 @@
       "title": "Evidence and submission",
       "eyebrow": "Submit",
       "submission": true,
+      "marking": { "points": 1 },
       "blocks": [
         { "type": "tabs", "key": "wrap", "tabs": [
           { "key": "evidence", "label": "Evidence", "blocks": [
-            { "type": "evidence", "key": "vi-file", "label": "Completed VI evidence dropbox", "accept": [".vi"], "note": "Accepted type: .vi" },
+            { "type": "evidence", "key": "vi-file",
+              "marking": { "points": 1 }, "label": "Completed VI evidence dropbox", "accept": [".vi"], "note": "Accepted type: .vi" },
             { "type": "checklist", "role": "confirmations", "title": "External confirmations", "description": "Only for requirements the page cannot verify automatically.", "items": [ { "key": "ta-demo", "label": "Demonstrated the working circuit to the TA." } ] }
           ] },
           { "key": "reflect", "label": "Reflection", "blocks": [

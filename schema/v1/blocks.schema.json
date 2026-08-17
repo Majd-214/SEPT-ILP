@@ -26,6 +26,56 @@
       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
       "description": "Bare filename of an image in the course assets directory. The renderer resolves the path; content never hardcodes directory structure."
     },
+    "tolerance": {
+      "type": "object",
+      "description": "How close a numeric answer must be to count: an absolute band (same units as the value) or a percentage of the expected value.",
+      "properties": {
+        "type": { "enum": ["absolute", "percent"] },
+        "value": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "required": ["type", "value"],
+      "additionalProperties": false
+    },
+    "marking": {
+      "type": "object",
+      "description": "Summative marking spec. From this one source the build derives two artifacts: the public site config (salted hashes only — plaintext answers never reach a published page) and the instructor answer key under dist/keys/. An item with a formula is marked against an expression over the student's own submitted values.",
+      "properties": {
+        "points": { "type": "number", "minimum": 0 },
+        "tolerance": { "$ref": "#/$defs/tolerance" },
+        "partial": {
+          "type": "object",
+          "description": "Optional partial credit: a wider tolerance band worth fewer points.",
+          "properties": {
+            "points": { "type": "number", "minimum": 0 },
+            "tolerance": { "$ref": "#/$defs/tolerance" }
+          },
+          "required": ["points", "tolerance"],
+          "additionalProperties": false
+        },
+        "formula": {
+          "type": "object",
+          "description": "Marks the field against an expression evaluated over the student's OWN submitted fields plus constants — e.g. the expected Vout from their measured resistance. Pure arithmetic only (the platform's safe evaluator; never eval).",
+          "properties": {
+            "expression": { "type": "string", "minLength": 1 },
+            "inputs": {
+              "type": "object",
+              "description": "Expression variable name → field key of the student's submitted value.",
+              "additionalProperties": { "$ref": "#/$defs/key" },
+              "minProperties": 1
+            },
+            "constants": {
+              "type": "object",
+              "additionalProperties": { "type": "number" }
+            }
+          },
+          "required": ["expression", "inputs"],
+          "additionalProperties": false
+        },
+        "unitsNote": { "type": "string", "description": "Units reminder shown beside the item in the instructor marker." }
+      },
+      "required": ["points"],
+      "additionalProperties": false
+    },
     "blocks": {
       "type": "array",
       "items": { "$ref": "#/$defs/block" },
@@ -465,7 +515,8 @@
             { "required": ["max"] }
           ],
           "additionalProperties": false
-        }
+        },
+        "marking": { "$ref": "#/$defs/marking" }
       },
       "required": ["key", "label", "control"],
       "additionalProperties": false,
@@ -520,7 +571,8 @@
         "max": { "type": "number" },
         "step": { "type": "number", "exclusiveMinimum": 0 },
         "optional": { "type": "boolean", "default": false },
-        "rangeMessage": { "$ref": "#/$defs/richText", "description": "Completion-blocking message when the value is outside min/max." }
+        "rangeMessage": { "$ref": "#/$defs/richText", "description": "Completion-blocking message when the value is outside min/max." },
+        "marking": { "$ref": "#/$defs/marking" }
       },
       "required": ["control"],
       "additionalProperties": false,
@@ -622,7 +674,8 @@
           "description": "Accepted file extensions or MIME patterns."
         },
         "optional": { "type": "boolean", "default": false },
-        "note": { "$ref": "#/$defs/richText" }
+        "note": { "$ref": "#/$defs/richText" },
+        "marking": { "$ref": "#/$defs/marking" }
       },
       "required": ["type", "key", "label", "accept"],
       "additionalProperties": false

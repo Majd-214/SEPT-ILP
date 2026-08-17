@@ -43,6 +43,13 @@ export class RenderContext {
     this.checkpointRequirements = [];
     /** @type {Set<string>} Knowledge topics this page's content links to. */
     this.usedTopics = new Set();
+    /**
+     * The lab's marking model (set by LabPage). Blocks route every
+     * answer-carrying value through it, so the public config receives
+     * salted hashes and the plaintext exists only in the instructor key.
+     * @type {import('../marking/MarkingModel.js').MarkingModel | null}
+     */
+    this.markingModel = null;
   }
 
   /**

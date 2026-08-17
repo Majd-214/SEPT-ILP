@@ -8,11 +8,9 @@ const OPTION_VALUES = ['a', 'b', 'c', 'd', 'e', 'f'];
 /** Auto-marked multiple-choice question. */
 export class QuizRenderer extends BlockRenderer {
   render(block) {
-    const correctIndex = block.options.findIndex((option) => option.correct === true);
-    this.context.config.quizzes[block.id] = {
-      correct: OPTION_VALUES[correctIndex],
-      points: block.points,
-    };
+    // The public config never carries the correct option — only salted
+    // hashes the runtime tests membership against.
+    this.context.config.quizzes[block.id] = this.context.markingModel.quizConfig(block);
     this.context.currentRequirements?.quizzes.push(block.id);
 
     return Html.el('fieldset', { class: 'c-quiz', 'data-quiz': block.id },
@@ -65,14 +63,12 @@ function registerField(context, field) {
   };
   if (field.min !== undefined) rules.min = field.min;
   if (field.max !== undefined) rules.max = field.max;
-  // Messages reach students through live text regions, so formatting is
-  // flattened to plain text here.
-  if (field.expected) {
-    rules.expected = {
-      ...field.expected,
-      ...(field.expected.message ? { message: RichText.plain(field.expected.message) } : {}),
-    };
-  }
+  // Answer-carrying rules pass through the marking model: the public
+  // config receives hashes, and any summative marking registers in the
+  // instructor key. Messages reach students through live text regions,
+  // so formatting is flattened to plain text.
+  const expectedRule = context.markingModel?.fieldConfig(field) ?? null;
+  if (expectedRule) rules.expected = expectedRule;
   if (field.rangeNote) {
     rules.rangeNote = { ...field.rangeNote, message: RichText.plain(field.rangeNote.message) };
   }
@@ -163,6 +159,7 @@ export class MeasurementTableRenderer extends BlockRenderer {
           min: cell.min,
           max: cell.max,
           rangeMessage: cell.rangeMessage,
+          marking: cell.marking,
         });
         return Html.el('td', {},
           Html.el('input', {
@@ -240,11 +237,8 @@ export class CalculatorRenderer extends BlockRenderer {
 /** Arrange-into-order activity. */
 export class OrderingRenderer extends BlockRenderer {
   render(block) {
-    this.context.config.orderings[block.key] = {
-      order: block.items.map((item) => item.key),
-      successMessage: block.successMessage ? RichText.plain(block.successMessage) : undefined,
-      failureMessage: block.failureMessage ? RichText.plain(block.failureMessage) : undefined,
-    };
+    // The correct order never reaches the page — only its hash.
+    this.context.config.orderings[block.key] = this.context.markingModel.orderingConfig(block);
     this.context.currentRequirements?.orderings.push(block.key);
 
     // Present items reversed so the initial arrangement is never the answer;
@@ -278,6 +272,7 @@ export class EvidenceRenderer extends BlockRenderer {
       key: block.key,
       optional: block.optional === true,
     });
+    this.context.markingModel?.registerEvidence(block);
     return Html.el('label', { class: 'c-evidence' },
       Html.el('span', { class: 'c-evidence__label' },
         this.context.rich(block.label),

@@ -5,6 +5,7 @@ import { ContentRepository } from './ContentRepository.js';
 import { DesignSystem } from './DesignSystem.js';
 import { RenderContext } from './blocks/RenderContext.js';
 import { AccessibilityGate } from './gates/AccessibilityGate.js';
+import { AnswerLeakGate } from './gates/AnswerLeakGate.js';
 import { ClassAllowlistGate } from './gates/ClassAllowlistGate.js';
 import { Gate } from './gates/Gate.js';
 import { GateContext } from './gates/GateContext.js';
@@ -62,13 +63,63 @@ export class Pipeline {
     fs.mkdirSync(siteDir, { recursive: true });
 
     this.#writeAssets(repository, siteDir);
-    this.#renderSite(repository, siteDir);
+    const marking = this.#renderSite(repository, siteDir);
 
-    const failures = await this.#runGates(siteDir, { strict, skipAccessibility });
+    const failures = this.#writeKeys(repository, marking, path.join(outDir, 'keys'));
+    failures.push(...await this.#runGates(siteDir, { strict, skipAccessibility, leak: marking.leak }));
     if (failures.length === 0) {
       this.#writeBundles(repository, siteDir, path.join(outDir, 'bundles'));
     }
     return { siteDir, failures };
+  }
+
+  /**
+   * The deterministic key timestamp: SOURCE_DATE_EPOCH (the
+   * reproducible-builds convention, set by the publish pipeline) or a
+   * fixed sentinel, so identical input yields identical bytes.
+   * @returns {string}
+   */
+  static generatedAt() {
+    const epoch = Number(process.env.SOURCE_DATE_EPOCH);
+    if (Number.isFinite(epoch) && epoch > 0) {
+      return new Date(epoch * 1000).toISOString();
+    }
+    return '1970-01-01T00:00:00.000Z';
+  }
+
+  /**
+   * Write instructor answer keys — outside the site directory, never
+   * packaged with student-facing artifacts — validating each against
+   * the answer-key schema.
+   * @param {ContentRepository} repository
+   * @param {{ models: Map<string, import('./marking/MarkingModel.js').MarkingModel> }} marking
+   * @param {string} keysDir
+   * @returns {string[]} Validation failures.
+   */
+  #writeKeys(repository, marking, keysDir) {
+    const failures = [];
+    const generatedAt = Pipeline.generatedAt();
+    const courseDir = path.join(keysDir, repository.course.id);
+    fs.rmSync(courseDir, { recursive: true, force: true });
+    for (const [labId, model] of marking.models) {
+      const document = model.keyDocument(generatedAt);
+      if (!document) continue;
+      const violations = this.schemaGate.validate(
+        'https://majd-214.github.io/SEPT-ILP/schema/v1/answer-key.schema.json',
+        document,
+        `keys/${repository.course.id}/${labId}.key.json`,
+      );
+      if (violations.length > 0) {
+        failures.push(...violations.map((violation) => `[answer-key] ${violation}`));
+        continue;
+      }
+      fs.mkdirSync(courseDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(courseDir, `${labId}.key.json`),
+        JSON.stringify(document, null, 2),
+      );
+    }
+    return failures;
   }
 
   /**
@@ -93,6 +144,8 @@ export class Pipeline {
   #renderSite(repository, siteDir) {
     /** @type {string[]} */
     const problems = [];
+    /** @type {Map<string, import('./marking/MarkingModel.js').MarkingModel>} */
+    const models = new Map();
     const write = (relativePath, page) => {
       try {
         const html = page.render();
@@ -116,11 +169,23 @@ export class Pipeline {
     }));
 
     for (const lab of repository.allLabs) {
-      write(path.join('labs', lab.id, 'index.html'), new LabPage({
+      const page = new LabPage({
         repository,
         context: contextFor('../../', { kbPanel: true }),
         lab,
-      }));
+      });
+      write(path.join('labs', lab.id, 'index.html'), page);
+      models.set(lab.id, page.markingModel);
+      // A formula item may only reference fields that exist in this lab.
+      const fieldKeys = new Set(Object.keys(page.context.config.fields));
+      for (const item of page.markingModel.items) {
+        for (const [name, fieldKey] of Object.entries(item.formula?.inputs ?? {})) {
+          if (!fieldKeys.has(fieldKey)) {
+            problems.push(
+              `labs/${lab.id}: marking formula input "${name}" references unknown field "${fieldKey}"`);
+          }
+        }
+      }
     }
 
     write(path.join('knowledge', 'index.html'), new KnowledgeHubPage({
@@ -142,18 +207,31 @@ export class Pipeline {
     if (problems.length > 0) {
       throw new ContentRepository.ValidationError(problems);
     }
+
+    // Leak candidates are scoped to their own lab's pages: a marked
+    // answer must not appear where that lab renders.
+    const leak = { perLab: [], skipped: [] };
+    for (const [labId, model] of models) {
+      const candidates = model.leakCandidates();
+      if (candidates.scanned.length > 0) {
+        leak.perLab.push({ prefix: `labs/${labId}/`, values: candidates.scanned });
+      }
+      leak.skipped.push(...candidates.skipped);
+    }
+    return { models, leak };
   }
 
   /**
    * @param {string} siteDir
-   * @param {{ strict: boolean, skipAccessibility: boolean }} options
+   * @param {{ strict: boolean, skipAccessibility: boolean, leak?: object }} options
    * @returns {Promise<string[]>} Flattened failure messages.
    */
-  async #runGates(siteDir, { strict, skipAccessibility }) {
-    const context = new GateContext(siteDir, this.designSystem.classManifest());
+  async #runGates(siteDir, { strict, skipAccessibility, leak }) {
+    const context = new GateContext(siteDir, this.designSystem.classManifest(), { leak });
     const gates = [
       new InlineStyleGate(),
       new ClassAllowlistGate(),
+      new AnswerLeakGate(),
       ...(skipAccessibility ? [] : [new AccessibilityGate()]),
       new LinkIntegrityGate(),
     ];

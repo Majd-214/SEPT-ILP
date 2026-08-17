@@ -40,7 +40,9 @@ class Ordering {
   }
 
   check() {
-    const solved = this.arrangement.join(',') === this.definition.order.join(',');
+    // The correct order exists on the page only as a salted hash.
+    const solved = this.definition.orderHash
+      === MarkingCheck.hash(this.key, this.arrangement.join(','));
     SeptLabs.store.update((state) => {
       state.ordering[this.key] = { arrangement: this.arrangement, solved };
     });

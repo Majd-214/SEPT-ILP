@@ -359,6 +359,7 @@
                 {
                   "type": "evidence",
                   "key": "lab1-vi-file",
+              "marking": { "points": 2 },
                   "label": "Completed LabVIEW VI evidence dropbox",
                   "accept": [".vi"],
                   "note": "Accepted type: .vi"
@@ -682,6 +683,7 @@
                     },
                     {
                       "key": "arduino-led-state",
+                  "marking": { "points": 1 },
                       "label": "LED turns on below 400?",
                       "control": "select",
                       "options": ["Yes", "No"],
@@ -738,6 +740,7 @@
       "navLabel": "Hardware & Submit",
       "eyebrow": "Source Manual Exercise 5",
       "submission": true,
+      "marking": { "points": 2 },
       "intro": [
         "Build the real circuit, compare calculated and measured voltage, then show the required demonstrations."
       ],
@@ -798,18 +801,24 @@
               "label": "Voltage calculated",
               "unit": "V",
               "cells": [
-                { "control": "number", "key": "t4-vcalc-dark", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
-                { "control": "number", "key": "t4-vcalc-normal", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
-                { "control": "number", "key": "t4-vcalc-flash", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" }
+                { "control": "number", "key": "t4-vcalc-dark", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20",
+                    "marking": { "points": 2, "tolerance": { "type": "percent", "value": 10 }, "formula": { "expression": "5 * (rtotal - 4.7) / rtotal", "inputs": { "rtotal": "t3-r-dark" } }, "unitsNote": "V — from their measured total resistance in kΩ (Vin 5 V, fixed 4.7 kΩ)" } },
+                { "control": "number", "key": "t4-vcalc-normal", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20",
+                    "marking": { "points": 2, "tolerance": { "type": "percent", "value": 10 }, "formula": { "expression": "5 * (rtotal - 4.7) / rtotal", "inputs": { "rtotal": "t3-r-normal" } }, "unitsNote": "V — from their measured total resistance in kΩ (Vin 5 V, fixed 4.7 kΩ)" } },
+                { "control": "number", "key": "t4-vcalc-flash", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20",
+                    "marking": { "points": 2, "tolerance": { "type": "percent", "value": 10 }, "formula": { "expression": "5 * (rtotal - 4.7) / rtotal", "inputs": { "rtotal": "t3-r-flash" } }, "unitsNote": "V — from their measured total resistance in kΩ (Vin 5 V, fixed 4.7 kΩ)" } }
               ]
             },
             {
               "label": "Voltage measured",
               "unit": "V",
               "cells": [
-                { "control": "number", "key": "t4-vmeas-dark", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
-                { "control": "number", "key": "t4-vmeas-normal", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" },
-                { "control": "number", "key": "t4-vmeas-flash", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20" }
+                { "control": "number", "key": "t4-vmeas-dark", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20",
+                    "marking": { "points": 1, "tolerance": { "type": "percent", "value": 15 }, "formula": { "expression": "vcalc", "inputs": { "vcalc": "t4-vcalc-dark" } }, "unitsNote": "V — agreement with their own calculated value" } },
+                { "control": "number", "key": "t4-vmeas-normal", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20",
+                    "marking": { "points": 1, "tolerance": { "type": "percent", "value": 15 }, "formula": { "expression": "vcalc", "inputs": { "vcalc": "t4-vcalc-normal" } }, "unitsNote": "V — agreement with their own calculated value" } },
+                { "control": "number", "key": "t4-vmeas-flash", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20",
+                    "marking": { "points": 1, "tolerance": { "type": "percent", "value": 15 }, "formula": { "expression": "vcalc", "inputs": { "vcalc": "t4-vcalc-flash" } }, "unitsNote": "V — agreement with their own calculated value" } }
               ]
             }
           ],
