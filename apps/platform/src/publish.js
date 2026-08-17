@@ -70,7 +70,18 @@ export class Publisher {
       const stamp = new Date().toISOString().replaceAll(/[:.]/g, '-');
       const releaseDir = path.join(this.config.releasesDir, stamp);
       fs.mkdirSync(releaseDir, { recursive: true });
-      const epoch = String(Math.floor(Date.now() / 1000));
+      // SOURCE_DATE_EPOCH must derive from the CONTENT, not the clock:
+      // republishing the same commit has to produce identical bytes.
+      // The content repository's HEAD commit time is that anchor; only
+      // a checkout with no git history falls back to a fixed sentinel
+      // (never Date.now(), which would make every build differ).
+      const head = await this.#exec('git', [
+        '-C', this.config.repoDir, 'log', '-1', '--format=%ct',
+      ]);
+      const epoch = head.code === 0 && /^\d+$/.test(head.output.trim())
+        ? head.output.trim()
+        : '0';
+      say(`content epoch ${epoch}${epoch === '0' ? ' (no git history — deterministic sentinel)' : ''}`);
 
       for (const courseId of this.courses()) {
         say(`building ${courseId} …`);

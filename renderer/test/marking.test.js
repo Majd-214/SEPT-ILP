@@ -173,6 +173,42 @@ test('the answer-leak gate refuses plaintext in config or page text', async () =
   assert.deepEqual(clean, []);
 });
 
+test('the leak scan sees through markup and covers shared pages', async () => {
+  const gate = new AnswerLeakGate();
+  const leak = { perLab: [{ prefix: 'labs/lab-01/', values: ['4.68', 'ohmmeter'] }], skipped: [] };
+
+  // A leak split by an element or a line break is still a leak: the raw
+  // substring scan alone would miss every one of these.
+  for (const html of [
+    '<p>The answer is 4.<strong>68</strong> kΩ.</p>',
+    '<p>The answer is 4.68\n    volts.</p>',
+    '<p>Use an <em>ohm</em>meter here.</p>',
+    '<td>4.</td><td>68</td>',
+  ]) {
+    const violations = await gate.run({
+      pages: [{ relativePath: 'labs/lab-01/index.html', html }], leak,
+    });
+    assert.ok(violations.length > 0, `markup-split leak not caught: ${html}`);
+  }
+
+  // Shared pages (portal, knowledge base) are scanned for every lab's
+  // answers — an answer echoed there leaks just as thoroughly.
+  for (const relativePath of ['index.html', 'knowledge/index.html', 'knowledge/multimeter.html']) {
+    const violations = await gate.run({
+      pages: [{ relativePath, html: '<p>Remember: 4.68 kΩ.</p>' }], leak,
+    });
+    assert.ok(violations.length > 0, `${relativePath} was not scanned`);
+  }
+
+  // Another lab's pages stay out of scope, and honest prose is clean.
+  assert.deepEqual(await gate.run({
+    pages: [{ relativePath: 'labs/lab-02/index.html', html: '<p>4.68</p>' }], leak,
+  }), []);
+  assert.deepEqual(await gate.run({
+    pages: [{ relativePath: 'index.html', html: '<p>Measure carefully and record your reading.</p>' }], leak,
+  }), []);
+});
+
 test('malformed marking content fails the build, not the student', async () => {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sept-ilp-badmark-'));
   try {

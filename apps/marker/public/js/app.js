@@ -110,9 +110,33 @@ async function intakeJson(file) {
   enqueue(session);
 }
 
+/** A cheap content fingerprint, to tell "re-dropped the same file" from
+ *  "two different students whose files happen to share a name". */
+function fingerprint(session) {
+  return JSON.stringify({
+    student: session.student, fields: session.fields, checks: session.checks,
+    ordering: session.ordering, quizzes: session.quizzes,
+    confirmed: session.confirmed, evidenceNames: session.evidenceNames,
+  });
+}
+
 function enqueue(session) {
-  const index = batch.findIndex((row) => row.result.session.source === session.source);
-  if (index !== -1) batch.splice(index, 1);
+  const same = batch.find((row) => row.result.session.source === session.source);
+  if (same) {
+    if (fingerprint(same.result.session) === fingerprint(session)) {
+      // Genuinely the same file dropped again — replace in place.
+      batch.splice(batch.indexOf(same), 1);
+    } else {
+      // Two distinct submissions sharing a filename: keep both rather
+      // than silently overwriting, disambiguating the newcomer's label.
+      let suffix = 2;
+      const base = session.source;
+      while (batch.some((row) => row.result.session.source === session.source)) {
+        session.source = `${base} (${suffix})`;
+        suffix += 1;
+      }
+    }
+  }
   batch.push({ result: mark(session), expanded: false });
 }
 
@@ -135,7 +159,20 @@ function mark(session) {
 }
 
 function remarkAll() {
-  for (const row of batch) row.result = mark(row.result.session);
+  for (const row of batch) {
+    // Per-row isolation: a single malformed submission must never abort
+    // the whole re-mark (and, via loadServerKeys, masquerade as a
+    // network error). A row that throws keeps its prior result and
+    // carries an advisory flag instead.
+    try {
+      row.result = mark(row.result.session);
+    } catch (error) {
+      row.result.flags = [
+        `could not be marked (${error.message}) — review this submission manually`,
+        ...(row.result.flags ?? []),
+      ];
+    }
+  }
   renderBatch();
 }
 

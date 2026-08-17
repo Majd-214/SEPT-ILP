@@ -83,6 +83,12 @@ test('the function library covers min, max, abs, round, and clamp — and nothin
   assert.equal(evaluateFormula('clamp(15, 0, 10)', {}), 10);
   assert.equal(evaluateFormula('abs(vmeas - vcalc) / vcalc * 100', { vmeas: 4.4, vcalc: 4 }), 10.000000000000009);
   assert.throws(() => evaluateFormula('pow(2, 3)', {}), /unknown function/);
+  // Inherited names must not resolve as callables: FUNCTIONS[token]
+  // would otherwise find real functions on Object.prototype.
+  for (const inherited of ['constructor', 'toString', 'valueOf', 'hasOwnProperty']) {
+    assert.throws(() => evaluateFormula(`${inherited}(1)`, {}), /unknown function/,
+      `${inherited}() must not resolve`);
+  }
   assert.throws(() => evaluateFormula('abs(1, 2)', {}), /exactly 1 argument/);
   assert.throws(() => evaluateFormula('clamp(1)', {}), /exactly 3 arguments/);
   assert.throws(() => evaluateFormula('abs(1', {}), /missing closing parenthesis/);
@@ -269,6 +275,27 @@ test('markSession totals, scales to the lab override, and flags version drift', 
   const partial = markSession(session({ fields: { r2: '5.2' } }), KEY, { exact: true });
   assert.equal(partial.totals.earned, 1);
   assert.equal(partial.totals.scaled, 2, '1/5 → 2/10');
+});
+
+test('a hand-edited submission cannot crash the marking pass', () => {
+  // Submissions are student-supplied JSON and are never schema-checked.
+  // A non-string confirmed_at (or any odd type) must mark, not throw —
+  // one bad file must never take down a whole batch.
+  const item = { id: 'checkpoint:cp-1', type: 'checkpoint', ref: { checkpoint: 'cp-1' }, label: 'CP', points: 2 };
+  for (const odd of [1755000000000, true, { at: 'now' }, ['2026-08-17']]) {
+    const marked = markItem(item, session({ confirmed: { 'cp-1': odd } }));
+    assert.equal(marked.earned, 2, `confirmed_at ${JSON.stringify(odd)} still marks`);
+    assert.ok(typeof marked.detail === 'string');
+  }
+  // And through the whole-session path, with every item type present.
+  const hostile = session({
+    confirmed: { 'cp-2': 42 },
+    quizzes: { q1: 'not-an-object' },
+    fields: { r2: { nested: true } },
+  });
+  const marked = markSession(hostile, KEY, { exact: true });
+  assert.equal(marked.items.length, 3);
+  assert.ok(Number.isFinite(marked.totals.earned));
 });
 
 test('malformed submissions are refused with a reason, never a crash', () => {

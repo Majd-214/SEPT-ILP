@@ -137,6 +137,59 @@ test('the platform accepts no student data: no student routes exist', async () =
   }
 });
 
+test('encoded path traversal cannot reach another course’s answer keys', async () => {
+  const { app, outbox, cleanup } = await testApp();
+  try {
+    const cookie = await signIn(app, outbox, 'prof@demo', 'instructor', ['course-a']);
+    // find-my-way decodes %2f to a literal "/" INSIDE a route param
+    // after segment splitting, so a single-looking segment can smuggle
+    // a traversal. Every one of these must be refused before it can
+    // reach path.join — this is how a one-course instructor would
+    // otherwise read every other course's keys.
+    const traversals = [
+      '/keys/course-a/..%2f..%2f..%2fcourse-b%2fkeys%2fcourse-b%2flab-01.key.json',
+      '/keys/course-a/%2e%2e%2f%2e%2e%2fcourse-b%2fkeys%2fcourse-b%2flab-01.key.json',
+      '/keys/..%2fcourse-b/lab-01.key.json',
+    ];
+    for (const url of traversals) {
+      const response = await app.inject({ url, headers: { cookie } });
+      assert.ok([400, 403, 404].includes(response.statusCode),
+        `${url} → ${response.statusCode} (must not be 200)`);
+      assert.ok(!String(response.body).includes('"items"'),
+        `${url} leaked key content`);
+    }
+    // The legitimate shape still works (404 only because nothing is
+    // published in this environment).
+    assert.equal((await app.inject({
+      url: '/keys/course-a/lab-01.key.json', headers: { cookie },
+    })).statusCode, 404);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('publish reports are admin-only; they name filesystem paths', async () => {
+  const { app, outbox, cleanup } = await testApp();
+  try {
+    const instructor = await signIn(app, outbox, 'prof@demo', 'instructor', ['course-a']);
+    assert.equal((await app.inject({ url: '/admin/publish/1', headers: { cookie: instructor } })).statusCode, 403);
+    const admin = await signIn(app, outbox, 'admin@demo', 'admin');
+    // 404 (no such run) rather than 403 — the admin passes the gate.
+    assert.equal((await app.inject({ url: '/admin/publish/1', headers: { cookie: admin } })).statusCode, 404);
+  } finally {
+    await cleanup();
+  }
+});
+
+test('the cookie secret must be set for any non-localhost deployment', () => {
+  assert.throws(
+    () => loadConfig({ BASE_URL: 'https://labs.mcmaster.ca', DATA_DIR: '/tmp/x' }),
+    /COOKIE_SECRET/);
+  // A real secret is accepted, and localhost development still works.
+  assert.ok(loadConfig({ BASE_URL: 'https://labs.mcmaster.ca', COOKIE_SECRET: 'a'.repeat(32) }).cookieSecret);
+  assert.ok(loadConfig({ BASE_URL: 'http://localhost:8080' }).cookieSecret);
+});
+
 test('the marker is session-gated and carries the no-egress CSP', async () => {
   const { app, outbox, cleanup } = await testApp();
   try {

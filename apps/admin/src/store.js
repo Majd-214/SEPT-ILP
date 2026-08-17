@@ -117,12 +117,18 @@ export class EditorStore {
    * @param {Buffer} data
    * @returns {string} The bare asset filename to reference from blocks.
    */
-  saveAsset(courseId, filename, data) {
+  saveAsset(courseId, filename, data, extension) {
     const dir = path.join(this.contentDir, EditorStore.safeId(courseId), 'assets');
     fs.mkdirSync(dir, { recursive: true });
-    const base = path.basename(filename)
+    // The stored extension comes from the caller's byte sniff, never
+    // from the uploaded filename: only the stem is taken from the user,
+    // so `evil.svg` or `evil.html` can never be written as such.
+    const stem = path.basename(filename)
+      .replace(/\.[^.]*$/, '')
       .replace(/[^A-Za-z0-9._-]+/g, '-')
-      .replace(/^[-.]+/, '');
+      .replace(/^[-.]+/, '')
+      .slice(0, 80);
+    const base = `${stem || 'image'}${extension}`;
     if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(base)) {
       throw new Error('filename must start with a letter or digit');
     }

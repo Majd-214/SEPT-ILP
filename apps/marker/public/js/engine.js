@@ -112,8 +112,11 @@ export function evaluateFormula(expression, scope) {
     if (/^(?:\d|\.)/.test(token)) return Number(token);
     if (/^[A-Za-z_]/.test(token)) {
       if (peek() === '(') {
+        // Own properties only: FUNCTIONS[token] would otherwise resolve
+        // inherited names like "constructor" or "toString" to real
+        // functions off Object.prototype.
+        if (!Object.hasOwn(FUNCTIONS, token)) throw new Error(`unknown function "${token}"`);
         const fn = FUNCTIONS[token];
-        if (!fn) throw new Error(`unknown function "${token}"`);
         next(); // consume '('
         const args = [expr()];
         while (peek() === ',') { next(); args.push(expr()); }
@@ -369,7 +372,11 @@ export function markItem(item, session) {
     if (record && record.requirements_satisfied < record.requirements_total) {
       flags.push(`confirmed with ${record.requirements_satisfied}/${record.requirements_total} requirements satisfied — review suggested`);
     }
-    return { earned: item.points, detail: `confirmed ${confirmedAt.slice(0, 16).replace('T', ' ')}`, flags };
+    // Submissions are student-supplied JSON and are never schema-checked
+    // (only the answer key is), so confirmed_at may be any type. Coerce
+    // before slicing — a hand-edited number here must not crash the run.
+    const when = String(confirmedAt);
+    return { earned: item.points, detail: `confirmed ${when.slice(0, 16).replace('T', ' ')}`, flags };
   }
 
   return { earned: 0, detail: `unknown item type "${item.type}"`, flags: [`unknown item type "${item.type}" — review suggested`] };

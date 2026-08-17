@@ -220,3 +220,54 @@ test('image uploads require alt text and land in the course assets', async () =>
     await cleanup();
   }
 });
+
+test('uploads are judged by their bytes, never by the declared type or name', async () => {
+  const { app, tmp, cleanup } = await editorApp();
+  const assets = path.join(tmp, 'content', 'courses', 'mini', 'assets');
+  try {
+    // A script-bearing SVG declared as image/png: the declared MIME
+    // type and the filename are both attacker-chosen, so only the magic
+    // bytes may decide. This would otherwise be served from the site's
+    // own origin as executable markup — stored XSS.
+    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+    const disguised = multipartBody([
+      { name: 'alt', value: 'looks like a diagram' },
+      { name: 'file', filename: 'diagram.svg', type: 'image/png', value: svg },
+    ]);
+    const refused = await app.inject({
+      method: 'POST', url: '/admin/api/editor/mini/upload', ...disguised,
+    });
+    assert.equal(refused.statusCode, 400);
+    assert.match(refused.json().error, /PNG, JPEG, GIF, or WebP/);
+    assert.ok(!fs.existsSync(path.join(assets, 'diagram.svg')), 'nothing was written');
+
+    // HTML bytes with an image name and an image MIME type: also refused.
+    const html = multipartBody([
+      { name: 'alt', value: 'still not an image' },
+      { name: 'file', filename: 'page.png', type: 'image/png', value: Buffer.from('<html><script>x</script>') },
+    ]);
+    assert.equal((await app.inject({
+      method: 'POST', url: '/admin/api/editor/mini/upload', ...html,
+    })).statusCode, 400);
+
+    // Real PNG bytes under a dangerous name: stored, but the extension
+    // comes from the sniff, so it can never land as .html.
+    const png = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
+      Buffer.from('image payload'),
+    ]);
+    const renamed = multipartBody([
+      { name: 'alt', value: 'A genuine screenshot' },
+      { name: 'file', filename: 'payload.html', type: 'image/png', value: png },
+    ]);
+    const accepted = await app.inject({
+      method: 'POST', url: '/admin/api/editor/mini/upload', ...renamed,
+    });
+    assert.equal(accepted.statusCode, 200);
+    assert.equal(accepted.json().src, 'payload.png');
+    assert.ok(fs.existsSync(path.join(assets, 'payload.png')));
+    assert.ok(!fs.existsSync(path.join(assets, 'payload.html')));
+  } finally {
+    await cleanup();
+  }
+});

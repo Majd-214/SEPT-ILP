@@ -12,6 +12,24 @@ import { LabValidator } from './validate.js';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 /**
+ * Identify an image by its magic bytes, never by the client's declared
+ * type or filename. Returns the format and the extension it may be
+ * stored under, or null when the bytes are not one of the four raster
+ * formats the platform serves.
+ * @param {Buffer} data
+ * @returns {{ format: string, extension: string } | null}
+ */
+function sniffImage(data) {
+  const starts = (...bytes) => bytes.every((byte, index) => data[index] === byte);
+  if (starts(0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) return { format: 'png', extension: '.png' };
+  if (starts(0xFF, 0xD8, 0xFF)) return { format: 'jpeg', extension: '.jpg' };
+  if (starts(0x47, 0x49, 0x46, 0x38)) return { format: 'gif', extension: '.gif' };
+  if (starts(0x52, 0x49, 0x46, 0x46)
+    && data.length > 12 && data.toString('latin1', 8, 12) === 'WEBP') return { format: 'webp', extension: '.webp' };
+  return null;
+}
+
+/**
  * The content editor — a Fastify plugin the platform mounts under the
  * same session, roles, and CSRF as the rest of the console. See
  * docs/decisions/adr-001-cms.md for why this exists instead of a
@@ -185,10 +203,20 @@ nothing reaches students without every gate passing.</p>
     if (alt === '') {
       return reply.code(400).send({ error: 'alt text is required — describe the image for screen readers' });
     }
-    if (!/^image\//.test(upload.mimetype)) {
-      return reply.code(400).send({ error: 'only image uploads are accepted' });
+    // The declared MIME type and the filename are both attacker-chosen:
+    // an "image/png" part named evil.svg or evil.html would otherwise be
+    // written into the course assets and served from the site's own
+    // origin as executable markup. Trust the bytes, and only store an
+    // extension the sniffed format actually justifies. SVG is excluded
+    // deliberately — it is a script-bearing document, not a flat image.
+    const data = await upload.toBuffer();
+    const format = sniffImage(data);
+    if (!format) {
+      return reply.code(400).send({
+        error: 'only PNG, JPEG, GIF, or WebP images are accepted (SVG is not, since it can carry scripts)',
+      });
     }
-    const src = store.saveAsset(request.params.courseId, upload.filename, await upload.toBuffer());
+    const src = store.saveAsset(request.params.courseId, upload.filename, data, format.extension);
     return reply.send({ ok: true, src, alt });
   });
 }

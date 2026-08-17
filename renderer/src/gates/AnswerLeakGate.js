@@ -40,12 +40,24 @@ export class AnswerLeakGate extends Gate {
 
     for (const { prefix, values } of context.leak?.perLab ?? []) {
       for (const page of context.pages) {
-        if (!page.relativePath.startsWith(prefix)) continue;
-        const haystack = page.html.toLowerCase();
+        // A lab's answers are scanned on its own pages AND on every
+        // shared page (portal, knowledge base): an answer echoed into
+        // an aggregate page leaks just as thoroughly as one on the lab.
+        if (page.relativePath.startsWith('labs/') && !page.relativePath.startsWith(prefix)) continue;
+        const raw = page.html.toLowerCase();
+        // Markup-blind view: tags and entities stripped, whitespace
+        // collapsed. A leak split by <strong> or a line break —
+        // "4.<strong>68</strong>" — is still a leak, and the raw scan
+        // alone would miss it.
+        const text = AnswerLeakGate.#plainText(raw);
         for (const candidate of values) {
-          if (haystack.includes(candidate.toLowerCase())) {
+          const needle = candidate.toLowerCase();
+          const where = raw.includes(needle) ? 'in the public site'
+            : text.includes(AnswerLeakGate.#plainText(needle)) ? 'in the public site (split across markup)'
+              : null;
+          if (where) {
             violations.push(
-              `${page.relativePath}: plaintext expected answer "${candidate}" appears in the public site`,
+              `${page.relativePath}: plaintext expected answer "${candidate}" appears ${where}`,
             );
           }
         }
@@ -58,6 +70,20 @@ export class AnswerLeakGate extends Gate {
         + `not literal-scanned (${[...new Set(skipped)].join(', ')}); hash checks still apply`);
     }
     return violations;
+  }
+
+  /**
+   * HTML reduced to its visible characters: tags dropped, entities
+   * neutralized, whitespace removed. Comparing this view catches an
+   * answer whose characters are separated by markup.
+   * @param {string} html
+   */
+  static #plainText(html) {
+    return html
+      .replace(/<script[\s\S]*?<\/script>/g, ' ')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&[a-z]+;|&#\d+;/g, '')
+      .replace(/\s+/g, '');
   }
 
   /** @param {{ relativePath: string, html: string }} page */

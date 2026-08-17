@@ -102,6 +102,20 @@ export async function buildApp(config) {
   const visibleCourses = (user) => publisher.courses()
     .filter((courseId) => auth.canAccessCourse(user, courseId));
 
+  // Identifiers that become filesystem path segments must be simple
+  // slugs. find-my-way decodes `%2f` to a literal `/` inside a route
+  // param AFTER segment splitting, so a param can smuggle a traversal
+  // even though the URL "looks" single-segment; reject anything that is
+  // not a bare slug before it reaches path.join. Content ids already
+  // follow this shape (schema pattern ^[a-z][a-z0-9-]*$).
+  const isSafeId = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]*$/.test(value);
+  // A file path that must stay inside `root` — the separator suffix
+  // stops `/data/current-evil` from passing a bare startsWith(`/data/current`).
+  const isInside = (root, target) => {
+    const resolved = path.resolve(target);
+    return resolved === path.resolve(root) || resolved.startsWith(path.resolve(root) + path.sep);
+  };
+
   /* ── Health ─────────────────────────────────────────────────────── */
   app.get('/healthz', async () => ({ ok: true, release: publisher.currentRelease() }));
 
@@ -127,7 +141,12 @@ ${request.query.invalid ? '<p class="c-callout c-callout--danger c-callout__body
       return reply.code(429).send('Too many attempts; wait a minute.');
     }
     const email = String(request.body?.email ?? '').trim();
-    if (email) await auth.requestLogin(email);
+    // Fire-and-forget: awaiting the lookup + SMTP send would make the
+    // response time depend on whether the account exists (the email
+    // send is the dominant channel), enabling account enumeration. Both
+    // the known and unknown paths now return the same redirect at the
+    // same speed; the mail, if any, is dispatched after the response.
+    if (email) auth.requestLogin(email).catch(() => {});
     return reply.redirect('/login?sent=1');
   });
 
@@ -196,7 +215,7 @@ ${request.user.role === 'admin' ? `
     reply.redirect('/admin');
   });
 
-  app.get('/admin/publish/:id', { preHandler: auth.requireUser() }, async (request, reply) => {
+  app.get('/admin/publish/:id', { preHandler: auth.requireAdmin() }, async (request, reply) => {
     const run = db.publishById(Number(request.params.id));
     if (!run) return reply.code(404).send('No such publish.');
     return reply.type('text/html').send(layout({
@@ -325,6 +344,9 @@ file download/restore on every lab page is the bridge between copies.</p>
 
   app.get('/admin/exports/:courseId/:file', { preHandler: auth.requireUser() }, async (request, reply) => {
     const { courseId, file } = request.params;
+    // courseId reaches path.join; an admin passes canAccessCourse for
+    // any string, so validate the slug independently of the role check.
+    if (!isSafeId(courseId)) return reply.code(404).send('No such course.');
     if (!auth.canAccessCourse(request.user, courseId)) {
       return reply.code(403).send('Not an instructor for this course.');
     }
@@ -349,19 +371,29 @@ file download/restore on every lab page is the bridge between copies.</p>
   app.get('/keys/:courseId/:labId.key.json', async (request, reply) => {
     const { courseId, labId } = request.params;
     if (!request.user) return reply.code(401).send({ error: 'sign in first' });
+    // Validate the slugs BEFORE the course check: a `%2f`-smuggled
+    // labId would otherwise pass canAccessCourse(courseId) and then
+    // traverse out of the course directory to another course's key.
+    if (!isSafeId(courseId) || !isSafeId(labId)) {
+      return reply.code(400).send({ error: 'bad course or lab id' });
+    }
     if (!auth.canAccessCourse(request.user, courseId)) {
       return reply.code(403).send({ error: 'not an instructor for this course' });
     }
     const release = publisher.currentRelease();
     if (!release) return reply.code(404).send({ error: 'nothing published yet' });
-    const keyPath = path.join(release, courseId, 'keys', courseId, `${labId}.key.json`);
-    if (!fs.existsSync(keyPath)) return reply.code(404).send({ error: 'no key for this lab' });
+    const keysRoot = path.join(release, courseId, 'keys', courseId);
+    const keyPath = path.join(keysRoot, `${labId}.key.json`);
+    if (!isInside(keysRoot, keyPath) || !fs.existsSync(keyPath)) {
+      return reply.code(404).send({ error: 'no key for this lab' });
+    }
     return reply.type('application/json').send(fs.readFileSync(keyPath, 'utf8'));
   });
 
   app.get('/keys/:courseId', async (request, reply) => {
     const { courseId } = request.params;
     if (!request.user) return reply.code(401).send({ error: 'sign in first' });
+    if (!isSafeId(courseId)) return reply.code(400).send({ error: 'bad course id' });
     if (!auth.canAccessCourse(request.user, courseId)) {
       return reply.code(403).send({ error: 'not an instructor for this course' });
     }
@@ -391,6 +423,7 @@ file download/restore on every lab page is the bridge between copies.</p>
   app.get('/c/:courseId/*', async (request, reply) => {
     const { courseId } = request.params;
     const rest = request.params['*'] || '';
+    if (!isSafeId(courseId)) return reply.code(404).send('Not found.');
     const release = publisher.currentRelease();
     if (!release) return reply.code(404).send('Nothing published yet.');
     const siteRoot = path.join(release, courseId, 'site');
@@ -401,7 +434,9 @@ file download/restore on every lab page is the bridge between copies.</p>
     }
     const relative = rest === '' || rest.endsWith('/') ? `${rest}index.html` : rest;
     const filePath = path.normalize(path.join(siteRoot, relative));
-    if (!filePath.startsWith(siteRoot) || !fs.existsSync(filePath)) {
+    // Containment with a separator boundary: `startsWith(siteRoot)`
+    // alone would admit a sibling like `<release>/<course>/site-evil`.
+    if (!isInside(siteRoot, filePath) || !fs.existsSync(filePath)) {
       return reply.code(404).send('Not found.');
     }
     const types = {
