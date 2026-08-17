@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Platform service local state (SQLite database, releases)
+apps/platform/.data/
+
 # Environment and editor artifacts
 .env
 .DS_Store
