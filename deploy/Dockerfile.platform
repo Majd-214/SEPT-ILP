@@ -21,6 +21,10 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV CI=1
 
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Strip CR bytes before making it executable: a Windows checkout without
+# .gitattributes yields CRLF endings, and the kernel then reads the
+# shebang as `/bin/bash\r` and reports the misleading
+# `exec /entrypoint.sh: no such file or directory`.
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 EXPOSE 3000
 ENTRYPOINT ["/entrypoint.sh"]

@@ -1,0 +1,30 @@
+# Line endings. Git on Windows checks out text files with CRLF by
+# default, which breaks any file a Linux container executes or parses
+# byte-for-byte: a shell script with CRLF fails as
+# `exec /entrypoint.sh: no such file or directory`, because the kernel
+# reads the shebang as `/bin/bash\r`. Pin LF for everything the build,
+# the container, and the deterministic renderer touch.
+* text=auto eol=lf
+
+# Explicitly LF, whatever a contributor's local setting says.
+*.sh          text eol=lf
+*.mjs         text eol=lf
+*.js          text eol=lf
+*.json        text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.css         text eol=lf
+*.html        text eol=lf
+*.md          text eol=lf
+Dockerfile*   text eol=lf
+Caddyfile     text eol=lf
+
+# Binary assets: never touched.
+*.png         binary
+*.jpg         binary
+*.jpeg        binary
+*.gif         binary
+*.webp        binary
+*.woff2       binary
+*.pdf         binary
+*.zip         binary

@@ -18,7 +18,13 @@
     "validate": "node renderer/src/cli.js validate content/courses/smrttech-3cc3",
     "gates": "node renderer/src/cli.js build content/courses/smrttech-3cc3 --strict",
     "preview": "node renderer/src/cli.js preview",
-    "test": "node --test renderer/test/*.test.js"
+    "setup": "npm ci && npm ci --prefix apps/platform && npm ci --prefix apps/admin && npx playwright install chromium",
+    "test": "node --test renderer/test/*.test.js",
+    "test:platform": "npm --prefix apps/platform test",
+    "test:marker": "npm --prefix apps/marker test",
+    "test:admin": "npm --prefix apps/admin test",
+    "test:all": "npm test && npm run test:platform && npm run test:marker && npm run test:admin",
+    "docs:guide": "node docs/guide-src/render.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
