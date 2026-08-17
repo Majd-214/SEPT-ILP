@@ -68,6 +68,11 @@
           "type": "object",
           "description": "Tab group key → selected tab key.",
           "additionalProperties": { "type": "string" }
+        },
+        "student": {
+          "type": "object",
+          "description": "Identity the student types for the submission package (names, student numbers, section, instructor). Stays in the browser and in files the student downloads; never transmitted.",
+          "additionalProperties": { "type": "string" }
         }
       },
       "additionalProperties": false

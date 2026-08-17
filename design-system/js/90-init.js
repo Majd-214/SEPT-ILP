@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const element of Dom.all('[data-sidebar]')) new Sidebar(element);
     SeptLabs.knowledgePanel = new KnowledgePanel();
     SeptLabs.checkpoints = new Checkpoints();
+    new SubmissionPackage();
     new ProgressFile();
     new AutosaveIndicator();
 
@@ -177,5 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (config.page === 'knowledge') {
     new KnowledgeSearch();
+    new KnowledgeStage();
+    new KnowledgeDirectory();
   }
 });

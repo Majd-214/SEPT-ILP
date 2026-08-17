@@ -351,6 +351,23 @@
   animation: nav-check-pop var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-emphasized);
 }
 
+/* Locked steps: padlocked with a dashed ring. The label keeps its full
+   contrast — locked is a state, not small print. */
+.c-nav__item.is-locked {
+  font-weight: var(--md-sys-type-weight-regular);
+}
+
+.c-nav__num--lock svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.c-nav__item.is-locked .c-nav__num {
+  background: transparent;
+  border: 1px dashed var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
 @keyframes nav-check-pop {
   0% { transform: scale(0.4); opacity: 0; }
   70% { transform: scale(1.25); }

@@ -51,7 +51,7 @@ export class Page {
 
   /**
    * Which app-bar section this page belongs to, for the active state.
-   * @returns {"home" | "kb" | "project" | null}
+   * @returns {"home" | "kb" | null}
    */
   appBarActive() {
     return null;
@@ -72,12 +72,11 @@ export class Page {
       'aria-current': active === key ? 'page' : null,
     }, label);
 
+    // The design project is a laboratory like any other: it lives in the
+    // catalog and the rail, never as its own section.
     return Html.el('nav', { class: 'c-appbar__nav', 'aria-label': 'Course sections' },
       link(`${root}index.html`, 'home', 'Home'),
       link(`${root}knowledge/index.html`, 'kb', 'Knowledge base'),
-      this.repository.project
-        ? link(`${root}labs/${this.repository.project.id}/index.html`, 'project', 'Design project')
-        : null,
     );
   }
 

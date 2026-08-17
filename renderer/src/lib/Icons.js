@@ -41,6 +41,18 @@ export class Icons {
     search: 'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z M15.3 15.3 20 20',
     /* arrow out of box — open the full page */
     open_in_new: 'M14 4.5h5.5V10 M19.5 4.5 11 13 M9 5.5H6.5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V15',
+    /* padlock — a step that has not been unlocked yet */
+    lock: 'M7.5 10.5V8a4.5 4.5 0 0 1 9 0v2.5 M6.5 10.5h11a1 1 0 0 1 1 1V19a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-7.5a1 1 0 0 1 1-1z M12 14.5v2.5',
+    /* archive box — the submission package */
+    package_zip: 'M4.5 7.5h15v12a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1z M3.5 4.5h17a0.5 0.5 0 0 1 .5.5v2.5H3V5a0.5 0.5 0 0 1 .5-.5z M9.5 11h5',
+    /* lightbulb — theory and ideas */
+    lightbulb: 'M12 3a6 6 0 0 0-3.5 10.9c.9.7 1.5 1.6 1.5 2.6h4c0-1 .6-1.9 1.5-2.6A6 6 0 0 0 12 3z M10 19.5h4 M10.8 21.5h2.4',
+    /* chip — boards and components */
+    memory: 'M7 7h10v10H7z M10 10h4v4h-4z M9 4v3 M15 4v3 M9 17v3 M15 17v3 M4 9h3 M4 15h3 M17 9h3 M17 15h3',
+    /* cloud — connectivity and IoT */
+    cloud: 'M7 18.5h10.5a3.5 3.5 0 0 0 .6-6.95A5.5 5.5 0 0 0 7.4 9.6 4 4 0 0 0 7 18.5z',
+    /* radio waves — sensors and signals */
+    sensors: 'M12 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M8.5 15.5a5 5 0 0 1 0-7 M15.5 8.5a5 5 0 0 1 0 7 M6 18a8.5 8.5 0 0 1 0-12 M18 6a8.5 8.5 0 0 1 0 12',
   };
 
   /**

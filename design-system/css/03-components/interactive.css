@@ -103,6 +103,13 @@
   border-left: 2px solid var(--md-sys-color-outline-variant);
 }
 
+/* The panel receives programmatic focus when a checkpoint opens; the
+   rail already shows the location, so the panel itself draws no ring. */
+.c-checkpoint:focus,
+.c-checkpoint:focus-visible {
+  outline: none;
+}
+
 /* Switching checkpoints eases the arriving panel in. The runtime adds
    is-entering only on interactive navigation — never on first paint, so
    content is fully legible the moment the page loads. */
@@ -137,6 +144,31 @@
   font-weight: var(--md-sys-type-weight-bold);
   line-height: 1;
   box-shadow: 0 0 0 4px var(--md-sys-color-surface);
+}
+
+/* --------------------------------------------------------------------------
+   Locked checkpoint — visible but inert, exactly like the original
+   portal: greyed content, disabled controls, a lock notice
+   -------------------------------------------------------------------------- */
+.c-checkpoint.is-locked {
+  border-left-style: dashed;
+}
+
+.c-checkpoint.is-locked .c-checkpoint__marker {
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.c-checkpoint.is-locked .c-card > .o-stack,
+.c-checkpoint.is-locked .c-card > .o-prose,
+.c-checkpoint.is-locked .c-checkpoint__header {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+.c-checkpoint__message.is-locked {
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 /* Narrow screens: tighter gutter, smaller marker (this block must follow
@@ -997,6 +1029,12 @@ textarea.c-field__control {
   color: var(--md-sys-color-on-primary);
 }
 
+.c-progress-summary__item.is-locked .c-progress-summary__state {
+  background: transparent;
+  border: 1px dashed var(--md-sys-color-outline);
+  font-size: 0.65rem;
+}
+
 .c-progress-summary__title {
   flex: 1 1 auto;
   min-width: 0;
@@ -1010,6 +1048,15 @@ textarea.c-field__control {
   color: var(--md-sys-color-on-surface-variant);
   font-variant-numeric: tabular-nums;
   font-size: 0.78rem;
+}
+
+/* Submission package card: the gold-standard end of a laboratory */
+.c-submission {
+  border-top-color: var(--md-ref-gold);
+}
+
+.c-submission .c-field-grid {
+  margin-top: var(--md-sys-space-4);
 }
 
 /* Storage availability warning */

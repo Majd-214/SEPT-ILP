@@ -62,6 +62,7 @@ class Store {
       ordering: {},
       evidence: {},
       tabs: {},
+      student: {},
     };
   }
 

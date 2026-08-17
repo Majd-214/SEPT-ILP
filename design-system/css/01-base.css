@@ -101,9 +101,9 @@ ul, ol {
 .c-appbar__navlink,
 .c-labcard__badge,
 .c-kb-kind,
-.c-kb-filter,
-.c-kb-viewtoggle__btn,
-.c-kb-domain__count,
+.c-kbhub__zoombtn,
+.c-kbhub__count,
+.c-kbdir__chip,
 .c-quiz__points,
 .c-checkpoint__context,
 .c-code__copy {

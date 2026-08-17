@@ -5,8 +5,13 @@ the W Booth School of Engineering Practice and Technology at McMaster
 University. Laboratory content is stored as structured documents; a build
 pipeline renders those documents into interactive HTML manuals in which
 students predict, measure, record evidence, and check their understanding
-at staged checkpoints. Automated checks verify every page before it can be
-published.
+at staged, sequentially gated checkpoints — each one unlocks only when the
+one before it is complete. A knowledge base presented as a skill tree backs
+every laboratory, readable in place through each lab's reference panel, and
+a finished laboratory exports a submission package: an auto-marked
+completion record plus the student's evidence files, zipped in the browser
+for the course dropbox. Automated checks verify every page before it can
+be published.
 
 The repository contains the platform and one complete course:
 **SMRTTECH 3CC3, Cloud Computing and the Internet of Things** — eight
