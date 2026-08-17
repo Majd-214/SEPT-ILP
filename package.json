@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "node renderer/src/cli.js build content/courses/smrttech-3cc3",
-    "build:all": "node renderer/src/cli.js build-all content",
+    "build:all": "node renderer/src/cli.js build content/courses/smrttech-3cc3 --out dist/smrttech-3cc3 --strict --single-file && node renderer/src/cli.js build content/courses/demo-101 --out dist/demo-101 --strict --single-file",
     "validate": "node renderer/src/cli.js validate content/courses/smrttech-3cc3",
     "gates": "node renderer/src/cli.js build content/courses/smrttech-3cc3 --strict",
     "preview": "node renderer/src/cli.js preview",

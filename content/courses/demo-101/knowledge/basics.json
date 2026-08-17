@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "basics",
+  "title": "Basics",
+  "blurb": "Fundamental fixture topics.",
+  "order": 1,
+  "topics": [
+    {
+      "id": "voltage-divider",
+      "kind": "theory",
+      "name": "Voltage divider",
+      "question": "How does a divider set an output voltage?",
+      "asset": "fixture-diagram.png",
+      "assetAlt": "Fixture diagram of a two-resistor voltage divider",
+      "summary": "Two resistors in series divide a source voltage in proportion to resistance.",
+      "keywords": ["divider", "resistor"],
+      "sections": [
+        { "heading": "Core idea", "paragraphs": ["The output is taken across `R2`, so **Vout = Vin · R2 / (R1 + R2)**."] }
+      ],
+      "hint": "Trace one example through the lab circuit before re-reading theory.",
+      "related": ["multimeter"]
+    },
+    {
+      "id": "multimeter",
+      "kind": "spec",
+      "name": "Multimeter",
+      "summary": "The bench instrument for measuring voltage, resistance, and current.",
+      "keywords": ["measurement"],
+      "sections": [
+        { "heading": "Core idea", "paragraphs": ["Select the mode *before* connecting the probes."] }
+      ],
+      "related": ["voltage-divider"]
+    }
+  ]
+}

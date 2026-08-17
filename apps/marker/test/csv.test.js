@@ -32,6 +32,23 @@ test('csvCell quotes only when needed and escapes embedded quotes', () => {
   assert.equal(csvCell(undefined), '');
 });
 
+test('student-typed text cannot smuggle spreadsheet formulas into exports', () => {
+  // A team name is student-controlled and lands in a CSV an instructor
+  // opens in Excel: formula starters are neutralized with a leading
+  // apostrophe, the OWASP CSV-injection defence.
+  assert.equal(csvCell('=HYPERLINK("http://evil","x")'), '"\'=HYPERLINK(""http://evil"",""x"")"');
+  assert.equal(csvCell('+400123456'), "'+400123456");
+  assert.equal(csvCell('-2'), "'-2");
+  assert.equal(csvCell('@L01'), "'@L01");
+  assert.equal(csvCell('#400123456'), '#400123456', 'Brightspace ids keep their # prefix');
+  assert.equal(csvCell(24), '24', 'computed grades are untouched');
+  const poisoned = result({
+    session: { student: { name_or_team: '=cmd|calc!A1', student_numbers: '400123456', lab_section: 'L01' } },
+  });
+  const csv = genericCsv([poisoned]);
+  assert.ok(!/(^|,)=cmd/m.test(csv), 'no cell in the export begins with a formula');
+});
+
 test('studentIds finds numbers through every separator students use', () => {
   assert.deepEqual(studentIds({ student_numbers: '400123456, 400654321' }), ['400123456', '400654321']);
   assert.deepEqual(studentIds({ student_numbers: '400123456 / 400654321' }), ['400123456', '400654321']);

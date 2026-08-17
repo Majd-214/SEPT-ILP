@@ -4,9 +4,17 @@
  * marked results — tested in node, executed in the browser.
  */
 
-/** Quote a CSV cell only when it needs it. @param {unknown} value */
+/**
+ * Quote a CSV cell only when it needs it — and neutralize spreadsheet
+ * formula injection: student-typed text lands in files instructors
+ * open in Excel, so a cell starting with = + - @ or a tab/CR gets a
+ * leading apostrophe (the OWASP CSV-injection defence). Values the
+ * marker computes (grades, item scores) never start with those.
+ * @param {unknown} value
+ */
 export function csvCell(value) {
-  const text = String(value ?? '');
+  let text = String(value ?? '');
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

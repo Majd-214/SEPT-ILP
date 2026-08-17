@@ -138,19 +138,73 @@ The renderer takes no configuration. A change of appearance belongs in
 the design system; a change of wording belongs in content; a change in
 what content can express is a schema revision.
 
-## Layer 4: authoring tools
+## Layer 4: the platform service (`apps/platform/`)
 
-The proposal's authoring interface — a self-hosted content management
-system whose forms produce Lab JSON, with assisted conversion of legacy
-PDF manuals — lies outside this repository. It is a replaceable tool that
-reads and writes the durable asset. Until it exists, documents are edited
-directly; `renderer/src/validate-file.js` checks a single document, and
-the miniature course under `renderer/test/fixtures/` shows every block
-type in use.
+A faculty-only Fastify service — students never touch it beyond
+receiving static files. Email magic-link sign-in (Mailpit in
+development) with two roles, `admin` and `instructor`; there is no
+student role, no student route, and a test asserts a student-ish POST
+has nowhere to land. The auth stub carries one clearly marked
+`── OIDC SEAM ──` where Phase B swaps in McMaster Entra ID without
+touching anything downstream.
+
+Publishing runs the renderer with every quality gate against the
+content repository; only when all gates pass does an atomic symlink
+flip (`releases/<timestamp>` → `current`) change what students see.
+Failures never reach students, and rollback is re-pointing the same
+symlink (docs/runbook.md). The console also serves the role-gated
+answer keys from the live release, the Avenue to Learn link sheet with
+canonical `/c/<course>/<lab>/` URLs, and downloads for the release's
+bundles — including the single-file lab exports
+(`renderer/src/lib/SingleFile.js`), one self-contained HTML document
+per lab with a DOM-parity test against the hosted page.
+
+The console is styled by the design system's internal-tools layer
+(`05-admin.css`) under the same no-inline-styles rule as student
+pages, and a test drives every console page plus the marker through
+the same axe-core WCAG 2.0 A/AA scan the build gate applies to the
+site.
+
+## Layer 5: authoring tools (`apps/admin/`)
+
+The content editor is a plugin the platform mounts at `/admin/editor`:
+drafts outside git (invalid while in progress is fine), validation
+with the renderer's own SchemaGate — one AJV instance, so the editor
+and the pipeline can never disagree — and *Apply* committing
+pretty-printed JSON into the content checkout under the signed-in
+editor's name. Git remains the single source of truth with real
+history; the CMS is an editor over the repository, not a database
+beside it. The Pages CMS evaluation and the reasoning live in
+`docs/decisions/adr-001-cms.md`.
+
+## Layer 6: marking (`renderer/src/marking/`, `apps/marker/`)
+
+One `marking` spec in content yields two artifacts at build time: the
+public site config carrying only salted SHA-256 hashes (formative
+checking in the browser; the answer-leak gate refuses any plaintext
+leak into `dist/site`), and the instructor answer key under
+`dist/keys/`, never packaged with student artifacts. The instructor
+marker is a fully client-side app behind the instructor session:
+submissions are re-marked from recorded responses against the key —
+choice, value, formula (evaluated over the student's own inputs, no
+eval), evidence, checkpoint — with advisory "review suggested" flags,
+never verdicts, and Brightspace-ready exports. Its no-egress posture
+is enforced three ways (CSP, no student routes, a source-level test).
+`docs/marking.md` is the full statement, including why client-side
+hashing is a deterrent and not security.
+
+## Phase B seams (`integrations/`)
+
+`integrations/lti/` and `integrations/valence/` hold typed interfaces
+and READMEs only — the January 2027 contract for LTI 1.3 launches with
+grade passback, and for Brightspace Valence where LTI cannot reach.
+Nothing in Phase A imports them; both throw if called.
 
 ## Privacy
 
 Content flows to students; student data does not flow back. Pages contain
 no telemetry. The progress file keeps students in possession of their own
 record, and submission for assessment takes place through the learning
-management system.
+management system. The platform serves faculty only; the one path a
+student's browser touches (`/c/…`) serves bytes from the current
+release and accepts nothing.

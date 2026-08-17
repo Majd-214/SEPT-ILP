@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "id": "lab-01",
+  "number": 1,
+  "title": "Every Block, Once",
+  "summary": ["A fixture lab that renders each block type in the vocabulary exactly once, so a template regression is caught the moment it appears."],
+  "cardSummary": "Renders the complete block vocabulary through the pipeline.",
+  "chips": ["Coverage: all 23 blocks", "Concept: [voltage divider](kb:voltage-divider)"],
+  "duration": { "prelab": "5 min", "lab": "10 min", "safety": "None — fixture only" },
+  "contentVersion": "1",
+  "knowledgeTopics": ["voltage-divider", "multimeter"],
+  "sidebars": [
+    {
+      "side": "right",
+      "title": "Reference",
+      "subtitle": "Formula and pins",
+      "handleLabel": "Open reference",
+      "blocks": [
+        { "type": "formula", "title": "Divider", "expression": "Vout = Vin * R2 / (R1 + R2)", "note": "Output taken across R2." },
+        { "type": "keyValues", "items": [ { "term": "A0", "description": "Divider output" }, { "term": "GND", "description": "Common ground" } ] }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "overview",
+      "title": "Overview and readiness",
+      "eyebrow": "Prepare",
+      "context": "Fixture bench",
+      "intro": ["This checkpoint carries the content-only blocks and the readiness checks."],
+      "blocks": [
+        { "type": "text", "paragraphs": ["Plain prose with **bold**, *italic*, `code`, V~out~, R^2^, and a [knowledge link](kb:voltage-divider)."] },
+        { "type": "callout", "variant": "note", "title": "Scenario", "paragraphs": ["You are validating a rendering pipeline."] },
+        { "type": "callout", "variant": "danger", "title": "Safety", "items": ["Disconnect power before rewiring."] },
+        { "type": "objectives", "items": ["Render every block.", "Pass every gate."] },
+        { "type": "flow", "title": "Signal path", "steps": [ { "label": "Source", "detail": "5 V rail" }, { "label": "Divider", "detail": "R1 + R2" }, { "label": "Reading", "detail": "A0 input" } ] },
+        { "type": "flow", "steps": [ { "label": "Author" }, { "label": "Render" }, { "label": "Gate" } ] },
+        { "type": "cards", "title": "At a glance", "items": [ { "eyebrow": "Blocks", "title": "23", "body": "Vocabulary size.", "accent": "gold" }, { "title": "Gates", "body": "Five automated checks.", "accent": "success" } ] },
+        { "type": "equipment", "title": "Equipment", "items": [ { "item": "Multimeter", "quantity": 1 }, { "item": "Resistor, 4.7 kΩ", "quantity": 2, "note": "0.25 W" } ] },
+        { "type": "table", "title": "Truth table", "columns": ["State", "Pin 2", "Buzzer"], "rows": [ ["Upright", "LOW", "Off"], ["Tilted", "HIGH", "On"] ], "note": "Static reference — no inputs." },
+        { "type": "checklist", "role": "materials", "title": "Before you start", "items": [ { "key": "have-meter", "label": "Multimeter on the bench" }, { "key": "have-parts", "label": "Both resistors located" } ] },
+        { "type": "quiz", "id": "which-formula", "prompt": "Which formula should the VI implement?", "points": 1, "options": [ { "text": "Vout = Vin * R1 / (R1 + R2)" }, { "text": "Vout = Vin * R2 / (R1 + R2)", "correct": true }, { "text": "Vout = (R1 + R2) / Vin" } ], "hint": "The output is taken across R2.", "explanation": "Only the R2 fraction of the total resistance appears at the output." }
+      ]
+    },
+    {
+      "id": "measure",
+      "title": "Measure and compute",
+      "eyebrow": "Measure",
+      "blocks": [
+        { "type": "steps", "title": "Procedure", "items": ["Set the meter to resistance mode.", "Measure across `R2`.", "Record the value below."] },
+        { "type": "list", "title": "Watch for", "items": ["Loose probe contact.", "A meter left in current mode."] },
+        { "type": "figure", "src": "fixture-diagram.png", "alt": "Fixture wiring diagram for the divider measurement", "caption": "The fixture circuit.", "step": 1 },
+        { "type": "fields", "title": "Readings", "fields": [
+          { "key": "r2-measured",
+              "expected": { "value": 4.68, "tolerance": 0.25, "message": "Measure the resistor again - it should be near 4.7 kOhm." },
+              "marking": { "points": 2, "tolerance": { "type": "absolute", "value": 0.25 }, "partial": { "points": 1, "tolerance": { "type": "absolute", "value": 0.5 } }, "unitsNote": "kOhm" }, "label": "Measured R2", "control": "number", "unit": "Ω", "min": 0, "step": 0.1, "placeholder": "e.g., 4700", "rangeNote": { "min": 1000, "max": 10000, "message": "Expected a few kΩ — check the meter mode." } },
+          { "key": "meter-mode", "label": "Meter mode used", "control": "select", "options": ["Resistance", "Voltage", "Current"], "expected": { "value": "Resistance", "message": "Resistance is measured in resistance mode." } },
+          { "key": "prediction", "label": "Predict: what happens to Vout when R2 grows?", "control": "textarea", "placeholder": "Write at least a sentence…" }
+        ] },
+        { "type": "details", "summary": "Hint after your prediction", "paragraphs": ["A larger `R2` claims a larger share of `Vin`, so Vout rises."], "gatedBy": { "field": "prediction", "minLength": 10 } },
+        { "type": "details", "summary": "Troubleshooting", "items": ["Check the common ground first.", "Reseat the divider junction wire."], "open": false },
+        { "type": "measurementTable", "title": "Table 1 — Divider voltage", "columns": ["Light level", "0%", "100%"], "rows": [
+          { "label": "Voltage", "unit": "V", "cells": [ { "control": "number", "key": "t1-v-0", "min": 0, "max": 5, "step": 0.01, "placeholder": "e.g., 3.20", "rangeMessage": "Divider output must stay between 0 and 5 V." }, { "control": "number", "key": "t1-v-100",
+                    "marking": { "points": 2, "tolerance": { "type": "percent", "value": 10 }, "formula": { "expression": "vin * r2 / (r2 + rfixed)", "inputs": { "r2": "r2-measured" }, "constants": { "vin": 5, "rfixed": 4.7 } }, "unitsNote": "V" }, "min": 0, "max": 5, "step": 0.01 } ] },
+          { "label": "Within expectation", "cells": [ { "control": "check", "key": "t1-ok-0" }, { "control": "check", "key": "t1-ok-100" } ] },
+          { "label": "Reference", "cells": [ { "control": "static", "value": "Dark bench" }, { "control": "static", "value": "Flashlight" } ] }
+        ], "note": "Enter volts, not millivolts." },
+        { "type": "calculator", "title": "Divider calculator", "inputs": [ { "key": "vin", "label": "Vin", "unit": "V", "min": 0, "step": 0.1, "placeholder": "5.0" }, { "key": "r-one", "label": "R1", "unit": "kΩ", "min": 0, "step": 0.1 }, { "key": "r-two", "label": "R2", "unit": "kΩ", "min": 0, "step": 0.1 } ], "outputs": [ { "label": "Calculated Vout", "expression": "vin * r-two / (r-one + r-two)", "precision": 3, "unit": "V" }, { "label": "Clamped to rail", "expression": "clamp(vin * r-two / (r-one + r-two), 0, 5)", "precision": 2, "unit": "V" } ], "note": "Recomputes live as you type." },
+        { "type": "code", "language": "arduino", "title": "Threshold sketch", "code": "// Fixture sketch\nconst int LED = 7;\nvoid setup() {\n  pinMode(LED, OUTPUT); // D7 drives the LED\n}\nvoid loop() {\n  int level = analogRead(A0);\n  digitalWrite(LED, level < 400 ? HIGH : LOW);\n}" },
+        { "type": "code", "language": "json", "title": "Telemetry payload", "code": "{ \"distance_cm\": 42.7, \"led_state\": true }" },
+        { "type": "ordering", "key": "signal-chain", "title": "Order the signal chain", "prompt": "Arrange from cause to effect.", "items": [ { "key": "light", "label": "Light level changes" }, { "key": "resistance", "label": "Photoresistor resistance changes" }, { "key": "voltage", "label": "Divider voltage changes" }, { "key": "reading", "label": "Arduino reading changes" } ], "failureMessage": "Trace the path from light to reading." }
+      ]
+    },
+    {
+      "id": "submit",
+      "title": "Evidence and submission",
+      "eyebrow": "Submit",
+      "submission": true,
+      "marking": { "points": 1 },
+      "blocks": [
+        { "type": "tabs", "key": "wrap", "tabs": [
+          { "key": "evidence", "label": "Evidence", "blocks": [
+            { "type": "evidence", "key": "vi-file",
+              "marking": { "points": 1 }, "label": "Completed VI evidence dropbox", "accept": [".vi"], "note": "Accepted type: .vi" },
+            { "type": "checklist", "role": "confirmations", "title": "External confirmations", "description": "Only for requirements the page cannot verify automatically.", "items": [ { "key": "ta-demo", "label": "Demonstrated the working circuit to the TA." } ] }
+          ] },
+          { "key": "reflect", "label": "Reflection", "blocks": [
+            { "type": "questions", "title": "Analysis", "items": [ { "key": "q-sources-error", "prompt": "Name two sources of measurement error and how you reduced them.", "minLength": 12 }, { "key": "q-optional", "prompt": "Anything else to note?", "optional": true } ] }
+          ] }
+        ] }
+      ]
+    }
+  ],
+  "submissionRules": [
+    "Submit the exported progress file to the Avenue to Learn dropbox.",
+    "Upload the completed `.vi` file separately."
+  ]
+}
