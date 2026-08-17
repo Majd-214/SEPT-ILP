@@ -1,0 +1,60 @@
+# Pages CMS configuration — an artifact of the ADR-001 evaluation.
+#
+# This file is honest about what Pages CMS can express of this
+# repository: course metadata and media. The lab documents' block union
+# (type-keyed blocks with recursive panels, marking specs, and
+# cross-referenced formula inputs) is beyond .pages.yml field rules and
+# is deliberately not attempted — see docs/decisions/adr-001-cms.md for
+# the evaluation and the platform-native editor that was chosen
+# instead. If a GitHub mirror of this repository is ever connected to
+# app.pagescms.org, this configuration works as written.
+
+media:
+  input: content/courses/smrttech-3cc3/assets
+  output: assets
+
+content:
+  - name: course
+    label: Course (SMRTTECH 3CC3)
+    type: file
+    path: content/courses/smrttech-3cc3/course.json
+    format: json
+    fields:
+      - name: code
+        label: Course code
+        type: string
+        required: true
+      - name: title
+        label: Course title
+        type: string
+        required: true
+      - name: term
+        label: Term
+        type: string
+      - name: institution
+        label: Institution
+        type: string
+      - name: school
+        label: School
+        type: string
+      - name: program
+        label: Program
+        type: string
+
+  - name: labs
+    label: Labs (read-only listing — edit through the platform editor)
+    type: collection
+    path: content/courses/smrttech-3cc3/labs
+    format: json
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: summary
+        label: Summary
+        type: text
+      - name: contentVersion
+        label: Content version
+        type: string
+        required: true

@@ -296,15 +296,11 @@ export pipeline lands. Until then, use the canonical URLs on the link sheet.</p>
     }));
   });
 
-  app.get('/admin/editor/:courseId?', { preHandler: auth.requireUser() }, async (request, reply) => {
-    reply.type('text/html').send(layout({
-      title: 'Editor', user: enrich(request), active: 'editor',
-      body: card('Content editor', `
-<p>The schema-driven content editor — draft, validate, publish, all against the git repository —
-arrives with the CMS milestone. Until then, edit lab JSON in the repository and publish from the
-dashboard; the quality gates keep anything malformed away from students.</p>`),
-    }));
-  });
+  // The content editor (apps/admin): drafts, schema validation, git
+  // commits, image uploads. Mounted in this scope so it shares the
+  // session, role, and CSRF machinery.
+  const { editorRoutes } = await import('../../admin/src/routes.js');
+  await app.register(editorRoutes, { auth, publisher, config, courseInfo });
 
   /* ── Answer keys (role-gated) ───────────────────────────────────── */
   app.get('/keys/:courseId/:labId.key.json', async (request, reply) => {
