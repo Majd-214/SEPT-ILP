@@ -13,7 +13,7 @@ const USAGE = `SEPT Interactive Laboratory Platform — build pipeline
 
 Usage:
   node renderer/src/cli.js validate <course-dir>
-  node renderer/src/cli.js build <course-dir> [--out <dir>] [--strict] [--skip-a11y]
+  node renderer/src/cli.js build <course-dir> [--out <dir>] [--strict] [--skip-a11y] [--single-file]
   node renderer/src/cli.js preview [--dir <dir>] [--port <n>]
 
 Commands:
@@ -22,9 +22,11 @@ Commands:
   preview    Serve a built site locally.
 
 Flags:
-  --out       Output root for build (default: dist)
-  --strict    A skipped gate fails the build (CI/publishing mode)
-  --skip-a11y Skip the axe-core scan for faster local iteration
+  --out         Output root for build (default: dist)
+  --strict      A skipped gate fails the build (CI/publishing mode)
+  --skip-a11y   Skip the axe-core scan for faster local iteration
+  --single-file Also export each lab as one self-contained HTML file
+                (bundles/<course>-<lab>-single.html; assets inlined)
   --dir       Directory for preview (default: dist/site)
   --port      Preview port (default: 4173)
 `;
@@ -36,6 +38,7 @@ function parseArguments(argv) {
     const argument = argv[index];
     if (argument === '--strict') flags.strict = true;
     else if (argument === '--skip-a11y') flags.skipA11y = true;
+    else if (argument === '--single-file') flags.singleFile = true;
     else if (argument === '--out') flags.out = argv[(index += 1)];
     else if (argument === '--dir') flags.dir = argv[(index += 1)];
     else if (argument === '--port') flags.port = Number(argv[(index += 1)]);
@@ -87,6 +90,7 @@ switch (command) {
         outDir: flags.out ?? 'dist',
         strict: flags.strict === true,
         skipAccessibility: flags.skipA11y === true,
+        singleFile: flags.singleFile === true,
       });
       if (failures.length > 0) {
         console.error(`\nBuild BLOCKED by ${failures.length} gate violation${failures.length === 1 ? '' : 's'}:`);

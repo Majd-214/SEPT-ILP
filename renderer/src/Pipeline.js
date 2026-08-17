@@ -16,6 +16,7 @@ import { KnowledgeHubPage } from './pages/KnowledgeHubPage.js';
 import { KnowledgeTopicPage } from './pages/KnowledgeTopicPage.js';
 import { LabPage } from './pages/LabPage.js';
 import { PortalPage } from './pages/PortalPage.js';
+import { SingleFile } from './lib/SingleFile.js';
 import { ZipWriter } from './lib/ZipWriter.js';
 
 /**
@@ -56,7 +57,9 @@ export class Pipeline {
    * @param {boolean} [options.skipAccessibility] Skip the axe scan (local iteration only).
    * @returns {Promise<{ siteDir: string, failures: string[] }>}
    */
-  async build(courseDir, { outDir = 'dist', strict = false, skipAccessibility = false } = {}) {
+  async build(courseDir, {
+    outDir = 'dist', strict = false, skipAccessibility = false, singleFile = false,
+  } = {}) {
     const repository = this.loadContent(courseDir);
     const siteDir = path.join(outDir, 'site');
     fs.rmSync(siteDir, { recursive: true, force: true });
@@ -69,8 +72,31 @@ export class Pipeline {
     failures.push(...await this.#runGates(siteDir, { strict, skipAccessibility, leak: marking.leak }));
     if (failures.length === 0) {
       this.#writeBundles(repository, siteDir, path.join(outDir, 'bundles'));
+      if (singleFile) {
+        this.#writeSingleFiles(repository, siteDir, path.join(outDir, 'bundles'));
+      }
     }
     return { siteDir, failures };
+  }
+
+  /**
+   * Self-contained single-file lab pages — every asset inlined, one
+   * HTML document per lab, for uploading directly into an LMS. Runs
+   * only after all gates pass, like the other bundles. When
+   * PUBLIC_BASE_URL is set (the publish pipeline sets it), internal
+   * navigation is rewritten onto the hosted site's canonical URLs.
+   * @param {ContentRepository} repository
+   * @param {string} siteDir
+   * @param {string} bundlesDir
+   */
+  #writeSingleFiles(repository, siteDir, bundlesDir) {
+    const publicBase = (process.env.PUBLIC_BASE_URL ?? '').replace(/\/$/, '');
+    const linkBase = publicBase ? `${publicBase}/c/${repository.course.id}` : null;
+    for (const lab of repository.allLabs) {
+      const html = SingleFile.inline(siteDir, `labs/${lab.id}/index.html`, { linkBase });
+      fs.writeFileSync(
+        path.join(bundlesDir, `${repository.course.id}-${lab.id}-single.html`), html);
+    }
   }
 
   /**

@@ -132,3 +132,25 @@ deliberate future step it was in the proposal, not a dependency.
 A CMS does not change this picture: Payload (or any authoring tool)
 feeds the pipeline on the faculty side; students only ever receive the
 static output, wherever it is hosted.
+
+## Single-file exports and partitioned storage
+
+Every publish also produces one **self-contained HTML file per lab**
+(`bundles/<course>-<lab>-single.html`, downloadable from the console's
+Exports page): stylesheet, runtime, fonts, and images inlined as
+`data:` URIs, with internal navigation rewritten onto the hosted
+site's canonical URLs. The full interactive runtime — checkpoints,
+quizzes, hashed answer checking, the submission package — works with
+no server at all, verified by a DOM-parity test against the hosted
+page and an offline interaction test.
+
+**The caveat to teach with:** browsers partition storage by origin.
+Progress made in a single-file copy (an A2L file topic, a downloaded
+file opened from disk) is stored under *that* origin and does not
+appear on the hosted site, or in another copy — and vice versa. This
+is inherent to the artifact, not a bug. The bridge is the progress
+file: every lab page carries download/restore controls, and a student
+who moves between contexts carries their progress file with them. If a
+course uses both forms, say so explicitly in the A2L module text —
+one sentence ("your work saves in whichever copy you use; use the
+progress file to move it") prevents the support tickets.

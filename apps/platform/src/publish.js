@@ -80,10 +80,17 @@ export class Publisher {
           'build', courseDir,
           '--out', path.join(releaseDir, courseId),
           '--strict',
+          '--single-file',
         ];
         if (this.config.publishSkipA11y) args.push('--skip-a11y');
         const build = await this.#exec(process.execPath, args, {
-          env: { ...process.env, SOURCE_DATE_EPOCH: epoch },
+          env: {
+            ...process.env,
+            SOURCE_DATE_EPOCH: epoch,
+            // Single-file exports point their internal navigation at
+            // the hosted site's canonical URLs.
+            PUBLIC_BASE_URL: this.config.baseUrl,
+          },
         });
         say(build.output.trim());
         if (build.code !== 0) {

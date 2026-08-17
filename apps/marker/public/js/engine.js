@@ -506,15 +506,25 @@ export function batchFlags(results) {
  * @param {{ name: string, size: number }[]} entries ZIP entry listing.
  */
 export function resolveEvidence(session, key, entries) {
+  // The exact sanitizer the lab page's ZIP writer applies to both the
+  // evidence key and the original filename (58-submission.js).
   const sanitize = (value) => String(value || 'file')
-    .replace(/[<>:"/\\|?* -]/g, '_')
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
     .replace(/\s+/g, '_')
     .replace(/^\.+/, '')
     .slice(0, 160) || 'file';
-  for (const item of key.items.filter((candidate) => candidate.type === 'evidence')) {
-    const prefix = `evidence/${sanitize(item.ref.evidence)}-`;
-    const entry = entries.find((candidate) => candidate.name.startsWith(prefix));
+  const claimed = new Set();
+  const evidenceItems = key.items
+    .filter((candidate) => candidate.type === 'evidence')
+    .map((item) => ({ item, prefix: `evidence/${sanitize(item.ref.evidence)}-` }))
+    // Longest prefix first, so a key that prefixes another key (vi vs
+    // vi-file) can never claim the wrong entry.
+    .sort((a, b) => b.prefix.length - a.prefix.length);
+  for (const { item, prefix } of evidenceItems) {
+    const entry = entries.find((candidate) =>
+      !claimed.has(candidate.name) && candidate.name.startsWith(prefix));
     if (entry) {
+      claimed.add(entry.name);
       session.evidenceFiles[item.ref.evidence] = {
         name: entry.name.slice('evidence/'.length),
         size: entry.size,

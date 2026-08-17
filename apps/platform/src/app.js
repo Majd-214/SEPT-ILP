@@ -285,15 +285,58 @@ so student work is stored first-party) with the suggested topic title.</p>
     }));
   });
 
-  /* ── Exports and editor (milestone placeholders) ────────────────── */
+  /* ── Exports: single-file labs and course-site bundles ──────────── */
+  const releaseBundles = (courseId) => {
+    const release = publisher.currentRelease();
+    if (!release) return null;
+    const dir = path.join(release, courseId, 'bundles');
+    return fs.existsSync(dir)
+      ? { dir, files: fs.readdirSync(dir).sort() }
+      : { dir, files: [] };
+  };
+
   app.get('/admin/exports', { preHandler: auth.requireUser() }, async (request, reply) => {
+    const sections = visibleCourses(request.user).map((courseId) => {
+      const bundles = releaseBundles(courseId);
+      const rows = (bundles?.files ?? []).map((file) => {
+        const kind = file.endsWith('-single.html')
+          ? 'Single-file lab page — upload directly into an Avenue to Learn file topic'
+          : file.endsWith('-course-site.zip')
+            ? 'Complete course site as one ZIP'
+            : 'Lab bundle (page + knowledge base) for LMS folders';
+        return `<tr><td class="c-admin-link">${esc(file)}</td><td>${esc(kind)}</td>
+<td><a href="/admin/exports/${esc(courseId)}/${esc(file)}" download>Download</a></td></tr>`;
+      }).join('');
+      return card(`${esc(courseId)} — exports`, bundles === null
+        ? '<p>Nothing published yet — exports are built by the publish pipeline after every gate passes.</p>'
+        : `
+<p>Single-file pages carry the complete interactive lab — styles, scripts, fonts, and images
+inlined — and work opened from anywhere, with no server. Note that browser storage is
+partitioned by origin: progress made in a single-file copy stays with that copy; the progress
+file download/restore on every lab page is the bridge between copies.</p>
+<div class="o-scroll-x"><table class="c-admin-table">
+<thead><tr><th scope="col">File</th><th scope="col">What it is</th><th scope="col">Get</th></tr></thead>
+<tbody>${rows || '<tr><td colspan="3">The current release has no bundles — republish to generate them.</td></tr>'}</tbody></table></div>`);
+    }).join('\n');
     reply.type('text/html').send(layout({
-      title: 'Exports', user: enrich(request), active: 'exports',
-      body: card('Single-file exports', `
-<p>Self-contained single-file lab pages — one HTML file per lab with styles, scripts, fonts and
-images inlined, suitable for uploading directly into Avenue to Learn — are built here once the
-export pipeline lands. Until then, use the canonical URLs on the link sheet.</p>`),
+      title: 'Exports', user: enrich(request), active: 'exports', body: sections,
     }));
+  });
+
+  app.get('/admin/exports/:courseId/:file', { preHandler: auth.requireUser() }, async (request, reply) => {
+    const { courseId, file } = request.params;
+    if (!auth.canAccessCourse(request.user, courseId)) {
+      return reply.code(403).send('Not an instructor for this course.');
+    }
+    const bundles = releaseBundles(courseId);
+    if (!bundles || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(file) || !bundles.files.includes(file)) {
+      return reply.code(404).send('No such export in the current release.');
+    }
+    const types = { '.html': 'text/html', '.zip': 'application/zip' };
+    return reply
+      .type(types[path.extname(file)] ?? 'application/octet-stream')
+      .header('content-disposition', `attachment; filename="${file}"`)
+      .send(fs.createReadStream(path.join(bundles.dir, file)));
   });
 
   // The content editor (apps/admin): drafts, schema validation, git

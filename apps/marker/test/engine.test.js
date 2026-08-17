@@ -389,13 +389,30 @@ test('resolveEvidence maps sanitized archive names back to key items', () => {
     items: [{ id: 'evidence:lab1-vi-file', type: 'evidence', ref: { evidence: 'lab1-vi-file' }, points: 2 }],
   };
   const subject = session({});
-  // The page archives `lab1-vi-file` + `V-I trace.png` with `-`, space
-  // and `*` all sanitized to underscores.
+  // The page's archiver keeps hyphens; spaces and reserved characters
+  // become underscores ("V*I trace.png" → "V_I_trace.png").
   resolveEvidence(subject, key, [
     { name: 'completion.json', size: 900 },
-    { name: 'evidence/lab1_vi_file-V_I_trace.png', size: 4096 },
+    { name: 'evidence/lab1-vi-file-V_I_trace.png', size: 4096 },
   ]);
   assert.deepEqual(subject.evidenceFiles['lab1-vi-file'], {
-    name: 'lab1_vi_file-V_I_trace.png', size: 4096,
+    name: 'lab1-vi-file-V_I_trace.png', size: 4096,
   });
+});
+
+test('resolveEvidence never lets a prefix key claim a longer key’s file', () => {
+  const key = {
+    ...KEY,
+    items: [
+      { id: 'evidence:vi', type: 'evidence', ref: { evidence: 'vi' }, points: 1 },
+      { id: 'evidence:vi-file', type: 'evidence', ref: { evidence: 'vi-file' }, points: 1 },
+    ],
+  };
+  const subject = session({});
+  resolveEvidence(subject, key, [
+    { name: 'evidence/vi-file-trace.png', size: 10 },
+    { name: 'evidence/vi-shot.png', size: 20 },
+  ]);
+  assert.equal(subject.evidenceFiles['vi-file'].name, 'vi-file-trace.png');
+  assert.equal(subject.evidenceFiles.vi.name, 'vi-shot.png');
 });

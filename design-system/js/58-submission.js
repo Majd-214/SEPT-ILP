@@ -231,7 +231,7 @@ class SubmissionPackage {
 
   static #archiveName(value) {
     return String(value || 'file')
-      .replace(/[<>:"/\\|?* -]/g, '_')
+      .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
       .replace(/\s+/g, '_')
       .replace(/^\.+/, '')
       .slice(0, 160) || 'file';
