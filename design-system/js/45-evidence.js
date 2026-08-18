@@ -71,6 +71,7 @@ class Evidence {
       event.preventDefault();
       depth = 0;
       this.zone.classList.remove('is-dragover');
+      if (this.input.disabled) return; // a locked checkpoint accepts nothing
       const files = event.dataTransfer?.files;
       if (!files || files.length === 0) return;
       this.input.files = files;

@@ -92,3 +92,43 @@ the accessibility scan — and the `main` branch publishes the rendered
 site to GitHub Pages as a faculty-facing preview. The Pages deployment
 is a convenience for review, not the delivery route; students receive
 the archives through Avenue to Learn.
+
+## Hosting strategies beyond the A2L content frame
+
+The proposal's baseline — static bundles unzipped into Avenue to Learn's
+Manage Files area — inherits SSO and enrollment gating for free, but it
+also puts every lab inside Brightspace's content iframe, which is where
+the storage-partitioning risk lives (§5.1 of the proposal) and where
+sandbox behaviour is at the LMS vendor's discretion. Because the output
+is a self-contained static site, the delivery mechanism is swappable
+without touching content, design, or renderer. The realistic options:
+
+| Option | Access control | Storage behaviour | Operations |
+| --- | --- | --- | --- |
+| **1 · Zip inside A2L (baseline)** | McMaster SSO + enrollment, free | Partitioned/ephemeral inside the iframe; progress file is the safety net | Republish = re-upload zip; nothing to run |
+| **2 · A2L link → new tab (recommended next step)** | Link lives behind SSO; the site itself must be link-unlisted or gated | **First-party storage** — the partitioning risk disappears | Same static files, hosted anywhere |
+| **3 · SEPT server (static vhost on the approved VM)** | Can sit behind campus SSO/VPN if UTS provisions it; otherwise link-hidden | First-party | One nginx/Apache vhost; deploy = rsync from CI |
+| **4 · Cloudflare Pages + GitHub** | Public by default; Cloudflare Access can gate by email domain (@mcmaster.ca) | First-party | Push-to-deploy from the repo; global CDN; zero servers |
+| **5 · GitHub Pages (as the prototype does today)** | Public (unlisted URL only) | First-party | Push-to-deploy; simplest possible |
+| **6 · LTI 1.3 tool launch (future)** | Verified identity + gradebook, the sanctioned deep integration | First-party (tool origin) | Requires the full privacy review; a later-phase decision |
+
+Recommendation. Keep publishing the zip bundles (option 1 costs nothing
+to maintain and is the fallback that always works), but deliver labs to
+students as **A2L links that open the hosted site in a new tab**
+(option 2), with the hosting itself on either the approved SEPT server
+(option 3) or Cloudflare Pages (option 4) — whichever the School would
+rather operate. Opening in a first-party tab is the single biggest
+reliability win available: browser storage stops being partitioned, the
+progress file becomes a belt-and-braces measure instead of a daily
+necessity, and print, bookmarks, and multi-tab reference all behave
+normally. Access control is honest either way: the links live behind
+Avenue to Learn, the content itself contains no student data and no way
+to submit anything, and real submissions still flow through the A2L
+dropbox. If leadership wants the content itself gated, Cloudflare
+Access (email-domain rule) or a UTS-provisioned SSO vhost adds that
+without any change to the platform. LTI 1.3 (option 6) remains the
+deliberate future step it was in the proposal, not a dependency.
+
+A CMS does not change this picture: Payload (or any authoring tool)
+feeds the pipeline on the faculty side; students only ever receive the
+static output, wherever it is hosted.

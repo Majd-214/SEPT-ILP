@@ -90,9 +90,33 @@ checkpoint completion — the always-visible progress-file control the
 proposal commits to. Laboratory content may define further reference
 drawers.
 
-Checkpoint confirmation reports outstanding requirements as jump links:
-each one scrolls to, reveals (switching tabs or opening disclosures as
-needed), and highlights the control it names.
+Progression through a laboratory is strictly sequential, as it was in
+the original 3CC3 portal: a checkpoint unlocks only when every earlier
+checkpoint has its requirements satisfied and has been explicitly
+confirmed. Locked checkpoints can be looked at — greyed out, every
+control disabled, marked with a padlock in the rail — but accept no
+work. Completion is live: editing an earlier answer until it no longer
+passes revokes that checkpoint's confirmation and re-locks everything
+after it. The active checkpoint's footer always lists what remains, as
+jump links: each one scrolls to, reveals (switching tabs or opening
+disclosures as needed), and highlights the control it names, and the
+confirm button arms only when the list is empty.
+
+The submission checkpoint carries the submission package: identity
+fields plus a browser-built ZIP containing `completion.json` — the
+auto-marked record of the lab (score, confirmations, responses, SHA-256
+integrity hash) — and every evidence file currently selected on the
+page. The package downloads only when the whole laboratory is complete,
+and reaches the instructor only when the student submits it through the
+LMS dropbox, so the platform stays zero-PII.
+
+The knowledge base presents as the skill tree the original portal
+established. The hub is a pannable, zoomable cluster: a central course
+card surrounded by domain cards, with a global topic search. Each topic
+page is a documentation view — breadcrumb, the domain's directory
+grouped by kind with filter chips, the article, and previous/next
+pagers — and the shell rail carries only the domains, never a dump of
+every topic.
 
 ## Layer 3: the renderer (`renderer/`)
 

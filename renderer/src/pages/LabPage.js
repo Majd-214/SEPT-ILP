@@ -63,7 +63,7 @@ export class LabPage extends Page {
   }
 
   appBarActive() {
-    return this.isProject ? 'project' : null;
+    return null;
   }
 
   bodyClass() {
@@ -94,6 +94,14 @@ export class LabPage extends Page {
       'data-checkpoint-link': checkpoint.id,
     },
     Html.el('span', { class: 'c-nav__num', 'aria-hidden': 'true' }, String(index + 1)),
+    Html.el('span', {
+      class: 'c-nav__num c-nav__num--lock',
+      'data-checkpoint-lock': true,
+      hidden: true,
+    },
+    Icons.render('lock'),
+    Html.el('span', { class: 'u-visually-hidden' }, 'Locked. '),
+    ),
     Html.el('span', { class: 'c-nav__body' },
       Html.el('span', { class: 'c-nav__text' }, Html.escape(RichText.plain(checkpoint.navLabel ?? checkpoint.title))),
       Html.el('span', { class: 'c-nav__meta', 'data-checkpoint-meta': checkpoint.id, hidden: true }),
@@ -399,6 +407,16 @@ export class LabPage extends Page {
     );
   }
 
+  /** Identity fields the submission package records — the same four the
+   *  original 3CC3 portal collected. Values stay in the browser and in
+   *  files the student downloads; nothing is transmitted. */
+  static #STUDENT_DETAILS = [
+    { key: 'name_or_team', label: 'Student names', placeholder: 'Everyone submitting this work' },
+    { key: 'student_numbers', label: 'Student numbers', placeholder: 'In the same order as the names' },
+    { key: 'lab_section', label: 'Lab section', placeholder: 'e.g. L01' },
+    { key: 'instructor_or_ta', label: 'Lab instructor or TA', placeholder: 'Who marks this lab' },
+  ];
+
   #submissionExtras() {
     return Html.el('div', { class: 'o-stack' },
       (this.lab.submissionRules?.length ?? 0) > 0
@@ -409,6 +427,7 @@ export class LabPage extends Page {
               this.lab.submissionRules.map((rule) => Html.el('li', {}, this.context.rich(rule))))),
         )
         : null,
+      this.#submissionPackage(),
       Html.el('div', { class: 'c-progressfile' },
         Html.el('h3', { class: 'c-card__title' }, 'Progress file'),
         Html.el('p', {},
@@ -425,6 +444,39 @@ export class LabPage extends Page {
         ),
         Html.el('p', { class: 'c-progressfile__status', 'data-progress-status': true, role: 'status', 'aria-live': 'polite' }),
       ),
+    );
+  }
+
+  /**
+   * The submission package: the auto-marked completion record plus the
+   * evidence files selected on this page, zipped in the browser for the
+   * LMS dropbox — the original portal's export, rebuilt on the platform.
+   */
+  #submissionPackage() {
+    return Html.el('div', { class: 'c-progressfile c-submission' },
+      Html.el('h3', { class: 'c-card__title' }, 'Submission package'),
+      Html.el('p', {},
+        'Identify your team, then download the package. It contains your completion record ',
+        '(', Html.el('code', {}, 'completion.json'), ', with your auto-marked results) and every evidence file ',
+        'currently selected on this page. Submit the ZIP through the course dropbox.'),
+      Html.el('div', { class: 'c-field-grid' },
+        LabPage.#STUDENT_DETAILS.map((detail) => Html.el('label', { class: 'c-field' },
+          Html.el('span', { class: 'c-field__label' }, Html.escape(detail.label)),
+          Html.el('span', { class: 'c-field__row' },
+            Html.el('input', {
+              class: 'c-field__control',
+              type: 'text',
+              'data-student-detail': detail.key,
+              placeholder: detail.placeholder,
+              autocomplete: 'off',
+            }),
+          ),
+        ))),
+      Html.el('div', { class: 'c-progressfile__actions' },
+        Html.el('button', { class: 'c-btn c-btn--filled', type: 'button', 'data-submission-download': true },
+          Icons.render('package_zip'), 'Download submission package (.zip)'),
+      ),
+      Html.el('p', { class: 'c-progressfile__status', 'data-submission-status': true, role: 'status', 'aria-live': 'polite' }),
     );
   }
 }

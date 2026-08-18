@@ -1,25 +1,27 @@
 /* ==========================================================================
- * Checkpoints — staged navigation, completion criteria, and progress
+ * Checkpoints — staged, sequentially gated navigation and progress
  * --------------------------------------------------------------------------
  * Markup contract:
  *   section.c-checkpoint[data-checkpoint="<id>"] one per checkpoint
  *   [data-checkpoint-link="<id>"]      rail buttons
  *   [data-checkpoint-meta="<id>"]      rail requirement counter
+ *   [data-checkpoint-lock]             rail lock icon (hidden until locked)
  *   [data-checkpoint-complete]         confirm button inside each panel
  *   [data-checkpoint-back]             previous button
  *   [data-checkpoint-message]          per-panel live status region
  *   [data-score]                       app-bar progress chip
  *   [data-progress-summary]            checkpoint map in the progress drawer
  *
- * Completion criteria come from the lab config (derived from Lab JSON at
- * build time). Checkpoints are freely navigable: locking students out of
- * later pages punishes curiosity and, as the prototype showed, turns one
- * edit into a cascade of revoked confirmations. Confirmation is explicit,
- * validated, and recorded with a timestamp instead.
+ * Progression is strictly sequential, exactly as in the original 3CC3
+ * portal: a checkpoint unlocks only when every earlier checkpoint has
+ * its requirements satisfied AND has been explicitly confirmed. Locked
+ * checkpoints can be looked at — greyed out, every control disabled,
+ * with a lock notice — but no work can happen in them. Completion is
+ * live: if an earlier answer is edited until it no longer passes, that
+ * checkpoint's confirmation is revoked and everything after it re-locks.
  *
- * Every outstanding requirement is reported as a jump link that scrolls
- * to, reveals, and highlights the control it names — feedback a student
- * can act on, not a wall of text.
+ * The footer of the active checkpoint always shows what remains, as
+ * jump links that scroll to, reveal, and highlight the control named.
  * ========================================================================== */
 
 class Checkpoints {
@@ -31,6 +33,10 @@ class Checkpoints {
     this.links = Dom.all('[data-checkpoint-link]');
     this.scoreChip = document.querySelector('[data-score]');
     this.summary = document.querySelector('[data-progress-summary]');
+    /** Guards the revocation pass against re-entrant store notifications. */
+    this.reconciling = false;
+    /** @type {Map<string, string>} Last-rendered footer signature per checkpoint. */
+    this.messageSignatures = new Map();
 
     for (const link of this.links) {
       link.addEventListener('click', () => this.show(link.dataset.checkpointLink));
@@ -185,6 +191,29 @@ class Checkpoints {
   }
 
   /**
+   * Whether a checkpoint counts as complete right now: requirements
+   * satisfied AND explicitly confirmed. Live, so editing an earlier
+   * answer until it fails takes completion away again.
+   * @param {object} definition
+   * @returns {boolean}
+   */
+  isComplete(definition) {
+    if (!SeptLabs.store.state.confirmed[definition.id]) return false;
+    return this.requirementItems(definition).every((item) => item.satisfied);
+  }
+
+  /**
+   * A checkpoint is unlocked when every earlier one is complete.
+   * @param {number} index
+   * @returns {boolean}
+   */
+  isUnlocked(index) {
+    return this.definitions
+      .slice(0, index)
+      .every((definition) => this.isComplete(definition));
+  }
+
+  /**
    * Outstanding requirements for a checkpoint.
    * @param {string} id
    * @returns {{ type: string, key: string, problem: string }[]}
@@ -197,47 +226,283 @@ class Checkpoints {
 
   /** Validate, record confirmation, and advance. @param {string} id */
   confirm(id) {
-    const panel = this.panels.get(id);
-    const message = panel?.querySelector('[data-checkpoint-message]');
-    const problems = this.validate(id);
-
-    if (problems.length > 0) {
-      this.#renderProblems(message, problems);
-      return;
-    }
+    const index = this.definitions.findIndex((candidate) => candidate.id === id);
+    if (!this.isUnlocked(index) || this.validate(id).length > 0) return;
 
     SeptLabs.store.update((state) => {
       state.confirmed[id] = new Date().toISOString();
     });
 
-    const index = this.definitions.findIndex((candidate) => candidate.id === id);
     const last = index === this.definitions.length - 1;
-    Dom.status(message, last
-      ? 'Laboratory complete. Download the progress file and keep it with your course records.'
-      : 'Checkpoint complete. Progress is saved in this browser.', 'success');
     if (!last) this.#step(id, 1);
   }
 
   /**
-   * Render outstanding requirements as jump links inside the status
-   * region: each one takes the student to the control it names.
-   * @param {HTMLElement | null} message
-   * @param {{ type: string, key: string, problem: string }[]} problems
+   * Revoke confirmations whose requirements no longer pass — the
+   * original portal's behaviour: completion is a fact about the current
+   * answers, not a badge that survives breaking them.
    */
-  #renderProblems(message, problems) {
+  #reconcile() {
+    if (this.reconciling) return;
+    const stale = this.definitions.filter((definition) => (
+      SeptLabs.store.state.confirmed[definition.id]
+      && !this.requirementItems(definition).every((item) => item.satisfied)
+    ));
+    if (stale.length === 0) return;
+    this.reconciling = true;
+    try {
+      SeptLabs.store.update((state) => {
+        for (const definition of stale) delete state.confirmed[definition.id];
+      }, { activity: false });
+    } finally {
+      this.reconciling = false;
+    }
+  }
+
+  /**
+   * @param {string} id
+   * @param {number} delta
+   */
+  #step(id, delta) {
+    const index = this.definitions.findIndex((candidate) => candidate.id === id);
+    const next = this.definitions[index + delta];
+    if (next) this.show(next.id);
+  }
+
+  /**
+   * Where to land on load: the saved checkpoint when it is unlocked,
+   * otherwise the first checkpoint that still needs work.
+   */
+  #initialCheckpoint() {
+    const saved = SeptLabs.store.state.currentCheckpoint;
+    const savedIndex = this.definitions.findIndex((candidate) => candidate.id === saved);
+    if (savedIndex >= 0 && this.panels.has(saved) && this.isUnlocked(savedIndex)) return saved;
+    const firstIncomplete = this.definitions.findIndex((definition) => !this.isComplete(definition));
+    return (this.definitions[firstIncomplete] ?? this.definitions[0])?.id;
+  }
+
+  /** Open the checkpoint containing the element the URL hash points at. */
+  #followAnchor() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const target = document.getElementById(hash);
+    const panel = target?.closest('.c-checkpoint');
+    if (panel) {
+      this.show(panel.dataset.checkpoint, { scroll: false });
+      target.scrollIntoView();
+    }
+  }
+
+  /** Build the progress drawer's checkpoint map once; state updates live. */
+  #buildSummary() {
+    if (!this.summary) return;
+    this.definitions.forEach((definition, index) => {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'c-progress-summary__item';
+      button.dataset.summaryFor = definition.id;
+
+      const state = document.createElement('span');
+      state.className = 'c-progress-summary__state';
+      state.setAttribute('aria-hidden', 'true');
+      state.textContent = String(index + 1);
+
+      const title = document.createElement('span');
+      title.className = 'c-progress-summary__title';
+      title.textContent = definition.title || definition.id;
+
+      const count = document.createElement('span');
+      count.className = 'c-progress-summary__count';
+
+      button.append(state, title, count);
+      button.addEventListener('click', () => {
+        this.show(definition.id);
+        Sidebar.closeAll();
+      });
+      item.appendChild(button);
+      this.summary.appendChild(item);
+    });
+  }
+
+  #renderProgress() {
+    this.#reconcile();
+    const { state } = SeptLabs.store;
+    /** @type {Map<HTMLElement, number>} Unfinished required items per tab panel. */
+    const badgeCounts = new Map();
+
+    this.definitions.forEach((definition, index) => {
+      const items = this.requirementItems(definition);
+      const satisfied = items.filter((item) => item.satisfied).length;
+      const complete = Boolean(state.confirmed[definition.id]) && satisfied === items.length;
+      const locked = !this.isUnlocked(index);
+
+      this.#renderRailItem(definition, { items, satisfied, complete, locked });
+      this.#renderSummaryItem(definition, index, { items, satisfied, complete, locked });
+      this.#applyPanelLock(definition, index, { items, complete, locked });
+
+      // Unsatisfied requirements sitting inside tab panels feed badges.
+      if (!locked) {
+        for (const item of items) {
+          if (item.satisfied) continue;
+          const element = Checkpoints.elementFor(item.type, item.key);
+          const panel = element?.closest('.c-tabs__panel');
+          if (panel) badgeCounts.set(panel, (badgeCounts.get(panel) ?? 0) + 1);
+        }
+      }
+    });
+
+    for (const tabs of SeptLabs.tabs) tabs.renderBadges(badgeCounts);
+    this.#renderScore();
+  }
+
+  #renderRailItem(definition, { items, satisfied, complete, locked }) {
+    const link = this.links.find((candidate) => candidate.dataset.checkpointLink === definition.id);
+    if (!link) return;
+    link.classList.toggle('is-complete', complete);
+    link.classList.toggle('is-locked', locked);
+    link.title = locked ? 'Locked — complete the previous checkpoint first' : '';
+
+    const number = link.querySelector('.c-nav__num');
+    const lock = link.querySelector('[data-checkpoint-lock]');
+    if (number) number.hidden = locked;
+    if (lock) lock.hidden = !locked;
+
+    const meta = link.querySelector(`[data-checkpoint-meta="${CSS.escape(definition.id)}"]`);
+    if (meta) {
+      if (locked) {
+        meta.hidden = false;
+        meta.textContent = 'Locked';
+      } else {
+        const started = satisfied > 0 && !complete && items.length > 0;
+        meta.hidden = !started;
+        if (started) meta.textContent = `${satisfied} of ${items.length} done`;
+      }
+    }
+  }
+
+  #renderSummaryItem(definition, index, { items, satisfied, complete, locked }) {
+    const button = this.summary?.querySelector(`[data-summary-for="${CSS.escape(definition.id)}"]`);
+    if (!button) return;
+    button.classList.toggle('is-complete', complete);
+    button.classList.toggle('is-locked', locked);
+    button.classList.toggle('is-current',
+      !complete && SeptLabs.store.state.currentCheckpoint === definition.id);
+    const stateSlot = button.querySelector('.c-progress-summary__state');
+    if (stateSlot) stateSlot.textContent = complete ? '✓' : (locked ? '🔒' : String(index + 1));
+    const countSlot = button.querySelector('.c-progress-summary__count');
+    if (countSlot) {
+      countSlot.textContent = complete
+        ? 'Confirmed'
+        : (locked ? 'Locked' : (items.length > 0 ? `${satisfied}/${items.length}` : ''));
+    }
+  }
+
+  /**
+   * Grey out and disable a locked checkpoint, and keep the footer's
+   * live status current: the lock notice, the remaining requirements as
+   * jump links, or the confirmed state.
+   */
+  #applyPanelLock(definition, index, { items, complete, locked }) {
+    const panel = this.panels.get(definition.id);
+    if (!panel) return;
+    panel.classList.toggle('is-locked', locked);
+
+    for (const control of Dom.all('input, select, textarea, button', panel)) {
+      // Back and tab controls stay live so a locked page can still be
+      // left and read; everything that records work locks up.
+      if (control.matches('[data-checkpoint-back], .c-tabs__tab, .c-code__copy')) continue;
+      if (locked) {
+        if (!control.disabled) {
+          control.dataset.lockDisabled = 'true';
+          control.disabled = true;
+        }
+      } else if (control.dataset.lockDisabled === 'true') {
+        control.disabled = false;
+        delete control.dataset.lockDisabled;
+      }
+    }
+
+    // Ordering rows drag outside the disabled-control system.
+    for (const row of Dom.all('.c-ordering__item', panel)) {
+      if (locked) {
+        if (row.draggable) {
+          row.dataset.lockDraggable = 'true';
+          row.draggable = false;
+        }
+      } else if (row.dataset.lockDraggable === 'true') {
+        row.draggable = true;
+        delete row.dataset.lockDraggable;
+      }
+    }
+
+    const completeButton = panel.querySelector('[data-checkpoint-complete]');
+    const outstanding = items.filter((item) => !item.satisfied);
+    if (completeButton) {
+      // The confirm control only arms once every requirement passes —
+      // the original portal's contract. The live list below the footer
+      // always says why it is not armed yet.
+      if (!completeButton.dataset.label) completeButton.dataset.label = completeButton.textContent;
+      completeButton.disabled = locked || outstanding.length > 0 || complete;
+      completeButton.textContent = complete ? 'Confirmed ✓' : completeButton.dataset.label;
+      completeButton.title = locked
+        ? 'Complete the previous checkpoint first'
+        : (outstanding.length > 0 ? 'Finish the items listed below first' : '');
+    }
+
+    this.#renderFooterStatus(definition, { outstanding, complete, locked });
+  }
+
+  /** @param {object} definition */
+  #renderFooterStatus(definition, { outstanding, complete, locked }) {
+    const panel = this.panels.get(definition.id);
+    const message = panel?.querySelector('[data-checkpoint-message]');
     if (!message) return;
-    message.classList.remove('is-success');
-    message.classList.add('is-error', 'is-visible');
 
+    // Rebuild the live region only when its meaning changes, so screen
+    // readers hear transitions, not keystrokes.
+    const signature = locked
+      ? 'locked'
+      : (complete ? 'complete' : outstanding.map((item) => `${item.type}:${item.key}`).join('|'));
+    if (this.messageSignatures.get(definition.id) === signature) return;
+    this.messageSignatures.set(definition.id, signature);
+
+    message.classList.remove('is-error', 'is-success');
+    if (locked) {
+      message.classList.add('is-visible', 'is-locked');
+      message.replaceChildren(Object.assign(document.createElement('p'), {
+        textContent: 'This checkpoint is locked. Complete the previous checkpoint to work here.',
+      }));
+      return;
+    }
+    message.classList.remove('is-locked');
+
+    if (complete) {
+      message.classList.add('is-visible', 'is-success');
+      const index = this.definitions.findIndex((candidate) => candidate.id === definition.id);
+      const last = index === this.definitions.length - 1;
+      message.replaceChildren(Object.assign(document.createElement('p'), {
+        textContent: last
+          ? 'Laboratory complete. Download your submission package and progress file below.'
+          : 'Checkpoint complete. The next checkpoint is unlocked.',
+      }));
+      return;
+    }
+
+    if (outstanding.length === 0) {
+      message.classList.remove('is-visible');
+      message.replaceChildren();
+      return;
+    }
+
+    message.classList.add('is-visible', 'is-error');
     const intro = document.createElement('p');
-    const count = problems.length;
-    intro.textContent = count === 1
-      ? 'One thing is still needed before this checkpoint can be confirmed:'
-      : `${count} things are still needed before this checkpoint can be confirmed:`;
-
+    intro.textContent = outstanding.length === 1
+      ? 'One thing is needed before this checkpoint can be confirmed:'
+      : `${outstanding.length} things are needed before this checkpoint can be confirmed:`;
     const list = document.createElement('ul');
     list.className = 'c-checkpoint__problems';
-    for (const problem of problems) {
+    for (const problem of outstanding) {
       const item = document.createElement('li');
       const jump = document.createElement('button');
       jump.type = 'button';
@@ -293,120 +558,6 @@ class Checkpoints {
     return problem.problem;
   }
 
-  /**
-   * @param {string} id
-   * @param {number} delta
-   */
-  #step(id, delta) {
-    const index = this.definitions.findIndex((candidate) => candidate.id === id);
-    const next = this.definitions[index + delta];
-    if (next) this.show(next.id);
-  }
-
-  #initialCheckpoint() {
-    const saved = SeptLabs.store.state.currentCheckpoint;
-    if (saved && this.panels.has(saved)) return saved;
-    return this.definitions[0]?.id;
-  }
-
-  /** Open the checkpoint containing the element the URL hash points at. */
-  #followAnchor() {
-    const hash = window.location.hash.slice(1);
-    if (!hash) return;
-    const target = document.getElementById(hash);
-    const panel = target?.closest('.c-checkpoint');
-    if (panel) {
-      this.show(panel.dataset.checkpoint, { scroll: false });
-      target.scrollIntoView();
-    }
-  }
-
-  /** Build the progress drawer's checkpoint map once; counts update live. */
-  #buildSummary() {
-    if (!this.summary) return;
-    this.definitions.forEach((definition, index) => {
-      const item = document.createElement('li');
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'c-progress-summary__item';
-      button.dataset.summaryFor = definition.id;
-
-      const state = document.createElement('span');
-      state.className = 'c-progress-summary__state';
-      state.setAttribute('aria-hidden', 'true');
-      state.textContent = String(index + 1);
-
-      const title = document.createElement('span');
-      title.className = 'c-progress-summary__title';
-      title.textContent = definition.title || definition.id;
-
-      const count = document.createElement('span');
-      count.className = 'c-progress-summary__count';
-
-      button.append(state, title, count);
-      button.addEventListener('click', () => {
-        this.show(definition.id);
-        Sidebar.closeAll();
-      });
-      item.appendChild(button);
-      this.summary.appendChild(item);
-    });
-  }
-
-  #renderProgress() {
-    const { state } = SeptLabs.store;
-    /** @type {Map<HTMLElement, number>} Unfinished required items per tab panel. */
-    const badgeCounts = new Map();
-
-    for (const definition of this.definitions) {
-      const items = this.requirementItems(definition);
-      const satisfied = items.filter((item) => item.satisfied).length;
-      const confirmed = Boolean(state.confirmed[definition.id]);
-
-      const link = this.links.find((candidate) => candidate.dataset.checkpointLink === definition.id);
-      if (link) {
-        link.classList.toggle('is-complete', confirmed);
-        const meta = link.querySelector(`[data-checkpoint-meta="${CSS.escape(definition.id)}"]`);
-        if (meta) {
-          const started = satisfied > 0 && !confirmed && items.length > 0;
-          meta.hidden = !started;
-          if (started) meta.textContent = `${satisfied} of ${items.length} done`;
-        }
-      }
-
-      const summaryButton = this.summary?.querySelector(
-        `[data-summary-for="${CSS.escape(definition.id)}"]`);
-      if (summaryButton) {
-        summaryButton.classList.toggle('is-complete', confirmed);
-        summaryButton.classList.toggle('is-current',
-          !confirmed && state.currentCheckpoint === definition.id);
-        const stateSlot = summaryButton.querySelector('.c-progress-summary__state');
-        if (stateSlot) {
-          stateSlot.textContent = confirmed
-            ? '✓'
-            : String(this.definitions.indexOf(definition) + 1);
-        }
-        const countSlot = summaryButton.querySelector('.c-progress-summary__count');
-        if (countSlot) {
-          countSlot.textContent = confirmed
-            ? 'Confirmed'
-            : (items.length > 0 ? `${satisfied}/${items.length}` : '');
-        }
-      }
-
-      // Unsatisfied requirements sitting inside tab panels feed badges.
-      for (const item of items) {
-        if (item.satisfied) continue;
-        const element = Checkpoints.elementFor(item.type, item.key);
-        const panel = element?.closest('.c-tabs__panel');
-        if (panel) badgeCounts.set(panel, (badgeCounts.get(panel) ?? 0) + 1);
-      }
-    }
-
-    for (const tabs of SeptLabs.tabs) tabs.renderBadges(badgeCounts);
-    this.#renderScore();
-  }
-
   #renderScore() {
     if (!this.scoreChip) return;
     const { state } = SeptLabs.store;
@@ -418,7 +569,7 @@ class Checkpoints {
         .reduce((sum, id) => sum + (SeptLabs.config.quizzes[id].points ?? 1), 0);
       this.scoreChip.textContent = `Auto score ${earned}/${total}`;
     } else {
-      const confirmed = this.definitions.filter((definition) => state.confirmed[definition.id]).length;
+      const confirmed = this.definitions.filter((definition) => this.isComplete(definition)).length;
       this.scoreChip.textContent = `Progress ${confirmed}/${this.definitions.length}`;
     }
   }
