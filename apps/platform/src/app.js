@@ -10,25 +10,24 @@ import fastifyStatic from '@fastify/static';
 import { Auth, RateLimiter } from './auth.js';
 import { Db } from './db.js';
 import { Publisher } from './publish.js';
-import { Smtp } from './smtp.js';
+import { createMailer } from './mail.js';
 import { layout, esc, card, csrfField, statusPill } from './ui.js';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 
 /**
- * Build the platform app. Everything the service does is faculty-facing:
- * students receive static files (served by the reverse proxy from the
- * `current` release) and never authenticate, never POST. The one student
- * touchpoint here — the `/c/…` fallback used in development — serves
- * files only.
+ * Build the platform app — an ordinary Node process, no container and
+ * no companion services. Everything it does is faculty-facing except
+ * one route: `/c/…` hands students files from the live release, GET
+ * only. Students never authenticate and never POST, here or anywhere.
  *
  * @param {ReturnType<import('./config.js').loadConfig>} config
  */
 export async function buildApp(config) {
   const app = Fastify({ logger: false, trustProxy: true });
   const db = new Db(config.dbPath);
-  const smtp = new Smtp({ host: config.smtpHost, port: config.smtpPort, from: config.mailFrom });
-  const auth = new Auth({ db, smtp, config });
+  const mailer = createMailer(config);
+  const auth = new Auth({ db, mailer, config });
   const publisher = new Publisher({ config, db });
   const authLimiter = new RateLimiter(10, 60_000);
 
@@ -131,7 +130,7 @@ export async function buildApp(config) {
   </label>
   <div class="o-cluster"><button class="c-btn c-btn--filled" type="submit">Email me a sign-in link</button></div>
 </form>
-${request.query.sent ? '<p class="c-callout c-callout--success c-callout__body">If that address is invited, a link is on its way. During development it lands in Mailpit.</p>' : ''}
+${request.query.sent ? '<p class="c-callout c-callout--success c-callout__body">If that address is invited, a link is on its way. Running locally, it is printed in the server&#39;s terminal and saved under data/mail/.</p>' : ''}
 ${request.query.invalid ? '<p class="c-callout c-callout--danger c-callout__body">That sign-in link is invalid or expired. Request a fresh one.</p>' : ''}`),
     }));
   });
@@ -259,7 +258,7 @@ administrators see everything.</p>
 <div class="c-checklist">${courseOptions}</div>
 <div class="o-cluster"><button class="c-btn c-btn--filled" type="submit">Send invite</button></div>
 </form>
-${request.query.sent ? '<p class="c-callout c-callout--success c-callout__body">Invite sent — during development it lands in Mailpit.</p>' : ''}`),
+${request.query.sent ? '<p class="c-callout c-callout--success c-callout__body">Invite sent — running locally, the link is printed in the server&#39;s terminal and saved under data/mail/.</p>' : ''}`),
         card('Accounts', `<div class="o-scroll-x"><table class="c-admin-table">
 <thead><tr><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Courses</th></tr></thead>
 <tbody>${rows}</tbody></table></div>`),
@@ -419,7 +418,12 @@ file download/restore on every lab page is the bridge between copies.</p>
     return reply.send({ courses: visibleCourses(request.user) });
   });
 
-  /* ── Development fallback for the student site (Caddy in compose) ─ */
+  /* ── The student site ───────────────────────────────────────────
+   * Files from the live release, and nothing else: GET only, no
+   * cookies, no route that could accept anything. In production the
+   * same bytes are usually served by a static host (see
+   * docs/deployment.md); this makes the platform self-sufficient so a
+   * machine with only Node can run the whole thing. */
   app.get('/c/:courseId/*', async (request, reply) => {
     const { courseId } = request.params;
     const rest = request.params['*'] || '';

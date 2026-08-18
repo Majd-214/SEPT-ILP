@@ -13,7 +13,7 @@ async function testApp() {
   const app = await buildApp(loadConfig({ DATA_DIR: dataDir, BASE_URL: 'http://test.local' }));
   /** @type {{ to: string, subject: string, text: string }[]} */
   const outbox = [];
-  app.platform.auth.smtp.send = async (to, subject, text) => {
+  app.platform.auth.mailer.send = async (to, subject, text) => {
     outbox.push({ to, subject, text });
   };
   const cleanup = async () => {
@@ -181,13 +181,68 @@ test('publish reports are admin-only; they name filesystem paths', async () => {
   }
 });
 
-test('the cookie secret must be set for any non-localhost deployment', () => {
+test('a real deployment cannot start on development defaults', () => {
+  const real = { BASE_URL: 'https://labs.mcmaster.ca', DATA_DIR: '/tmp/x' };
+
+  // Mail: the file transport prints sign-in links to the server's
+  // terminal, which is a development convenience and a disclosure risk
+  // anywhere else — so a non-localhost origin must name a relay.
+  assert.throws(() => loadConfig(real), /SMTP_HOST/);
+
+  // Cookies: the shipped default secret would let anyone forge a session.
   assert.throws(
-    () => loadConfig({ BASE_URL: 'https://labs.mcmaster.ca', DATA_DIR: '/tmp/x' }),
+    () => loadConfig({ ...real, SMTP_HOST: 'relay.mcmaster.ca' }),
     /COOKIE_SECRET/);
-  // A real secret is accepted, and localhost development still works.
-  assert.ok(loadConfig({ BASE_URL: 'https://labs.mcmaster.ca', COOKIE_SECRET: 'a'.repeat(32) }).cookieSecret);
-  assert.ok(loadConfig({ BASE_URL: 'http://localhost:8080' }).cookieSecret);
+
+  // Both supplied: a real deployment loads, and relays its mail.
+  const production = loadConfig({
+    ...real, SMTP_HOST: 'relay.mcmaster.ca', COOKIE_SECRET: 'a'.repeat(32),
+  });
+  assert.equal(production.mailTransport, 'smtp');
+
+  // Local development needs neither, and writes mail to disk instead.
+  const local = loadConfig({ DATA_DIR: '/tmp/x' });
+  assert.equal(local.mailTransport, 'file');
+  assert.equal(local.baseUrl, 'http://localhost:3000');
+  assert.ok(local.cookieSecret);
+
+  // Opting into the file sink for a real origin stays possible, but only
+  // by saying so explicitly.
+  assert.equal(loadConfig({
+    ...real, MAIL_TRANSPORT: 'file', COOKIE_SECRET: 'a'.repeat(32),
+  }).mailTransport, 'file');
+});
+
+test('with no mail server, sign-in links land on disk and in the terminal', async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sept-mail-'));
+  const printed = [];
+  const realLog = console.log;
+  console.log = (...args) => printed.push(args.join(' '));
+  try {
+    // No SMTP_HOST, no MAIL_QUIET: exactly what a developer gets by
+    // running `npm start` on a machine with nothing else installed.
+    const app = await buildApp(loadConfig({ DATA_DIR: dataDir }));
+    await app.platform.auth.invite('prof@demo', 'instructor', ['smrttech-3cc3']);
+    await app.close();
+
+    const mailDir = path.join(dataDir, 'mail');
+    const files = fs.readdirSync(mailDir);
+    assert.equal(files.length, 1, 'one message written');
+    assert.match(files[0], /prof-demo\.eml$/);
+
+    const message = fs.readFileSync(path.join(mailDir, files[0]), 'utf8');
+    assert.match(message, /^To: <prof@demo>$/m);
+    assert.match(message, /Content-Type: text\/plain/);
+    const link = /http:\/\/localhost:3000\/auth\/[A-Za-z0-9_-]+/.exec(message);
+    assert.ok(link, 'the message carries a usable sign-in link');
+
+    // And the same link is printed, because a file nobody looks at is
+    // no better than no mail at all.
+    assert.ok(printed.join('\n').includes(link[0]), 'link printed to the terminal');
+  } finally {
+    console.log = realLog;
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  }
 });
 
 test('the marker is session-gated and carries the no-egress CSP', async () => {

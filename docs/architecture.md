@@ -141,8 +141,8 @@ what content can express is a schema revision.
 ## Layer 4: the platform service (`apps/platform/`)
 
 A faculty-only Fastify service — students never touch it beyond
-receiving static files. Email magic-link sign-in (Mailpit in
-development) with two roles, `admin` and `instructor`; there is no
+receiving static files. Email magic-link sign-in (written to disk and
+printed to the terminal when no relay is configured) with two roles, `admin` and `instructor`; there is no
 student role, no student route, and a test asserts a student-ish POST
 has nowhere to land. The auth stub carries one clearly marked
 `── OIDC SEAM ──` where Phase B swaps in McMaster Entra ID without

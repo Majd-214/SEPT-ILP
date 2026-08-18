@@ -191,14 +191,13 @@ td code { font-size: 8.2pt; }
 .tag--later { background: #ECE7EA; color: var(--ink-soft); }
 
 .toc { list-style: none; padding: 0; margin: 0; font-size: 10pt; }
-.toc li { display: flex; gap: 3mm; padding: 1.9mm 0; border-bottom: 1px solid var(--line); }
+.toc li { display: flex; gap: 3mm; padding: 1.5mm 0; border-bottom: 1px solid var(--line); }
 .toc .n { color: #A8741A; font-weight: 700; min-width: 8mm; }
 .toc .t { flex: 1; }
 .toc .d { color: var(--ink-soft); font-size: 8.6pt; max-width: 88mm; text-align: right; }
 </style>
 </head>
 <body>
-
 <!-- ══════════════════════════ COVER ══════════════════════════ -->
 <div class="cover">
   <img class="cover__logo" src="../../content/courses/smrttech-3cc3/assets/McMaster-logo.png" alt="McMaster University">
@@ -206,15 +205,15 @@ td code { font-size: 8.2pt; }
   <p class="cover__eyebrow">W Booth School of Engineering Practice and Technology</p>
   <h1 class="cover__title" style="color:var(--maroon)">SEPT Interactive<br>Laboratory Platform</h1>
   <p class="cover__sub">
-    <strong>Phase A — Developer Guide.</strong> How to run the platform on your own machine from
-    WebStorm, drive every part of it by hand, and satisfy yourself that it does what it claims —
-    written for someone who has never started it before.
+    <strong>Phase A — Developer Guide.</strong> How to run the platform on your own machine with
+    nothing but Node, drive every part of it by hand, and satisfy yourself that it does what it
+    claims — written for someone who has never started it before.
   </p>
   <dl class="cover__meta">
     <div><dt>Repository</dt><dd>Majd-214/SEPT-ILP</dd></div>
     <div><dt>Branch</dt><dd>claude/phase-a-platform</dd></div>
-    <div><dt>Pilot course</dt><dd>SMRTTECH 3CC3</dd></div>
-    <div><dt>Document date</dt><dd>17 August 2026</dd></div>
+    <div><dt>Requires</dt><dd>Node 20+ · no admin rights</dd></div>
+    <div><dt>Document date</dt><dd>18 August 2026</dd></div>
     <div><dt>Audience</dt><dd>Developers and maintainers</dd></div>
     <div><dt>Status</dt><dd>Phase A prototype — pre-pilot</dd></div>
   </dl>
@@ -225,35 +224,41 @@ td code { font-size: 8.2pt; }
   <div class="section-rule"></div>
   <h1>What is in this guide</h1>
   <p class="lede">
-    Sections 1–4 get the platform running and publish a site. Sections 5–9 walk you through each
-    feature as its real user would. Section 10 is the checklist that proves the whole thing works.
-    Keep 11 and 12 for when something breaks.
+    Sections 1–4 get the platform running and publish a site. Sections 5–9 walk through each
+    feature as its real user would, and end with how labs actually reach students. Section 11 is
+    the checklist that proves the whole thing works.
   </p>
   <ul class="toc">
-    <li><span class="n">0</span><span class="t">The mental model</span><span class="d">Four moving parts, one paragraph</span></li>
-    <li><span class="n">1</span><span class="t">Before you start</span><span class="d">Docker, WebStorm, disk, ports</span></li>
-    <li><span class="n">2</span><span class="t">First run</span><span class="d">Starting the stack from WebStorm</span></li>
-    <li><span class="n">3</span><span class="t">Signing in</span><span class="d">Magic links and Mailpit — there are no passwords</span></li>
+    <li><span class="n">0</span><span class="t">The mental model</span><span class="d">One process, one folder, one rule</span></li>
+    <li><span class="n">1</span><span class="t">Before you start</span><span class="d">Node, WebStorm, a free port</span></li>
+    <li><span class="n">2</span><span class="t">First run</span><span class="d">Two commands, or two buttons</span></li>
+    <li><span class="n">3</span><span class="t">Signing in</span><span class="d">No passwords, and no mail server either</span></li>
     <li><span class="n">4</span><span class="t">Publishing</span><span class="d">The quality gates, and making the site exist</span></li>
     <li><span class="n">5</span><span class="t">Being a student</span><span class="d">Gating, progress files, the submission package</span></li>
     <li><span class="n">6</span><span class="t">Editing content</span><span class="d">Draft → validate → commit → publish</span></li>
     <li><span class="n">7</span><span class="t">Marking submissions</span><span class="d">The auto-marker and its exports</span></li>
     <li><span class="n">8</span><span class="t">Single-file exports</span><span class="d">One HTML file, no server</span></li>
-    <li><span class="n">9</span><span class="t">Running the tests</span><span class="d">Four suites, 86 tests, one command</span></li>
-    <li><span class="n">10</span><span class="t">Proving it works</span><span class="d">The acceptance checklist, by hand</span></li>
-    <li><span class="n">11</span><span class="t">When something breaks</span><span class="d">Symptom → cause → fix</span></li>
-    <li><span class="n">12</span><span class="t">Reference</span><span class="d">URLs, variables, repo map, invariants</span></li>
-    <li><span class="n">13</span><span class="t">Honest status</span><span class="d">What is solid, what is stubbed, what you must decide</span></li>
+    <li><span class="n">9</span><span class="t">Getting labs to students</span><span class="d">Static hosting and the A2L link</span></li>
+    <li><span class="n">10</span><span class="t">Running the tests</span><span class="d">Four suites, 87 tests, one command</span></li>
+    <li><span class="n">11</span><span class="t">Proving it works</span><span class="d">The acceptance checklist, by hand</span></li>
+    <li><span class="n">12</span><span class="t">When something breaks</span><span class="d">Symptom → cause → fix</span></li>
+    <li><span class="n">13</span><span class="t">Reference</span><span class="d">URLs, variables, repo map, invariants</span></li>
+    <li><span class="n">14</span><span class="t">Honest status</span><span class="d">What is solid, what is stubbed, what you must decide</span></li>
   </ul>
 
-  <div class="callout">
+  <div class="callout callout--ok">
     <p class="callout__title">If you only read one page</p>
     <p>
-      Start Docker Desktop. In WebStorm open <code>deploy/docker-compose.yml</code> and click the
-      double-arrow in the left gutter. Wait for the log to say <em>listening</em>. Open
-      <a href="http://localhost:8025">localhost:8025</a>, click the sign-in link in the newest email,
-      then press <strong>Publish all courses</strong>. That is the entire loop; everything after
-      section 4 is detail.
+      <code>npm run setup</code> once, then <code>npm run seed</code> and <code>npm start</code>.
+      Copy the sign-in link the terminal prints, open it, and press
+      <strong>Publish all courses</strong>. That is the entire loop; everything after section 4 is
+      detail. In WebStorm the same three steps are buttons — see section 2.
+    </p>
+    <p>
+      There is no container, no database server, and no mail server. That is a deliberate
+      constraint, not a simplification for the guide: the machines this has to run on are School
+      computers without virtualization enabled and without administrator rights. Every dependency
+      the platform has is a JavaScript file in this repository.
     </p>
   </div>
 </section>
@@ -263,12 +268,11 @@ td code { font-size: 8.2pt; }
   <div class="section-rule"></div>
   <h1><span class="num">0</span>The mental model</h1>
   <p class="lede">
-    Four things are running, and they have a strict pecking order: your Git checkout is the truth,
-    a build turns it into a frozen release, and a web server hands that release to students. Nothing
-    flows backwards.
+    Your Git checkout is the truth. A build turns it into a frozen release. One process hands that
+    release to whoever asks. Nothing flows backwards.
   </p>
 
-  <svg class="arch" viewBox="0 0 700 268" role="img" aria-label="Architecture diagram">
+  <svg class="arch" viewBox="0 0 700 250" role="img" aria-label="Architecture diagram">
     <defs>
       <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
         <path d="M0,0 L9,4.5 L0,9 z" fill="#7A003C"/>
@@ -278,77 +282,70 @@ td code { font-size: 8.2pt; }
       </marker>
     </defs>
 
-    <rect x="2" y="30" width="150" height="86" rx="6" fill="#F2E5EC" stroke="#7A003C" stroke-width="1.6"/>
-    <text x="77" y="54" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A003C">Your checkout</text>
-    <text x="77" y="72" text-anchor="middle" font-size="10" fill="#49454F">content/courses/…</text>
-    <text x="77" y="88" text-anchor="middle" font-size="10" fill="#49454F">Git = source of truth</text>
-    <text x="77" y="106" text-anchor="middle" font-size="9" fill="#8A6100">bind-mounted into the container</text>
+    <rect x="2" y="24" width="146" height="86" rx="6" fill="#F2E5EC" stroke="#7A003C" stroke-width="1.6"/>
+    <text x="75" y="48" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A003C">Your checkout</text>
+    <text x="75" y="66" text-anchor="middle" font-size="10" fill="#49454F">content/courses/…</text>
+    <text x="75" y="82" text-anchor="middle" font-size="10" fill="#49454F">Git = source of truth</text>
+    <text x="75" y="100" text-anchor="middle" font-size="9" fill="#8A6100">edited by hand or in the CMS</text>
 
-    <rect x="196" y="12" width="168" height="122" rx="6" fill="#fff" stroke="#7A003C" stroke-width="1.6"/>
-    <text x="280" y="36" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A003C">platform</text>
-    <text x="280" y="54" text-anchor="middle" font-size="9.5" fill="#49454F">Fastify · faculty only</text>
-    <line x1="212" y1="63" x2="348" y2="63" stroke="#D9D3D8"/>
-    <text x="280" y="79" text-anchor="middle" font-size="9.5" fill="#1C1B1F">console · editor · marker</text>
-    <text x="280" y="95" text-anchor="middle" font-size="9.5" fill="#1C1B1F">publish pipeline</text>
-    <text x="280" y="111" text-anchor="middle" font-size="9.5" fill="#1C1B1F">answer keys (role-gated)</text>
-    <text x="280" y="127" text-anchor="middle" font-size="9" fill="#8A6100">port 3000, internal</text>
+    <rect x="192" y="10" width="196" height="114" rx="6" fill="#fff" stroke="#7A003C" stroke-width="1.8"/>
+    <text x="290" y="33" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A003C">npm start</text>
+    <text x="290" y="50" text-anchor="middle" font-size="9.5" fill="#49454F">one Node process, port 3000</text>
+    <line x1="208" y1="59" x2="372" y2="59" stroke="#D9D3D8"/>
+    <text x="290" y="75" text-anchor="middle" font-size="9.5" fill="#1C1B1F">console · editor · marker</text>
+    <text x="290" y="91" text-anchor="middle" font-size="9.5" fill="#1C1B1F">publish pipeline · answer keys</text>
+    <text x="290" y="107" text-anchor="middle" font-size="9.5" fill="#1C1B1F">serves the student site</text>
 
-    <rect x="408" y="12" width="150" height="122" rx="6" fill="#fff" stroke="#7A003C" stroke-width="1.6"/>
-    <text x="483" y="36" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A003C">releases</text>
-    <text x="483" y="54" text-anchor="middle" font-size="9.5" fill="#49454F">a Docker volume</text>
-    <line x1="424" y1="63" x2="542" y2="63" stroke="#D9D3D8"/>
-    <text x="483" y="79" text-anchor="middle" font-size="9" fill="#1C1B1F">2026-08-17T19-52…/</text>
-    <text x="483" y="95" text-anchor="middle" font-size="9" fill="#1C1B1F">2026-08-17T21-04…/</text>
-    <text x="483" y="113" text-anchor="middle" font-size="9.5" font-weight="700" fill="#7A003C">current →</text>
-    <text x="483" y="127" text-anchor="middle" font-size="9" fill="#8A6100">one atomic symlink</text>
+    <rect x="432" y="10" width="140" height="114" rx="6" fill="#fff" stroke="#7A003C" stroke-width="1.6"/>
+    <text x="502" y="33" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A003C">data/releases</text>
+    <text x="502" y="50" text-anchor="middle" font-size="9.5" fill="#49454F">a folder on disk</text>
+    <line x1="446" y1="59" x2="558" y2="59" stroke="#D9D3D8"/>
+    <text x="502" y="75" text-anchor="middle" font-size="9" fill="#1C1B1F">2026-08-18T09-14…/</text>
+    <text x="502" y="90" text-anchor="middle" font-size="9" fill="#1C1B1F">2026-08-18T13-02…/</text>
+    <text x="502" y="108" text-anchor="middle" font-size="9.5" font-weight="700" fill="#7A003C">current →</text>
 
-    <rect x="600" y="12" width="98" height="122" rx="6" fill="#fff" stroke="#7A003C" stroke-width="1.6"/>
-    <text x="649" y="36" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7A003C">caddy</text>
-    <text x="649" y="54" text-anchor="middle" font-size="9.5" fill="#49454F">:8080</text>
-    <line x1="614" y1="63" x2="684" y2="63" stroke="#D9D3D8"/>
-    <text x="649" y="80" text-anchor="middle" font-size="9" fill="#1C1B1F">static files</text>
-    <text x="649" y="94" text-anchor="middle" font-size="9" fill="#1C1B1F">to students</text>
-    <text x="649" y="112" text-anchor="middle" font-size="9" fill="#8A6100">no cookies</text>
-    <text x="649" y="126" text-anchor="middle" font-size="9" fill="#8A6100">no auth</text>
+    <rect x="612" y="10" width="86" height="114" rx="6" fill="#FAF7F9" stroke="#B9AFB6" stroke-width="1.4" stroke-dasharray="4 3"/>
+    <text x="655" y="33" text-anchor="middle" font-size="11" font-weight="700" fill="#49454F">Static</text>
+    <text x="655" y="47" text-anchor="middle" font-size="11" font-weight="700" fill="#49454F">host</text>
+    <line x1="624" y1="57" x2="686" y2="57" stroke="#D9D3D8"/>
+    <text x="655" y="73" text-anchor="middle" font-size="8.6" fill="#49454F">Pages · SEPT</text>
+    <text x="655" y="86" text-anchor="middle" font-size="8.6" fill="#49454F">server · CDN</text>
+    <text x="655" y="104" text-anchor="middle" font-size="8.4" fill="#8A6100">for the class</text>
 
-    <line x1="153" y1="73" x2="192" y2="73" stroke="#7A003C" stroke-width="1.8" marker-end="url(#ar)"/>
-    <line x1="365" y1="73" x2="404" y2="73" stroke="#7A003C" stroke-width="1.8" marker-end="url(#ar)"/>
-    <line x1="559" y1="73" x2="596" y2="73" stroke="#7A003C" stroke-width="1.8" marker-end="url(#ar)"/>
-    <text x="172" y="66" text-anchor="middle" font-size="8" fill="#7A003C">reads</text>
-    <text x="384" y="66" text-anchor="middle" font-size="8" fill="#7A003C">builds</text>
-    <text x="577" y="66" text-anchor="middle" font-size="8" fill="#7A003C">serves</text>
+    <line x1="149" y1="66" x2="188" y2="66" stroke="#7A003C" stroke-width="1.8" marker-end="url(#ar)"/>
+    <line x1="389" y1="66" x2="428" y2="66" stroke="#7A003C" stroke-width="1.8" marker-end="url(#ar)"/>
+    <line x1="573" y1="66" x2="608" y2="66" stroke="#B9AFB6" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+    <text x="168" y="59" text-anchor="middle" font-size="8" fill="#7A003C">reads</text>
+    <text x="408" y="59" text-anchor="middle" font-size="8" fill="#7A003C">builds</text>
+    <text x="590" y="59" text-anchor="middle" font-size="7.6" fill="#49454F">copy</text>
 
-    <rect x="196" y="164" width="168" height="60" rx="6" fill="#FEF6E7" stroke="#8A6100" stroke-width="1.4"/>
-    <text x="280" y="186" text-anchor="middle" font-size="11.5" font-weight="700" fill="#8A6100">mailpit</text>
-    <text x="280" y="203" text-anchor="middle" font-size="9.5" fill="#49454F">:8025 — catches every</text>
-    <text x="280" y="217" text-anchor="middle" font-size="9.5" fill="#49454F">sign-in email</text>
-    <line x1="256" y1="136" x2="256" y2="160" stroke="#8A6100" stroke-width="1.6" marker-end="url(#arg)"/>
+    <rect x="192" y="156" width="380" height="62" rx="6" fill="#F7F4F6" stroke="#D9D3D8" stroke-width="1.4"/>
+    <text x="382" y="178" text-anchor="middle" font-size="11.5" font-weight="700" fill="#49454F">The student's browser</text>
+    <text x="382" y="195" text-anchor="middle" font-size="9.5" fill="#49454F">holds all work in local storage · marks answers itself</text>
+    <text x="382" y="209" text-anchor="middle" font-size="9.5" fill="#49454F">sends nothing back — there is no endpoint to send it to</text>
+    <line x1="290" y1="126" x2="290" y2="152" stroke="#7A003C" stroke-width="1.8" marker-end="url(#ar)"/>
+    <text x="316" y="143" text-anchor="middle" font-size="8" fill="#7A003C">serves</text>
+    <line x1="502" y1="126" x2="502" y2="152" stroke="#D9D3D8" stroke-width="1.4"/>
 
-    <rect x="408" y="164" width="290" height="60" rx="6" fill="#F7F4F6" stroke="#D9D3D8" stroke-width="1.4"/>
-    <text x="553" y="186" text-anchor="middle" font-size="11.5" font-weight="700" fill="#49454F">The student's browser</text>
-    <text x="553" y="203" text-anchor="middle" font-size="9.5" fill="#49454F">holds all work in local storage · marks answers itself</text>
-    <text x="553" y="217" text-anchor="middle" font-size="9.5" fill="#49454F">sends nothing back — there is no endpoint to send it to</text>
-    <line x1="649" y1="136" x2="649" y2="160" stroke="#D9D3D8" stroke-width="1.6"/>
-
-    <text x="350" y="252" text-anchor="middle" font-size="9.5" font-style="italic" fill="#49454F">
-      A gate failure stops the arrow at “builds”. The live symlink never moves, so students keep the last good release.
+    <text x="350" y="238" text-anchor="middle" font-size="9.5" font-style="italic" fill="#49454F">
+      A gate failure stops the arrow at “builds”. The live release never moves, so students keep the last good one.
     </text>
   </svg>
 
   <h2>Who touches what</h2>
   <table>
     <tr><th style="width:24%">Person</th><th style="width:30%">Where they go</th><th>What they can do</th></tr>
-    <tr><td><strong>Student</strong></td><td><code>:8080/c/&lt;course&gt;/&lt;lab&gt;/</code></td><td>Everything, with no account. Work lives in their browser and in files they download.</td></tr>
-    <tr><td><strong>Instructor</strong></td><td><code>:8080/login</code></td><td>Their own courses: edit content, read answer keys, download exports, run the marker.</td></tr>
-    <tr><td><strong>Admin</strong></td><td><code>:8080/login</code></td><td>All of the above, everywhere, plus inviting people and pressing Publish.</td></tr>
+    <tr><td><strong>Student</strong></td><td>the hosted lab link</td><td>Everything, with no account. Work lives in their browser and in files they download.</td></tr>
+    <tr><td><strong>Instructor</strong></td><td><code>localhost:3000/login</code></td><td>Their own courses: edit content, read answer keys, download exports, run the marker.</td></tr>
+    <tr><td><strong>Admin</strong></td><td><code>localhost:3000/login</code></td><td>All of the above, everywhere, plus inviting people and pressing Publish.</td></tr>
   </table>
 
   <div class="callout">
     <p class="callout__title">The one rule worth internalising</p>
     <p>
-      The server has no route that accepts student data. Not a disabled one — none exists, and a test
-      asserts it. When you are wondering “where did that student's answer go?”, the answer is always:
-      into their browser, and into the file they downloaded.
+      The server has no route that accepts student data. Not a disabled one — none exists, and a
+      test asserts it. When you are wondering “where did that student's answer go?”, the answer is
+      always: into their browser, and into the file they downloaded.
     </p>
   </div>
 </section>
@@ -358,65 +355,54 @@ td code { font-size: 8.2pt; }
   <div class="section-rule"></div>
   <h1><span class="num">1</span>Before you start</h1>
   <p class="lede">
-    Five minutes of checking now saves an hour of confusing errors later. Work down this list before
-    you press anything.
+    The list is short, and every item can be satisfied without administrator rights.
   </p>
 
   <table>
-    <tr><th style="width:32%">Requirement</th><th style="width:26%">How to check</th><th>Why it matters</th></tr>
+    <tr><th style="width:30%">Requirement</th><th style="width:26%">How to check</th><th>Notes</th></tr>
     <tr>
-      <td><strong>Docker Desktop is running</strong></td>
-      <td>Whale icon in the tray/menu bar is steady, not animating</td>
-      <td>WebStorm's Docker plugin drives Docker Desktop; it cannot start it for you.</td>
-    </tr>
-    <tr>
-      <td><strong>WebStorm sees Docker</strong></td>
-      <td>Settings → <em>Build, Execution, Deployment</em> → <em>Docker</em>; the connection should say <em>Connection successful</em></td>
-      <td>Without it, the run buttons in section 2 are missing entirely.</td>
-    </tr>
-    <tr>
-      <td><strong>The checkout is on a shared drive</strong></td>
-      <td>Docker Desktop → Settings → Resources → File Sharing includes the folder holding <code>SEPT-ILP</code></td>
-      <td>The repository is mounted into the container. If it is not shared, the container starts and then fails to find any content.</td>
-    </tr>
-    <tr>
-      <td><strong>≈ 6 GB free disk</strong></td>
-      <td>Docker Desktop → Settings → Resources</td>
-      <td>The platform image is built on Microsoft's Playwright image (browsers included) — it is large, and it is what lets the accessibility gate run inside the container.</td>
-    </tr>
-    <tr>
-      <td><strong>Ports 8080 and 8025 are free</strong></td>
-      <td><code>lsof -i :8080</code> (macOS/Linux) · <code>netstat -ano | findstr :8080</code> (Windows)</td>
-      <td>Both are published to your machine. A conflict shows up as a container that exits immediately.</td>
-    </tr>
-    <tr>
-      <td><strong>Node 22 or newer</strong> <span class="tag tag--later">optional</span></td>
+      <td><strong>Node 20 or newer</strong></td>
       <td><code>node --version</code></td>
-      <td>Only needed for section 9 (running tests outside Docker). The platform itself never uses your Node.</td>
+      <td>Node 22 LTS is a good default. It installs per-user on Windows and macOS; no admin rights and no virtualization needed. WebStorm can also point at a Node it manages.</td>
+    </tr>
+    <tr>
+      <td><strong>WebStorm knows about Node</strong></td>
+      <td>Settings → <em>Languages &amp; Frameworks</em> → <em>Node.js</em>; the interpreter field should be filled in</td>
+      <td>Only needed for the run buttons in section 2; the terminal works regardless.</td>
+    </tr>
+    <tr>
+      <td><strong>Port 3000 is free</strong></td>
+      <td><code>lsof -i :3000</code> (macOS/Linux) · <code>netstat -ano | findstr :3000</code> (Windows)</td>
+      <td>Or just use another: <code>PORT=3100 npm start</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>≈ 500 MB free disk</strong></td>
+      <td>—</td>
+      <td>Dependencies and one Chromium for the accessibility gate. Each published release adds a few tens of MB.</td>
+    </tr>
+    <tr>
+      <td><strong>Network for the first install</strong> <span class="tag tag--later">once</span></td>
+      <td><code>npm run setup</code> completes</td>
+      <td>If a locked-down network blocks the Chromium download, everything else still works — see the callout below.</td>
     </tr>
   </table>
 
   <div class="callout callout--warn">
-    <p class="callout__title">Windows: line endings</p>
+    <p class="callout__title">If the Chromium download is blocked</p>
     <p>
-      Git on Windows rewrites text files to CRLF by default, which breaks any file Linux executes.
-      The repository now carries a <code>.gitattributes</code> that pins LF, and the image strips stray
-      CR bytes as a second line of defence — but if you cloned <em>before</em> that landed, normalise
-      your working copy once:
-    </p>
-<pre>git rm --cached -r .
-git reset --hard</pre>
-    <p>
-      Symptom if you skip it: <code>exec /entrypoint.sh: no such file or directory</code> — which is
-      Linux's confusing way of saying the shebang line ends in an invisible carriage return.
+      Only two things use it: the accessibility gate and the single-file export test. Build with
+      <code>--skip-a11y</code> and the rest of the pipeline runs normally — but be honest in your
+      notes that the gate was <em>skipped</em>, not <em>passed</em>. Run it later on a machine that
+      can reach the download, before anything goes in front of students.
     </p>
   </div>
 
-  <h2>Get the branch</h2>
+  <h2>Get the branch and install</h2>
 <pre><span class="c"># in WebStorm: Git → Branches → claude/phase-a-platform → Checkout</span>
-git fetch origin
 git checkout claude/phase-a-platform
-git pull</pre>
+git pull
+
+npm run setup   <span class="c"># all packages + a Chromium for the gates (a few minutes, once)</span></pre>
 </section>
 
 <!-- ══════════════════════════ 2 ══════════════════════════ -->
@@ -424,65 +410,55 @@ git pull</pre>
   <div class="section-rule"></div>
   <h1><span class="num">2</span>First run</h1>
   <p class="lede">
-    One file starts everything. The first run is slow and the rest are quick — that difference is
-    normal and worth understanding, so you do not kill it half way through thinking it has hung.
+    Two commands. The repository also ships WebStorm run configurations, so you can do the whole
+    thing without opening a terminal at all.
   </p>
 
   <ol class="steps">
     <li>
-      <p>Open <code>deploy/docker-compose.yml</code> in the editor.</p>
+      <p>Create the demo accounts.</p>
+<pre>npm run seed</pre>
       <p>
-        WebStorm recognises it and puts a green <strong>double-arrow</strong> in the left gutter beside
-        the top-level <code>services:</code> key, with single arrows beside each service.
+        This creates an administrator and an instructor and issues each a one-time sign-in link.
+        <strong>Copy the admin link it prints</strong> — you need it in a moment.
       </p>
     </li>
     <li>
-      <p>Click the double-arrow, and choose <em>Run 'docker-compose.yml: Compose Deployment'</em>.</p>
-      <p>
-        Equivalently, from a terminal: <code>cd deploy &amp;&amp; docker compose up --build</code>.
-        WebStorm's <em>Services</em> tool window (<kbd>Alt</kbd>+<kbd>8</kbd>, or <kbd>⌘8</kbd> on a Mac)
-        now shows all three containers with live logs.
-      </p>
-    </li>
-    <li>
-      <p>Wait, and watch the <code>platform</code> container's log.</p>
-      <p>It proceeds through five phases, in this order:</p>
-      <table style="margin-top:2mm">
-        <tr><th style="width:44%">Phase</th><th style="width:22%">First run</th><th>Later runs</th></tr>
-        <tr><td>Build the image (pull Playwright base)</td><td>3–8 min</td><td>skipped (cached)</td></tr>
-        <tr><td>Pull Mailpit and Caddy</td><td>&lt; 1 min</td><td>skipped</td></tr>
-        <tr><td><code>npm ci</code> in three packages</td><td>1–3 min</td><td>skipped unless a lockfile changed</td></tr>
-        <tr><td>Seed the accounts</td><td>seconds</td><td>seconds (it is idempotent)</td></tr>
-        <tr><td>Start listening</td><td>instant</td><td>instant</td></tr>
-      </table>
-    </li>
-    <li>
-      <p>Look for this, and you are up:</p>
-<pre>installing dependencies in . …
-seeding (idempotent) …
-<span class="g">seed: created admin@demo (admin) and instructor@demo (instructor for
-smrttech-3cc3, demo-101); sign-in links are in Mailpit.</span>
-starting platform …
+      <p>Start the platform.</p>
+<pre>npm start
 <span class="g">SEPT-ILP platform listening on http://0.0.0.0:3000</span></pre>
+      <p>Leave it running. <kbd>Ctrl</kbd>+<kbd>C</kbd> stops it.</p>
+    </li>
+    <li>
+      <p>Paste the sign-in link into a browser.</p>
+      <p>You are now signed in as an administrator, on the console dashboard.</p>
     </li>
   </ol>
 
-  <h2>Your three windows</h2>
+  <h2>The same thing, in WebStorm</h2>
+  <p>
+    The repository carries ready-made run configurations under <code>.run/</code>. They appear in
+    the run-configuration dropdown at the top right the moment you open the project — no setup:
+  </p>
   <table>
-    <tr><th style="width:34%">Open this</th><th>And you get</th></tr>
-    <tr><td><code>localhost:8080/login</code></td><td>The faculty console. Empty until you sign in — which needs the next section.</td></tr>
-    <tr><td><code>localhost:8025</code></td><td>Mailpit. Every email the platform sends lands here instead of the internet.</td></tr>
-    <tr><td><code>localhost:8080</code></td><td>The student site. Right now it says nothing is published — correct, you have not published yet.</td></tr>
+    <tr><th style="width:38%">Configuration</th><th>Does</th></tr>
+    <tr><td><strong>1 · Start the platform</strong></td><td><code>npm start</code> — the run window shows the log, including sign-in links.</td></tr>
+    <tr><td><strong>2 · Seed accounts</strong></td><td><code>npm run seed</code> — creates or refreshes the demo accounts.</td></tr>
+    <tr><td><strong>3 · Build (all gates)</strong></td><td><code>npm run gates</code> — the full pipeline on the pilot course, without publishing.</td></tr>
+    <tr><td><strong>4 · All tests</strong></td><td><code>npm run test:all</code> — all four suites.</td></tr>
   </table>
+  <p>
+    You can also click the small run arrows in the gutter of <code>package.json</code> beside any
+    script, or use the <em>npm</em> tool window.
+  </p>
 
   <div class="callout callout--ok">
-    <p class="callout__title">Stopping and starting</p>
+    <p class="callout__title">Where state lives</p>
     <p>
-      <strong>Stop:</strong> the red square in Services, or <code>docker compose down</code>. Your
-      accounts and releases survive in a Docker volume.
-      <strong>Start again:</strong> same run button — seconds this time.
-      <strong>Full reset</strong> (forget every account and release, keep all content):
-      <code>docker compose down -v</code>.
+      Everything the running platform creates goes in <code>data/</code>: the accounts database,
+      published releases, editor drafts, and sent mail. It is git-ignored and disposable — delete
+      the folder and re-run <code>npm run seed</code> to start clean. Content is never in there;
+      content is in Git.
     </p>
   </div>
 </section>
@@ -492,28 +468,34 @@ starting platform …
   <div class="section-rule"></div>
   <h1><span class="num">3</span>Signing in</h1>
   <p class="lede">
-    There are no passwords anywhere in this system, and that is deliberate. You ask for a link, the
-    link arrives by email, and clicking it starts a session. When McMaster single sign-on arrives in
-    Phase B it replaces exactly this one step and nothing else.
+    There are no passwords anywhere in this system, and no mail server either. You ask for a link;
+    the link is written to disk and printed in the terminal. When McMaster single sign-on arrives
+    in Phase B it replaces exactly this one step and nothing else.
   </p>
 
-  <ol class="steps">
-    <li>
-      <p>Open Mailpit at <code>localhost:8025</code>.</p>
-      <p>Two emails are waiting from the seed: one to <code>admin@demo</code>, one to <code>instructor@demo</code>.</p>
-    </li>
-    <li>
-      <p>Open the one addressed to <code>admin@demo</code> and click the <code>/auth/…</code> link.</p>
-      <p>You land on the console dashboard, signed in as an administrator.</p>
-    </li>
-    <li>
-      <p>Need another link? Go to <code>localhost:8080/login</code>, type the address, submit.</p>
-      <p>
-        A fresh link appears in Mailpit. Links are single-use and expire after 30 minutes, so this
-        is routine, not a failure.
-      </p>
-    </li>
-  </ol>
+<pre>────────────────────────────────────────────────────────────────
+  Sign-in link for admin@demo
+
+  <span class="g">http://localhost:3000/auth/SSZgXZPw5uQ36CHxdKuecPiQoOnj0_yWjPA9</span>
+
+  Saved as /…/SEPT-ILP/data/mail/2026-08-18T13-34-44-621Z-admin-demo.eml
+────────────────────────────────────────────────────────────────</pre>
+
+  <p>
+    Every message is also kept as a readable <code>.eml</code> under <code>data/mail/</code>, so a
+    link you scrolled past is never lost. Links are single-use and expire after 30 minutes; to get
+    a fresh one, go to <code>/login</code> and enter the address.
+  </p>
+
+  <div class="callout callout--warn">
+    <p class="callout__title">This transport is for your machine only</p>
+    <p>
+      Anyone who can read the terminal or the <code>data/</code> folder can sign in as anybody. The
+      platform therefore <strong>refuses to start</strong> using it when <code>BASE_URL</code> is
+      not a localhost address, unless you opt in explicitly. A real deployment names a mail relay
+      — see section 13.
+    </p>
+  </div>
 
   <h2>What the console holds</h2>
   <table>
@@ -528,19 +510,10 @@ starting platform …
 
   <h3>Try the role boundary</h3>
   <p>
-    Sign in as <code>instructor@demo</code> in a private window and confirm the console is narrower:
-    <em>Invites</em> is gone, and the Publish button is replaced by a line explaining that publishing
-    is an administrator's job. Both are enforced server-side, not merely hidden.
+    Sign in as <code>instructor@demo</code> in a private window and confirm the console is
+    narrower: <em>Invites</em> is gone, and the Publish button is replaced by a line explaining
+    that publishing is an administrator's job. Both are enforced server-side, not merely hidden.
   </p>
-
-  <div class="callout">
-    <p class="callout__title">Inviting a real person later</p>
-    <p>
-      In production the address must be one they can actually receive mail at, and
-      <code>MAIL_FROM</code>/<code>SMTP_HOST</code> must point at a real mail relay instead of Mailpit.
-      Everything else about the flow is identical.
-    </p>
-  </div>
 </section>
 
 <!-- ══════════════════════════ 4 ══════════════════════════ -->
@@ -556,19 +529,21 @@ starting platform …
     <li><p>On the dashboard (as admin), press <strong>Publish all courses</strong>.</p></li>
     <li>
       <p>The run appears in the table below, marked <em>running</em>. Open its report.</p>
-      <p>Give it two to six minutes: it builds both demo courses and runs a real browser over every
-        page for the accessibility scan. Refresh the report to follow along.</p>
+      <p>
+        Give it two to six minutes: it builds both demo courses and runs a real browser over every
+        page for the accessibility scan. Refresh the report to follow along.
+      </p>
     </li>
     <li>
       <p>A finished run shows <span class="tag tag--ok">ok</span> and a gate report like this:</p>
-<pre>Building /app/content/courses/smrttech-3cc3 …
+<pre>Building /…/content/courses/smrttech-3cc3 …
   gate inline-style     … <span class="g">pass</span>
   gate class-allowlist  … <span class="g">pass</span>
   gate answer-leak      … <span class="g">pass</span>
   gate accessibility    … <span class="g">pass</span>
   gate link-integrity   … <span class="g">pass</span>
 
-Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
+Build complete: data/releases/2026-08-18T13-02-44-903Z/smrttech-3cc3/site</pre>
     </li>
   </ol>
 
@@ -584,13 +559,13 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
   </table>
 
   <h2>What a release looks like on disk</h2>
-<pre>/data/releases/2026-08-17T21-04-11-903Z/
+<pre>data/releases/2026-08-18T13-02-44-903Z/
 └── smrttech-3cc3/
     ├── site/      <span class="c">← students get this, and only this</span>
     ├── keys/      <span class="c">← answer keys; served only to signed-in staff</span>
     └── bundles/   <span class="c">← single-file exports and course ZIPs</span>
 
-/data/current → /data/releases/2026-08-17T21-04-11-903Z/   <span class="c">← one symlink</span></pre>
+data/current → data/releases/2026-08-18T13-02-44-903Z/   <span class="c">← one symlink</span></pre>
   <p>
     Old releases are kept on purpose: rolling back is repointing that symlink, which is why the
     runbook's rollback procedure is three lines long.
@@ -599,9 +574,9 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
   <div class="callout callout--ok">
     <p class="callout__title">Now open the student site</p>
     <p>
-      <code>localhost:8080/c/smrttech-3cc3/lab-01/</code> — no login, no cookie. That short URL is
-      the canonical one; it redirects to the full path, and it is what you paste into Avenue to Learn.
-      The <em>Link sheet</em> page has every one of them with a copy button.
+      <code>localhost:3000/c/smrttech-3cc3/lab-01/</code> — no login, no cookie. That short URL is
+      the canonical one; it redirects to the full path, and it is the shape you publish to students
+      (section 9). The <em>Link sheet</em> page has every one of them with a copy button.
     </p>
   </div>
 </section>
@@ -611,44 +586,44 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
   <div class="section-rule"></div>
   <h1><span class="num">5</span>Being a student</h1>
   <p class="lede">
-    Spend ten minutes here as if you were in the lab. This is the part of the system everything else
-    exists to serve, and most of its interesting behaviour is invisible from the console.
+    Spend ten minutes here as if you were in the lab. This is the part of the system everything
+    else exists to serve, and most of its interesting behaviour is invisible from the console.
   </p>
 
   <p>
-    Open <code>localhost:8080/c/smrttech-3cc3/lab-01/</code> — ideally in a private window, so you see
-    a genuinely fresh state.
+    Open <code>localhost:3000/c/smrttech-3cc3/lab-01/</code> — ideally in a private window, so you
+    see a genuinely fresh state.
   </p>
 
   <ul class="check">
     <li>
       <strong>Progression is locked.</strong> Only the first checkpoint is open; later ones show a
-      padlock in the left rail and their controls are disabled. Answer everything in checkpoint one,
-      press <em>Complete checkpoint</em>, and watch the next unlock.
+      padlock in the left rail and their controls are disabled. Answer everything in checkpoint
+      one, press <em>Complete checkpoint</em>, and watch the next unlock.
     </li>
     <li>
       <strong>Going back un-completes things.</strong> Return to a finished checkpoint and clear a
-      required field. Its confirmation is revoked, and so is every checkpoint after it — completion is
-      derived from the work, never a sticky flag.
+      required field. Its confirmation is revoked, and so is every checkpoint after it — completion
+      is derived from the work, never a sticky flag.
     </li>
     <li>
-      <strong>The knowledge base never costs you your place.</strong> Click any dotted knowledge link.
-      A panel opens over the lab with the topic in it; close it and nothing has moved. That was the
-      original design goal: reference material must never be a navigation away from your work.
+      <strong>The knowledge base never costs you your place.</strong> Click any dotted knowledge
+      link. A panel opens over the lab with the topic in it; close it and nothing has moved. That
+      was the original design goal: reference material must never be a navigation away from work.
     </li>
     <li>
-      <strong>Work survives a reload.</strong> Refresh the page mid-lab. Everything is still there —
-      it is in the browser's local storage.
+      <strong>Work survives a reload.</strong> Refresh the page mid-lab. Everything is still there
+      — it is in the browser's local storage.
     </li>
     <li>
-      <strong>The progress file is the real record.</strong> Open the <em>Progress</em> panel at the
-      page edge, download the file, clear site data, then restore it. This is what a student does when
-      they move between the lab computer and their laptop.
+      <strong>The progress file is the real record.</strong> Open the <em>Progress</em> panel at
+      the page edge, download the file, clear site data, then restore it. This is what a student
+      does when they move between the lab computer and their laptop.
     </li>
     <li>
-      <strong>Finish the lab and download the submission package.</strong> The button stays disabled
-      until every checkpoint is confirmed and the identity fields are filled — hover it to see what is
-      still missing.
+      <strong>Finish the lab and download the submission package.</strong> The button stays
+      disabled until every checkpoint is confirmed and the identity fields are filled — hover it to
+      see what is still missing.
     </li>
   </ul>
 
@@ -662,10 +637,10 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
   <div class="callout">
     <p class="callout__title">Prove the privacy claim yourself</p>
     <p>
-      Open DevTools → Network, then work through a checkpoint and download the package. You will see
-      the page load and nothing else: no XHR, no beacon, no form post. The marking happens in the page
-      against salted hashes, and the answer key it is checking against is not in the page at all —
-      search the source for the expected value and you will not find it.
+      Open DevTools → Network, then work through a checkpoint and download the package. You will
+      see the page load and nothing else: no XHR, no beacon, no form post. The marking happens in
+      the page against salted hashes, and the answer key it is checking against is not in the page
+      at all — search the source for the expected value and you will not find it.
     </p>
   </div>
 </section>
@@ -686,32 +661,32 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
     <li><p>Press <strong>Save draft</strong>.</p>
       <p>The draft is validated immediately against the real content schemas. A clean draft says so.</p></li>
     <li><p>Press <strong>Apply to repository</strong>.</p>
-      <p>You get a commit hash back. In WebStorm, <kbd>Alt</kbd>+<kbd>9</kbd> → <em>Log</em> shows the
-        commit, authored by the address you signed in with.</p></li>
+      <p>You get a commit hash back. In WebStorm, <kbd>Alt</kbd>+<kbd>9</kbd> → <em>Log</em> shows
+        the commit, authored by the address you signed in with.</p></li>
     <li><p>Return to the dashboard and <strong>Publish</strong>, then reload the lab page to see your wording live.</p></li>
   </ol>
 
   <h3>Now break it on purpose</h3>
   <p>
-    Edit the same block and delete its <code>prompt</code> line entirely, then <em>Save draft</em>. The
-    draft still saves — drafts are allowed to be wrong — but a red error appears pinned to that exact
-    block, and <em>Apply</em> refuses. This is the same validator the build uses, so the editor and the
-    pipeline can never disagree about what is valid.
+    Edit the same block and delete its <code>prompt</code> line entirely, then <em>Save draft</em>.
+    The draft still saves — drafts are allowed to be wrong — but a red error appears pinned to that
+    exact block, and <em>Apply</em> refuses. This is the same validator the build uses, so the
+    editor and the pipeline can never disagree about what is valid.
   </p>
 
   <h3>Images</h3>
   <p>
-    The upload box at the top of the editor requires alt text before it will accept anything, and it
-    identifies files by their actual bytes rather than their name or declared type — a script-bearing
-    SVG renamed <code>.png</code> is rejected. On success it stores the image and inserts a figure block.
+    The upload box at the top of the editor requires alt text before it will accept anything, and
+    it identifies files by their actual bytes rather than their name or declared type — a
+    script-bearing SVG renamed <code>.png</code> is rejected. On success it stores the image and
+    inserts a figure block.
   </p>
 
   <div class="callout callout--warn">
     <p class="callout__title">Commits are local until you push</p>
     <p>
-      <em>Apply</em> commits into the working copy mounted into the container — which is your checkout.
-      Push it yourself when you are happy: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd>. Nothing in the
-      platform pushes on your behalf.
+      <em>Apply</em> commits into your checkout. Push it yourself when you are happy:
+      <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd>. Nothing in the platform pushes on your behalf.
     </p>
   </div>
 </section>
@@ -721,8 +696,9 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
   <div class="section-rule"></div>
   <h1><span class="num">7</span>Marking submissions</h1>
   <p class="lede">
-    The marker runs entirely in your browser. It re-derives every mark from the student's own recorded
-    answers against the published key — it never trusts the score the student's page calculated.
+    The marker runs entirely in your browser. It re-derives every mark from the student's own
+    recorded answers against the published key — it never trusts the score the student's page
+    calculated.
   </p>
 
   <ol class="steps">
@@ -748,16 +724,16 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
   <p>
     Unzip the submission, open <code>completion.json</code>, change <code>t3-r-dark</code> to a
     different resistance, re-zip, and drop it in again. The expected voltage moves with it: the
-    breakdown will read <em>“answered 0.455, expected 0.45 from their own inputs — within tolerance”</em>.
-    That is the difference between marking a lab and marking an answer sheet.
+    breakdown will read <em>“answered 0.455, expected 0.45 from their own inputs — within
+    tolerance”</em>. That is the difference between marking a lab and marking an answer sheet.
   </p>
 
   <h3>Advisory flags, never verdicts</h3>
   <p>
     The marker raises a flag — and only a flag — when something deserves a human look: a mismatched
     content version, an integrity hash that does not match, two submissions with identical answers
-    under different names, a checkpoint confirmed with unmet requirements. It never withholds marks on
-    suspicion. The judgement stays yours.
+    under different names, a checkpoint confirmed with unmet requirements. It never withholds marks
+    on suspicion. The judgement stays yours.
   </p>
 
   <h2>Exports</h2>
@@ -772,9 +748,9 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
     <p class="callout__title">Confirm the no-egress claim</p>
     <p>
       Open DevTools → Network before you drop a submission. The only requests you will ever see are
-      the <code>/keys…</code> fetches at load. The page's Content-Security-Policy forbids every other
-      destination, the server has nowhere to receive submissions, and a test in the suite fails the
-      build if anyone adds a network call to this app.
+      the <code>/keys…</code> fetches at load. The page's Content-Security-Policy forbids every
+      other destination, the server has nowhere to receive submissions, and a test in the suite
+      fails the build if anyone adds a network call to this app.
     </p>
   </div>
 </section>
@@ -784,24 +760,26 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
   <div class="section-rule"></div>
   <h1><span class="num">8</span>Single-file exports</h1>
   <p class="lede">
-    Every publish also produces each lab as one self-contained HTML file — stylesheet, fonts, scripts
-    and images folded in — for when a lab has to live inside the LMS rather than behind a link.
+    Every publish also produces each lab as one self-contained HTML file — stylesheet, fonts,
+    scripts and images folded in — for when a lab has to live inside the LMS rather than behind a
+    link.
   </p>
 
   <ol class="steps">
     <li><p>Console → <strong>Exports</strong> → download <code>smrttech-3cc3-lab-01-single.html</code>.</p></li>
     <li><p>Open it straight from your downloads folder, with no server involved.</p>
-      <p>It is a complete lab: quizzes mark, checkpoints gate, the progress file downloads. Disconnect
-        your network first if you want to be certain.</p></li>
+      <p>It is a complete lab: quizzes mark, checkpoints gate, the progress file downloads.
+        Disconnect your network first if you want to be certain.</p></li>
   </ol>
 
   <div class="callout callout--warn">
     <p class="callout__title">Teach the storage caveat, or field the support tickets</p>
     <p>
-      Browsers separate storage by origin. Work done in a single-file copy stays in that copy — it will
-      not appear on the hosted site, and vice versa. The progress file is the bridge between them. If a
-      course uses both forms, one sentence in the Avenue module text prevents nearly every confused
-      email: <em>“your work saves in whichever copy you use; use the progress file to move it.”</em>
+      Browsers separate storage by origin. Work done in a single-file copy stays in that copy — it
+      will not appear on the hosted site, and vice versa. The progress file is the bridge between
+      them. If a course uses both forms, one sentence in the Avenue module text prevents nearly
+      every confused email: <em>“your work saves in whichever copy you use; use the progress file
+      to move it.”</em>
     </p>
   </div>
 
@@ -814,55 +792,124 @@ Build complete: /data/releases/2026-08-17T21-04-11-903Z/smrttech-3cc3/site</pre>
 <!-- ══════════════════════════ 9 ══════════════════════════ -->
 <section>
   <div class="section-rule"></div>
-  <h1><span class="num">9</span>Running the tests</h1>
+  <h1><span class="num">9</span>Getting labs to students</h1>
   <p class="lede">
-    Eighty-six tests across four suites. They run on your machine rather than in the container, so you
-    need Node once — and then one command.
+    The platform on your machine is for staff. Students get plain static files from wherever the
+    School hosts them, linked from Avenue to Learn — the same delivery model the original 3CC3
+    portal used, and the reason none of this needs a server at the far end.
   </p>
 
-<pre><span class="c"># once, in the repository root</span>
+  <h2>Build the files</h2>
+<pre>npm run build:all
+
+dist/smrttech-3cc3/site/      <span class="c">← upload this</span>
+dist/smrttech-3cc3/bundles/   <span class="c">← single-file labs and course ZIPs</span>
+dist/smrttech-3cc3/keys/      <span class="c">← NEVER upload this (instructor answer keys)</span></pre>
+
+  <div class="callout callout--danger">
+    <p class="callout__title">Upload <code>site/</code> only</p>
+    <p>
+      <code>keys/</code> sits <em>outside</em> <code>site/</code> precisely so that copying the
+      site folder cannot take the answer keys with it. Copy the <code>site</code> directory, never
+      its parent.
+    </p>
+  </div>
+
+  <h2>Where to host it</h2>
+  <table>
+    <tr><th style="width:22%">Option</th><th style="width:30%">Operations</th><th>Notes</th></tr>
+    <tr>
+      <td><strong>GitHub Pages</strong></td>
+      <td>Already wired: every push to <code>main</code> builds and deploys</td>
+      <td>Simplest. Public at an unlisted URL — fine for lab manuals, which contain no answers and no student data.</td>
+    </tr>
+    <tr>
+      <td><strong>Cloudflare Pages</strong></td>
+      <td>Push-to-deploy from the repository</td>
+      <td>Adds a CDN, and Cloudflare Access can restrict to <code>@mcmaster.ca</code> if leadership wants the content gated.</td>
+    </tr>
+    <tr>
+      <td><strong>SEPT server</strong></td>
+      <td>One static vhost; deploy by copy or rsync from CI</td>
+      <td>Keeps everything on McMaster infrastructure; can sit behind campus SSO if UTS provisions it.</td>
+    </tr>
+    <tr>
+      <td><strong>ZIP into A2L</strong></td>
+      <td>Upload to Manage Files; re-upload to update</td>
+      <td>The always-works fallback. Inherits SSO for free, but runs inside Brightspace's iframe, where storage is partitioned — the progress file becomes a daily necessity rather than a safety net.</td>
+    </tr>
+  </table>
+
+  <h2>The recommendation</h2>
+  <p>
+    Host the site (Pages, Cloudflare, or the SEPT server) and put <strong>links</strong> in Avenue
+    to Learn that open in a new tab. That single choice is the biggest reliability win available:
+    storage stops being partitioned, so student work persists normally, and print, bookmarks, and
+    multi-tab reference all behave. Access control stays honest either way — the links live behind
+    A2L, the pages contain no answers and no way to submit anything, and real submissions still go
+    through the A2L dropbox.
+  </p>
+  <p>
+    The console's <strong>Link sheet</strong> page gives you each lab's URL and a suggested topic
+    title, with copy buttons. Set <code>BASE_URL</code> to your hosting origin before publishing so
+    the sheet prints the real links rather than <code>localhost</code>.
+  </p>
+  <p>
+    Full comparison, including the LTI path for Phase B, is in <code>docs/deployment.md</code>.
+  </p>
+</section>
+
+<!-- ══════════════════════════ 10 ══════════════════════════ -->
+<section>
+  <div class="section-rule"></div>
+  <h1><span class="num">10</span>Running the tests</h1>
+  <p class="lede">
+    Eighty-seven tests across four suites, behind one command.
+  </p>
+
+<pre><span class="c"># once</span>
 npm run setup
 
 <span class="c"># thereafter</span>
 npm run test:all</pre>
 
   <p>
-    <code>setup</code> installs the three packages that have dependencies and fetches the Chromium build
-    the accessibility and export tests drive. In WebStorm you can skip the terminal entirely: open the
-    root <code>package.json</code> and use the run arrows in the gutter beside each script, or the
-    <em>npm</em> tool window.
+    In WebStorm, use the <strong>4 · All tests</strong> run configuration, the run arrows in the
+    gutter of <code>package.json</code>, or the <em>npm</em> tool window.
   </p>
 
   <table>
     <caption>What each suite is guarding</caption>
     <tr><th style="width:22%">Suite</th><th style="width:12%">Tests</th><th>Protects</th></tr>
     <tr><td><code>npm test</code><br>(renderer)</td><td>29</td><td>The hashing scheme, tolerance edges, key generation, the answer-leak gate, and single-file export parity against the hosted page.</td></tr>
-    <tr><td><code>npm run test:platform</code></td><td>10</td><td>Magic links, sessions, roles, CSRF, rate limiting, path-traversal defences, the absence of student routes, and an accessibility scan of every console page.</td></tr>
+    <tr><td><code>npm run test:platform</code></td><td>11</td><td>Magic links, sessions, roles, CSRF, rate limiting, path-traversal defences, the absence of student routes, mail delivery with no mail server, and an accessibility scan of every console page.</td></tr>
     <tr><td><code>npm run test:marker</code></td><td>41</td><td>Every marking rule, the formula evaluator's safety, ZIP reading, CSV formatting, and the no-egress guarantee.</td></tr>
     <tr><td><code>npm run test:admin</code></td><td>6</td><td>Block skeletons stay schema-valid, the draft→validate→apply flow, course access, and upload hardening.</td></tr>
   </table>
 
   <h3>Running the gates directly</h3>
   <p>
-    To exercise the full build without the console, run <code>npm run gates</code> (the pilot course in
-    strict mode) or <code>npm run build:all</code> (both courses, plus single-file exports). This is
-    what CI runs on every push, and it is the fastest way to check a content change before publishing.
+    To exercise the full build without the console, run <code>npm run gates</code> (the pilot
+    course in strict mode) or <code>npm run build:all</code> (both courses, plus single-file
+    exports). This is what CI runs on every push, and it is the fastest way to check a content
+    change before publishing.
   </p>
 
   <div class="callout">
     <p class="callout__title">Expect the SQLite notice</p>
     <p>
-      On Node 22 the platform suite prints <em>“SQLite is an experimental feature”</em>. That is Node
-      talking about its own built-in database module, not a problem with the platform, and it disappears
-      on newer Node. The <code>npm test</code> scripts pick the right flag for whichever version you have.
+      On Node 22 you will see <em>“SQLite is an experimental feature”</em>. That is Node talking
+      about its own built-in database module, not a problem with the platform, and it disappears on
+      newer Node. The npm scripts pick the right flag for whichever version you have — which is why
+      <code>npm test</code> works where a bare <code>node --test</code> may not.
     </p>
   </div>
 </section>
 
-<!-- ══════════════════════════ 10 ══════════════════════════ -->
+<!-- ══════════════════════════ 11 ══════════════════════════ -->
 <section>
   <div class="section-rule"></div>
-  <h1><span class="num">10</span>Proving it works</h1>
+  <h1><span class="num">11</span>Proving it works</h1>
   <p class="lede">
     This is the acceptance script the platform was built against, written out so you can walk it by
     hand. Roughly twenty minutes. If all eight boxes tick, every claim in this guide holds on your
@@ -871,33 +918,33 @@ npm run test:all</pre>
 
   <ul class="check">
     <li>
-      <strong>1 · The stack comes up seeded.</strong>
-      <code>docker compose up -d</code>, and the log ends in <em>listening</em>. Mailpit holds two
-      sign-in emails.
+      <strong>1 · The platform comes up seeded.</strong>
+      <code>npm run seed</code> prints two sign-in links and writes two files under
+      <code>data/mail/</code>; <code>npm start</code> reports it is listening.
     </li>
     <li>
       <strong>2 · An invitation reaches a new person.</strong>
-      Sign in as admin. Invites → invite <code>tester@demo</code> as an instructor for SMRTTECH 3CC3.
-      The link appears in Mailpit; open it in a private window and you are signed in as them, with a
-      narrower console.
+      Sign in as admin. Invites → invite <code>tester@demo</code> as an instructor for SMRTTECH
+      3CC3. Their link appears in the terminal; open it in a private window and you are signed in
+      as them, with a narrower console.
     </li>
     <li>
       <strong>3 · An edit reaches students only through the gates.</strong>
       As that instructor, reword a Lab 1 quiz prompt in the editor → Save draft → Apply. Publish as
       admin. The report shows every gate passing, and
-      <code>localhost:8080/c/smrttech-3cc3/lab-01/</code> shows the new wording.
+      <code>localhost:3000/c/smrttech-3cc3/lab-01/</code> shows the new wording.
     </li>
     <li>
       <strong>4 · A student completes the lab with no account.</strong>
-      In a fresh private window, work through Lab 1. Put one measurement deliberately near the edge of
-      its tolerance. Fill the identity fields, attach a file to each evidence slot, download the
+      In a fresh private window, work through Lab 1. Put one measurement deliberately near the edge
+      of its tolerance. Fill the identity fields, attach a file to each evidence slot, download the
       submission package.
     </li>
     <li>
       <strong>5 · The marker marks it.</strong>
-      Back as the instructor, Marker → drop that ZIP. The key matches automatically, the formula items
-      are judged against that student's own measurements, and the Brightspace CSV downloads with one
-      row per student number.
+      Back as the instructor, Marker → drop that ZIP. The key matches automatically, the formula
+      items are judged against that student's own measurements, and the Brightspace CSV downloads
+      with one row per student number.
     </li>
     <li>
       <strong>6 · Answer keys stay inside their course.</strong>
@@ -911,44 +958,46 @@ npm run test:all</pre>
     </li>
     <li>
       <strong>8 · The answer-leak gate really blocks a leak.</strong>
-      Add the text <code>4.68</code> to the footer in <code>renderer/src/pages/Page.js</code>, then run
-      <code>node renderer/src/cli.js build content/courses/demo-101 --out /tmp/leak --skip-a11y</code>.
-      The build must fail on <code>answer-leak</code>. Undo the edit and it passes again.
+      Add the text <code>4.68</code> to the footer in <code>renderer/src/pages/Page.js</code>, then
+      run <code>node renderer/src/cli.js build content/courses/demo-101 --out /tmp/leak
+      --skip-a11y</code>. The build must fail on <code>answer-leak</code>. Undo the edit and it
+      passes again.
     </li>
   </ul>
 
   <div class="callout callout--ok">
     <p class="callout__title">What this establishes</p>
     <p>
-      Content only reaches students through the gates; students need no account and leave no data on the
-      server; marking is reproducible from what the student actually recorded; and answers cannot leak,
-      either into a page or across a course boundary. Those are the four claims the pilot rests on.
+      Content only reaches students through the gates; students need no account and leave no data
+      on the server; marking is reproducible from what the student actually recorded; and answers
+      cannot leak, either into a page or across a course boundary. Those are the four claims the
+      pilot rests on.
     </p>
   </div>
 </section>
 
-<!-- ══════════════════════════ 11 ══════════════════════════ -->
+<!-- ══════════════════════════ 12 ══════════════════════════ -->
 <section>
   <div class="section-rule"></div>
-  <h1><span class="num">11</span>When something breaks</h1>
+  <h1><span class="num">12</span>When something breaks</h1>
   <p class="lede">Symptoms you are most likely to hit first, and what each one actually means.</p>
 
   <table>
     <tr><th style="width:31%">Symptom</th><th style="width:31%">Cause</th><th>Fix</th></tr>
     <tr>
-      <td><code>exec /entrypoint.sh: no such file or directory</code></td>
-      <td>Windows CRLF line endings in the shell script.</td>
-      <td>Rebuild the image (the fix is baked in): <code>docker compose build --no-cache platform</code>. For the checkout itself, see section 1.</td>
+      <td><code>ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite</code></td>
+      <td>A bare <code>node …</code> command on Node 22, which needs a flag for its built-in database.</td>
+      <td>Use the npm scripts (<code>npm start</code>, <code>npm run seed</code>, <code>npm run test:platform</code>) — they detect and pass it.</td>
     </tr>
     <tr>
-      <td>A container exits the moment it starts</td>
-      <td>Port 8080 or 8025 already taken.</td>
-      <td>Free the port, or change the left-hand number in <code>docker-compose.yml</code> (e.g. <code>8090:8080</code>) and set <code>BASE_URL</code> to match.</td>
+      <td><code>EADDRINUSE :3000</code></td>
+      <td>Something else has the port — often an earlier copy of the platform still running.</td>
+      <td>Stop it, or <code>PORT=3100 npm start</code> with <code>BASE_URL=http://localhost:3100</code>.</td>
     </tr>
     <tr>
-      <td>Platform starts, but says it can find no courses</td>
-      <td>The repository is not shared with Docker, so the mount is empty.</td>
-      <td>Docker Desktop → Settings → Resources → File Sharing → add the parent folder → restart Docker Desktop.</td>
+      <td>No sign-in link anywhere</td>
+      <td>The address has no account, or you are looking at the wrong terminal.</td>
+      <td>Check <code>data/mail/</code>. Unknown addresses are ignored silently, on purpose — the platform will not confirm who has an account.</td>
     </tr>
     <tr>
       <td>Student site says <em>Nothing published yet</em></td>
@@ -956,14 +1005,9 @@ npm run test:all</pre>
       <td>Sign in as admin and press Publish.</td>
     </tr>
     <tr>
-      <td>No sign-in email</td>
-      <td>Mailpit was still booting, or the address has no account.</td>
-      <td>Check <code>localhost:8025</code> first. Unknown addresses are silently ignored, on purpose — the platform will not confirm who has an account.</td>
-    </tr>
-    <tr>
-      <td>Publish fails on <strong>accessibility</strong> with a missing browser</td>
-      <td>The image drifted from the Playwright version in <code>package.json</code>.</td>
-      <td><code>docker compose build --no-cache platform</code>.</td>
+      <td>Publish fails on <strong>accessibility</strong>, browser missing</td>
+      <td>Chromium was never downloaded, or the install was blocked.</td>
+      <td><code>npx playwright install chromium</code>. If the network forbids it, build with <code>--skip-a11y</code> and record the gate as owed.</td>
     </tr>
     <tr>
       <td>Publish fails on <strong>answer-leak</strong></td>
@@ -976,56 +1020,55 @@ npm run test:all</pre>
       <td>Run <code>npm run validate</code> to see the same errors locally, with paths.</td>
     </tr>
     <tr>
-      <td><code>ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite</code></td>
-      <td>Tests started with a bare <code>node --test</code> on Node 22.</td>
-      <td>Use <code>npm run test:platform</code>, which selects the right flag for your Node.</td>
+      <td>The platform refuses to start, naming <code>COOKIE_SECRET</code> or <code>SMTP_HOST</code></td>
+      <td>Working as intended: <code>BASE_URL</code> is not localhost, so development defaults are refused.</td>
+      <td>Set both (section 13), or keep <code>BASE_URL</code> local while developing.</td>
     </tr>
     <tr>
-      <td>Out of disk</td>
+      <td>Everything is confusing; you want a clean slate</td>
+      <td>Accumulated local state.</td>
+      <td>Stop the platform, delete <code>data/</code>, run <code>npm run seed</code>. Content is in Git and is untouched.</td>
+    </tr>
+    <tr>
+      <td>Disk filling up</td>
       <td>Releases accumulate by design (they are the rollback history).</td>
-      <td><code>docker compose exec platform sh -c 'ls -dt /data/releases/* | tail -n +6 | xargs rm -rf'</code></td>
+      <td><code>ls -dt data/releases/* | tail -n +6 | xargs rm -rf</code></td>
     </tr>
   </table>
-
-  <h3>Reading logs in WebStorm</h3>
-  <p>
-    Services (<kbd>Alt</kbd>+<kbd>8</kbd>) → the container → <em>Log</em> tab for output, <em>Terminal</em>
-    tab for a shell inside it. To inspect a release from the inside:
-  </p>
-<pre>ls -la /data
-ls /data/current/smrttech-3cc3/site</pre>
 </section>
 
-<!-- ══════════════════════════ 12 ══════════════════════════ -->
+<!-- ══════════════════════════ 13 ══════════════════════════ -->
 <section>
   <div class="section-rule"></div>
-  <h1><span class="num">12</span>Reference</h1>
+  <h1><span class="num">13</span>Reference</h1>
 
   <h2>URLs</h2>
   <table>
     <tr><th style="width:42%">URL</th><th>What</th></tr>
-    <tr><td><code>localhost:8080/c/&lt;course&gt;/&lt;lab&gt;/</code></td><td>Canonical student lab link — this is what goes in Avenue to Learn.</td></tr>
-    <tr><td><code>localhost:8080/login</code></td><td>Faculty sign-in.</td></tr>
-    <tr><td><code>localhost:8080/admin</code></td><td>Console dashboard, publishing, publish history.</td></tr>
-    <tr><td><code>localhost:8080/admin/links</code></td><td>Link sheet with copy buttons and suggested A2L titles.</td></tr>
-    <tr><td><code>localhost:8080/admin/exports</code></td><td>Single-file labs and course ZIPs.</td></tr>
-    <tr><td><code>localhost:8080/admin/editor</code></td><td>Content editor.</td></tr>
-    <tr><td><code>localhost:8080/marker/</code></td><td>Instructor auto-marker.</td></tr>
-    <tr><td><code>localhost:8080/keys/&lt;course&gt;</code></td><td>Answer keys as JSON — role-gated.</td></tr>
-    <tr><td><code>localhost:8080/healthz</code></td><td>Liveness plus the current release path.</td></tr>
-    <tr><td><code>localhost:8025</code></td><td>Mailpit.</td></tr>
+    <tr><td><code>localhost:3000/c/&lt;course&gt;/&lt;lab&gt;/</code></td><td>Canonical student lab link — the shape you publish.</td></tr>
+    <tr><td><code>localhost:3000/login</code></td><td>Faculty sign-in.</td></tr>
+    <tr><td><code>localhost:3000/admin</code></td><td>Console dashboard, publishing, publish history.</td></tr>
+    <tr><td><code>localhost:3000/admin/links</code></td><td>Link sheet with copy buttons and suggested A2L titles.</td></tr>
+    <tr><td><code>localhost:3000/admin/exports</code></td><td>Single-file labs and course ZIPs.</td></tr>
+    <tr><td><code>localhost:3000/admin/editor</code></td><td>Content editor.</td></tr>
+    <tr><td><code>localhost:3000/marker/</code></td><td>Instructor auto-marker.</td></tr>
+    <tr><td><code>localhost:3000/keys/&lt;course&gt;</code></td><td>Answer keys as JSON — role-gated.</td></tr>
+    <tr><td><code>localhost:3000/healthz</code></td><td>Liveness plus the current release path.</td></tr>
   </table>
 
   <h2>Environment variables</h2>
   <table>
-    <tr><th style="width:26%">Variable</th><th style="width:24%">Default</th><th>Purpose</th></tr>
-    <tr><td><code>BASE_URL</code></td><td><code>http://localhost:8080</code></td><td>The origin written into magic links and the link sheet. Must be right, or emailed links point nowhere.</td></tr>
-    <tr><td><code>COOKIE_SECRET</code></td><td>dev value</td><td>Signs sessions and CSRF tokens. <strong>The service refuses to start with the default on any non-localhost <code>BASE_URL</code>.</strong> Generate with <code>openssl rand -hex 32</code>.</td></tr>
-    <tr><td><code>SEED_ADMIN</code></td><td><code>admin@demo</code></td><td>Administrator seeded on start.</td></tr>
-    <tr><td><code>SEED_INSTRUCTOR</code></td><td><code>instructor@demo</code></td><td>Instructor seeded on start.</td></tr>
-    <tr><td><code>SMTP_HOST</code> / <code>SMTP_PORT</code></td><td><code>mailpit</code> / <code>1025</code></td><td>Where sign-in mail goes. Point at a real relay in production.</td></tr>
+    <tr><th style="width:26%">Variable</th><th style="width:22%">Default</th><th>Purpose</th></tr>
+    <tr><td><code>PORT</code></td><td><code>3000</code></td><td>Listening port.</td></tr>
+    <tr><td><code>BASE_URL</code></td><td><code>http://localhost:3000</code></td><td>The origin written into sign-in links and the link sheet. Set it to your hosting origin before publishing for students.</td></tr>
+    <tr><td><code>COOKIE_SECRET</code></td><td>dev value</td><td>Signs sessions and CSRF tokens. <strong>Required for any non-localhost <code>BASE_URL</code>.</strong> Generate with <code>openssl rand -hex 32</code>.</td></tr>
+    <tr><td><code>SMTP_HOST</code> / <code>SMTP_PORT</code></td><td>— / <code>25</code></td><td>A mail relay. Setting the host switches mail from the local file sink to real delivery, which a non-localhost <code>BASE_URL</code> requires.</td></tr>
+    <tr><td><code>MAIL_TRANSPORT</code></td><td><code>file</code></td><td><code>file</code> writes <code>.eml</code> files and prints links; <code>smtp</code> relays. Set explicitly only to override the automatic choice.</td></tr>
+    <tr><td><code>MAIL_DIR</code></td><td><code>data/mail</code></td><td>Where the file transport writes.</td></tr>
+    <tr><td><code>SEED_ADMIN</code> / <code>SEED_INSTRUCTOR</code></td><td><code>admin@demo</code> / <code>instructor@demo</code></td><td>Accounts <code>npm run seed</code> creates.</td></tr>
+    <tr><td><code>DATA_DIR</code></td><td><code>data/</code></td><td>Database, releases, drafts, and mail.</td></tr>
     <tr><td><code>PUBLISH_GIT_PULL</code></td><td>off</td><td>Set to <code>1</code> to <code>git pull --ff-only</code> before each publish.</td></tr>
-    <tr><td><code>PUBLISH_SKIP_A11Y</code></td><td>off</td><td>Skips the accessibility gate. For environments with no browser only — never for a real publish.</td></tr>
+    <tr><td><code>PUBLISH_SKIP_A11Y</code></td><td>off</td><td>Skips the accessibility gate. For machines with no browser only — never for a real publish.</td></tr>
   </table>
 
   <h2>Where things live</h2>
@@ -1038,9 +1081,11 @@ ls /data/current/smrttech-3cc3/site</pre>
     <tr><td><code>apps/platform/</code></td><td>The faculty service: auth, publishing, keys, exports.</td></tr>
     <tr><td><code>apps/admin/</code></td><td>The content editor mounted by the platform.</td></tr>
     <tr><td><code>apps/marker/</code></td><td>The client-side auto-marker.</td></tr>
-    <tr><td><code>deploy/</code></td><td>Compose file, image, reverse proxy, seed script.</td></tr>
+    <tr><td><code>scripts/</code></td><td><code>start.mjs</code> and <code>seed.mjs</code> — what the npm scripts run.</td></tr>
+    <tr><td><code>.run/</code></td><td>WebStorm run configurations, shared through the repository.</td></tr>
     <tr><td><code>integrations/</code></td><td>Phase B seams — interfaces only, nothing wired up.</td></tr>
     <tr><td><code>docs/</code></td><td>runbook · architecture · marking · deployment · decisions/adr-001-cms</td></tr>
+    <tr><td><code>data/</code></td><td>Local state: database, releases, drafts, mail. Git-ignored and disposable.</td></tr>
   </table>
 
   <h2>The five invariants, and what enforces each</h2>
@@ -1054,10 +1099,10 @@ ls /data/current/smrttech-3cc3/site</pre>
   </table>
 </section>
 
-<!-- ══════════════════════════ 13 ══════════════════════════ -->
+<!-- ══════════════════════════ 14 ══════════════════════════ -->
 <section>
   <div class="section-rule"></div>
-  <h1><span class="num">13</span>Honest status</h1>
+  <h1><span class="num">14</span>Honest status</h1>
   <p class="lede">
     What you are running is a complete Phase A prototype, verified end to end — not a finished
     production service. The distinction matters most in these places.
@@ -1067,17 +1112,17 @@ ls /data/current/smrttech-3cc3/site</pre>
     <div class="card">
       <h3>Solid <span class="tag tag--ok">verified</span></h3>
       <p>
-        The rendering pipeline and its gates; the marking model and the marker; content editing through
-        Git; publishing with atomic rollback; the student experience including gating, progress files
-        and submission packages. All covered by tests and by the section 10 walkthrough.
+        The rendering pipeline and its gates; the marking model and the marker; content editing
+        through Git; publishing with atomic rollback; the student experience including gating,
+        progress files and submission packages. All covered by tests and by the section 11 walkthrough.
       </p>
     </div>
     <div class="card">
       <h3>Stubbed <span class="tag tag--stub">by design</span></h3>
       <p>
-        Authentication is email magic links, not MacID — deliberate, and confined to one seam. Grade
-        return is a CSV you import by hand. Both are Phase B swaps, and their contracts already exist
-        under <code>integrations/</code>.
+        Authentication is email magic links, not MacID — deliberate, and confined to one seam.
+        Grade return is a CSV you import by hand. Both are Phase B swaps, and their contracts
+        already exist under <code>integrations/</code>.
       </p>
     </div>
     <div class="card">
@@ -1091,27 +1136,28 @@ ls /data/current/smrttech-3cc3/site</pre>
     <div class="card card--tint">
       <h3>Decide before the pilot</h3>
       <p>
-        Where this is hosted and who administers it; whether single-file exports are used at all, given
-        the storage caveat; who holds the admin account; and how student evidence files are retained
-        once they reach Avenue to Learn.
+        Where the student site is hosted and who deploys it; who holds the admin account; whether
+        single-file exports are used at all, given the storage caveat; and how student evidence
+        files are retained once they reach Avenue to Learn.
       </p>
     </div>
   </div>
 
   <h2>If you do only three things before students see it</h2>
   <ol>
-    <li>Set a real <code>COOKIE_SECRET</code> and a real <code>BASE_URL</code>, and put the service behind HTTPS.</li>
-    <li>Point <code>SMTP_HOST</code> at a mail relay that can actually reach McMaster addresses, and invite yourself to prove it.</li>
-    <li>Walk section 10 on the machine that will host it — not on your laptop.</li>
+    <li>Pick the hosting (section 9) and publish the pilot course there, with <code>BASE_URL</code> set to that origin.</li>
+    <li>Walk section 11 against the hosted site, not just <code>localhost</code>.</li>
+    <li>Put the lab links in the Avenue to Learn module — set to open in a new tab — and add the one sentence about the progress file.</li>
   </ol>
 
   <div class="callout">
     <p class="callout__title">Where to go deeper</p>
     <p>
-      <code>docs/runbook.md</code> for day-to-day operations and rollback · <code>docs/architecture.md</code>
-      for how the layers fit · <code>docs/marking.md</code> for the hashing scheme and its honest security
-      claims · <code>docs/deployment.md</code> for hosting options · <code>docs/decisions/adr-001-cms.md</code>
-      for why the CMS is what it is.
+      <code>docs/runbook.md</code> for day-to-day operations and rollback ·
+      <code>docs/architecture.md</code> for how the layers fit · <code>docs/marking.md</code> for
+      the hashing scheme and its honest security claims · <code>docs/deployment.md</code> for the
+      full hosting comparison · <code>docs/decisions/adr-001-cms.md</code> for why the CMS is what
+      it is.
     </p>
   </div>
 </section>

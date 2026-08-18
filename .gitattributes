@@ -1,9 +1,8 @@
 # Line endings. Git on Windows checks out text files with CRLF by
-# default, which breaks any file a Linux container executes or parses
-# byte-for-byte: a shell script with CRLF fails as
-# `exec /entrypoint.sh: no such file or directory`, because the kernel
-# reads the shebang as `/bin/bash\r`. Pin LF for everything the build,
-# the container, and the deterministic renderer touch.
+# default, which silently changes bytes the deterministic renderer
+# hashes and the quality gates scan — two developers on different
+# platforms would otherwise produce different output from identical
+# content. Pin LF for everything the build reads or writes.
 * text=auto eol=lf
 
 # Explicitly LF, whatever a contributor's local setting says.

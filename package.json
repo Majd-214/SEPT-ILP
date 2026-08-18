@@ -1,7 +1,7 @@
 {
   "name": "sept-ilp",
   "version": "1.0.0",
-  "description": "SEPT Interactive Laboratory Platform — schema-first authoring and deterministic rendering of scenario-based laboratory instruction.",
+  "description": "SEPT Interactive Laboratory Platform \u2014 schema-first authoring and deterministic rendering of scenario-based laboratory instruction.",
   "type": "module",
   "license": "MIT",
   "author": "Majd Aburas",
@@ -18,6 +18,8 @@
     "validate": "node renderer/src/cli.js validate content/courses/smrttech-3cc3",
     "gates": "node renderer/src/cli.js build content/courses/smrttech-3cc3 --strict",
     "preview": "node renderer/src/cli.js preview",
+    "start": "node scripts/start.mjs",
+    "seed": "node scripts/seed-run.mjs",
     "setup": "npm ci && npm ci --prefix apps/platform && npm ci --prefix apps/admin && npx playwright install chromium",
     "test": "node --test renderer/test/*.test.js",
     "test:platform": "npm --prefix apps/platform test",

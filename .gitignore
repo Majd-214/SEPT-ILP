@@ -4,7 +4,10 @@ node_modules/
 # Build output
 dist/
 
-# Platform service local state (SQLite database, releases)
+# Platform local state: SQLite database, releases, and the mail sink.
+# All of it is reproducible — content lives in git, releases are built
+# from it, and accounts are recreated by `npm run seed`.
+data/
 apps/platform/.data/
 
 # Environment and editor artifacts

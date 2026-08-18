@@ -30,10 +30,13 @@ against this repository. Findings, in decreasing order of weight:
    api.github.com. That contradicts the platform's auth model — faculty
    sign in to *our* service (MacID via OIDC in Phase B, never GitHub) —
    and adds an external service on the critical path of every edit.
-2. **Infrastructure weight.** Self-hosting needs Next.js, PostgreSQL,
-   and Drizzle migrations next to our zero-native-dependency Fastify
-   service (SQLite via `node:sqlite`). That roughly doubles the
-   deployment surface for one feature.
+2. **Infrastructure weight — decisive.** Self-hosting needs Next.js,
+   PostgreSQL, and Drizzle migrations next to our zero-native-dependency
+   Fastify service (SQLite via `node:sqlite`). In practice that means
+   containers, and the School's lab computers do not have virtualization
+   enabled and staff do not have administrator rights on them. A tool
+   that cannot run on the machines the work happens on is not a
+   candidate, whatever its merits.
 3. **Edits bypass the gates until after they land.** Pages CMS commits
    directly to the repository; validation is limited to what
    `.pages.yml` field rules can express (zod-level: required, patterns,
@@ -85,7 +88,7 @@ behind the same session, roles, and CSRF as the rest of the console:
 ## Consequences
 
 - Editing capability ships in Phase A with no new services, accounts,
-  or dependencies; the deployment stays `docker compose up`.
+  or dependencies; the platform stays a single `npm start`.
 - Faculty edit under the platform's own auth — the OIDC seam covers
   the editor for free in Phase B.
 - The JSON-per-block surface assumes staff comfortable reading JSON;

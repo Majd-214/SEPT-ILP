@@ -37,7 +37,7 @@ test('every console page and the marker pass the accessibility gate', async () =
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sept-a11y-'));
   const app = await buildApp(loadConfig({ DATA_DIR: dataDir, BASE_URL: 'http://127.0.0.1' }));
   const mails = [];
-  app.platform.auth.smtp.send = async (to, subject, text) => { mails.push(text); };
+  app.platform.auth.mailer.send = async (to, subject, text) => { mails.push(text); };
   await app.platform.auth.invite('admin@demo', 'admin', []);
   const token = /\/auth\/([A-Za-z0-9_-]+)/.exec(mails[0])[1];
   const signIn = await app.inject({ url: `/auth/${token}` });

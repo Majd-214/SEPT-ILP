@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
  * Authentication — Phase A stub: email invites and magic links
  * --------------------------------------------------------------------------
  * An admin invites an email address; the invitee receives a one-time
- * magic link (landing in Mailpit during development), which sets a
+ * magic link (printed to the terminal when running locally), which sets a
  * signed session cookie. Roles: `admin` (all courses, invites, keys,
  * publish) and `instructor` (only the courses they are invited to).
  * There is no student role and no student login — students never
@@ -51,12 +51,12 @@ export class Auth {
   /**
    * @param {object} options
    * @param {import('./db.js').Db} options.db
-   * @param {import('./smtp.js').Smtp} options.smtp
+   * @param {import('./mail.js').createMailer} options.mailer
    * @param {ReturnType<import('./config.js').loadConfig>} options.config
    */
-  constructor({ db, smtp, config }) {
+  constructor({ db, mailer, config }) {
     this.db = db;
-    this.smtp = smtp;
+    this.mailer = mailer;
     this.config = config;
     this.loginLimiter = new RateLimiter(10, 60_000);
   }
@@ -84,7 +84,7 @@ export class Auth {
   async #sendMagicLink(email, subject) {
     const token = this.db.createToken(email, this.config.tokenTtlMinutes);
     const link = `${this.config.baseUrl}/auth/${token}`;
-    await this.smtp.send(email, subject, [
+    await this.mailer.send(email, subject, [
       'Hello,',
       '',
       `Sign in to the SEPT Interactive Laboratory Platform:`,

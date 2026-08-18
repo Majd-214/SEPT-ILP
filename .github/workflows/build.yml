@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Chromium (accessibility gate)
+      - name: Install Playwright Chromium (accessibility gate, single-file parity)
         run: npx playwright install --with-deps chromium
 
       - name: Renderer tests (marking engine, gates, single-file parity)
@@ -29,20 +29,16 @@ jobs:
 
       - name: Platform tests (auth, publish, keys, CSRF, no-student-routes, console a11y)
         run: |
-          cd apps/platform
-          npm ci
-          node --experimental-sqlite --test
+          npm ci --prefix apps/platform
+          npm run test:platform
 
       - name: Marker tests (marking engine, ZIP, CSV, no-egress)
-        run: |
-          cd apps/marker
-          node --test
+        run: npm run test:marker
 
       - name: Editor tests (skeletons, draft→validate→apply, uploads)
         run: |
-          cd apps/admin
-          npm ci
-          node --test
+          npm ci --prefix apps/admin
+          npm run test:admin
 
       - name: Build both courses through all quality gates
         run: npm run build:all
