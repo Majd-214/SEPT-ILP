@@ -99,10 +99,18 @@ export class SingleFile {
         return uri ? `${before}${uri}${after}` : match;
       });
 
-    // 4. Internal navigation — anchors and the knowledge panel's
-    //    full-page links (data-kb-href) — pointed at the hosted site
-    //    when its base URL is known, otherwise left as-is (inert but
-    //    harmless in a standalone file). Fragments survive the rewrite.
+    // 4. Internal navigation. Two worlds:
+    //
+    //    With a hosted site (linkBase), links are rewritten onto it, so
+    //    a lab opened from the LMS can still reach the course home and
+    //    the knowledge base.
+    //
+    //    Without one — a lone file uploaded to an LMS — those
+    //    destinations do not exist. Leaving the links would give
+    //    students a "Home" that 404s. The LMS provides course
+    //    navigation, so the site-level affordances are removed instead.
+    //    Knowledge links are untouched: they are handled in the page and
+    //    open the embedded article rather than navigating.
     if (linkBase) {
       const base = linkBase.replace(/\/$/, '');
       const rewrite = (match, before, url, after) => {
@@ -116,8 +124,34 @@ export class SingleFile {
       };
       html = html.replace(/(<a\b[^>]*?\bhref=")([^"]+)(")/g, rewrite);
       html = html.replace(/(\bdata-kb-href=")([^"]+)(")/g, rewrite);
+    } else {
+      html = SingleFile.#removeSiteNavigation(html);
     }
 
     return html;
+  }
+
+  /**
+   * Strip the affordances that only make sense with a surrounding site:
+   * the app bar's section links, the rail's global wayfinding, and the
+   * knowledge panel's "full page" escape hatches. The brand keeps its
+   * logo and course code but stops being a link. Everything removed
+   * here has no in-page behaviour — knowledge links, which do, are left
+   * exactly as they are.
+   * @param {string} html
+   * @returns {string}
+   */
+  static #removeSiteNavigation(html) {
+    return html
+      // App bar: Home, Knowledge base.
+      .replace(/<a class="c-appbar__navlink[^"]*"[^>]*href="\.\.[^"]*"[^>]*>[\s\S]*?<\/a>/g, '')
+      // Navigation rail: the constant Course home / Knowledge base pair.
+      .replace(/<div class="c-nav__top">[\s\S]*?<\/div>/, '')
+      // The brand stays visible; it simply stops being clickable.
+      .replace(/<a class="c-appbar__brand" href="\.\.[^"]*">([\s\S]*?)<\/a>/,
+        '<span class="c-appbar__brand">$1</span>')
+      // Panel escape hatches — the article is already embedded here.
+      .replace(/<a class="c-btn c-btn--text" href="\.\.[^"]*"[^>]*>[\s\S]*?<\/a>/g, '')
+      .replace(/<a[^>]*href="\.\.[^"]*"[^>]*>\s*Browse the full knowledge base\s*<\/a>/g, '');
   }
 }

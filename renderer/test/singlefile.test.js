@@ -79,12 +79,22 @@ test('the single-file page renders the same DOM as the hosted page', async () =>
       return { body, failedRequests };
     };
 
+    // Parity is judged against the hosted variant of the export, where
+    // navigation is rewritten rather than removed. The standalone
+    // variant deliberately drops site navigation (see the test below),
+    // so comparing it here would assert the opposite of what we want.
+    const hostedExport = path.join(out, 'hosted-lab-01.html');
+    fs.writeFileSync(hostedExport, SingleFile.inline(siteDir, 'labs/lab-01/index.html', {
+      linkBase: 'https://labs.example.ca/c/mini',
+    }));
+
     const hosted = await snapshot(
       pathToFileURL(path.join(siteDir, 'labs', 'lab-01', 'index.html')).href);
-    const single = await snapshot(pathToFileURL(singlePath).href);
+    const single = await snapshot(pathToFileURL(hostedExport).href);
+    const standalone = await snapshot(pathToFileURL(singlePath).href);
 
-    assert.ok(single.failedRequests.length === 0,
-      `the single file must load nothing: ${single.failedRequests.join(', ')}`);
+    assert.ok(standalone.failedRequests.length === 0,
+      `the single file must load nothing: ${standalone.failedRequests.join(', ')}`);
     assert.equal(single.body, hosted.body, 'post-boot DOM must match exactly');
   } finally {
     await browser.close();
@@ -121,6 +131,29 @@ test('with a public base URL, internal navigation points at the hosted site', ()
   assert.match(html, /href="https:\/\/labs\.example\.ca\/c\/mini\/"/, 'home link');
   assert.match(html, /href="https:\/\/labs\.example\.ca\/c\/mini\/knowledge\/"/, 'knowledge link');
   assert.ok(!/href="\.\.\/\.\.\/[^"]*"/.test(html), 'no relative internal links remain');
+});
+
+test('a standalone export keeps no link to a site that is not there', () => {
+  const html = fs.readFileSync(singlePath, 'utf8');
+
+  // Every remaining relative link must be one the page handles itself.
+  // Knowledge links open the embedded article; anything else would be a
+  // 404 for a student opening this file from an LMS.
+  const dangling = [...html.matchAll(/<a\b[^>]*href="(\.\.[^"]*)"[^>]*>/g)]
+    .map((match) => match[0])
+    .filter((tag) => !/c-kb-link|c-kb-related__chip|c-kb-panel__item/.test(tag));
+  assert.deepEqual(dangling, [], 'no site-level link may survive in a standalone export');
+
+  // The affordances that led nowhere are gone…
+  assert.ok(!/c-appbar__navlink[^>]*href="\.\./.test(html), 'app bar section links removed');
+  assert.ok(!/class="c-nav__top"/.test(html), 'rail wayfinding removed');
+  assert.ok(!/Browse the full knowledge base/.test(html), 'knowledge-base escape hatch removed');
+
+  // …while the brand and the knowledge system remain intact.
+  assert.match(html, /<span class="c-appbar__brand">/, 'brand kept, no longer a link');
+  assert.match(html, /class="c-appbar__course"/, 'course code still shown');
+  assert.ok(/c-kb-link/.test(html), 'in-text knowledge links untouched');
+  assert.ok(/data-kb-article/.test(html), 'embedded knowledge articles untouched');
 });
 
 test('exports are deterministic: same built site, same bytes', () => {
