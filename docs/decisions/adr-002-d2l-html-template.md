@@ -24,12 +24,21 @@ tool's "Select a Document Template" dropdown at it. Brightspace ships
 the *mechanism*; the *files* are a separate download.
 
 The package carries a D2L-maintained `global.css` / `global.js` you are
-told not to edit, a small library of starter pages, and — importantly —
-an **empty `custom.css` that is the sanctioned customization hook**. The
-component set is genuinely good: callouts, hero headers, panels, cards,
-styled lists, responsive tables, and JS-driven accordions and tabs.
+told not to edit, and — importantly — an **empty `custom.css` that is the
+sanctioned customization hook**.
 
-Three findings decide the question:
+What it does *not* carry is a component library in the template dropdown.
+The shipped page templates are seven: `00_basic`, `01_course_intro`,
+`02_module_intro`, `03_video_lecture`, `04_conclusion`, `05_blank_page`,
+`06_image_sample_page`. The rich components the CSS supports — callouts,
+hero headers, panels, cards, styled lists, responsive tables, accordions,
+tabs — are distributed through a **separate importable demo course** and
+D2L Academy pages with "Copy Code" buttons. An author wanting an
+accordion copies its markup out of a reference course and pastes it in.
+That is worth stating plainly, because it is the same finding as the
+licensing one below, arriving from a different direction.
+
+Four findings decide the question:
 
 1. **The no-code authoring path is a paid add-on.** Accordions, tabs,
    callouts, flip cards and the rest are inserted without HTML only via
@@ -42,6 +51,17 @@ Three findings decide the question:
    D2L holds WCAG 2.2 ACRs for Brightspace Core and Creator+ as
    *products*. The honest claim is "accessibility-conscious components on
    a conformant platform", not "WCAG-conformant templates".
+4. **Which package is current is genuinely ambiguous in D2L's own KB.**
+   Article 26484 carries six downloads. Its "Current Version 5.0" heading
+   links `shared.zip` (189,124 bytes, 46 files, contents dated 2024-08-07)
+   — but a separate `shared-v5.zip` (1,258,815 bytes, 75 files, contents
+   dated 2026-03-20) also exists and adds 29 files including
+   `client.min.css` and the full icon set. The setup text says "upload
+   course.zip" while the download is named `course-v5.zip`, and the
+   install instructions now ship as a **separate PDF**, not inside any
+   archive. (The `v3_v5` archive is the bilingual English/French package,
+   not a combined version.) Whoever performs the install must resolve
+   this first, or will deploy the wrong tree.
 
 ## What we measured
 
@@ -133,6 +153,7 @@ questions only the administrators can answer:
   default per course; the org-level switch ships on.)
 - Is **Creator+** licensed at McMaster? It decides whether the template's
   authoring story is "no code" or "paste this HTML".
+- Which `shared*.zip` is authoritative for our instance (finding 4)?
 
 That spike is cheap, already planned, and worth more than any further
 building.
