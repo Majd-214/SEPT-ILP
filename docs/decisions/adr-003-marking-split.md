@@ -1,11 +1,31 @@
 # ADR-003: Where marks come from
 
-- **Status:** accepted
+- **Status:** **REJECTED 2026-08-24, same day.** Superseded by ADR-004.
 - **Date:** 2026-08-24
-- **Decision:** Avenue's gradebook carries the marks that count. The lab
-  page carries the teaching feedback. Retire the instructor marker, the
-  answer keys, and the summative half of the marking model; keep the
-  formative checking and the answer-leak gate.
+- **Original decision (not adopted):** Avenue's gradebook carries the
+  marks that count; retire the instructor marker and answer keys.
+
+## Why this was rejected
+
+It was measured against the wrong objective. Splitting marks into native
+Avenue quizzes optimises for gradebook convenience and pays for it with
+both of the platform's founding principles:
+
+1. **Students would leave the learning environment.** A native quiz is a
+   separate Avenue activity. The whole point of an interactive lab is
+   that the question sits beside the measurement that motivates it —
+   predict, measure, decide, in one place, without a context switch.
+2. **It reintroduces a black box.** Graded content would live in an
+   Avenue quiz object, separate from the lab a professor can read and
+   change. Two artifacts to keep in step, one of them invisible from the
+   other.
+
+The gradebook integration is real and worth having eventually. It is not
+worth those two prices. Marking stays in the page; the submission package
+remains how marks reach an instructor.
+
+**The analysis below is kept for the record. Its findings about
+Brightspace's capabilities are accurate; its recommendation is not.**
 
 ## The question this settles
 
