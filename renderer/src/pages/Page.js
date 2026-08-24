@@ -135,7 +135,10 @@ export class Page {
     const asidesHtml = this.asides();
     const navigationHtml = this.navigation();
     const appBarItemsHtml = this.appBarItems();
-    const configJson = JSON.stringify(this.runtimeConfig())
+    // Indented, because an instructor adding a question in Avenue's
+    // HTML editor edits this island by hand; `<` is escaped so no value
+    // can close the script element early.
+    const configJson = JSON.stringify(this.runtimeConfig(), null, 2)
       .replaceAll('<', '\\u003c');
 
     return [

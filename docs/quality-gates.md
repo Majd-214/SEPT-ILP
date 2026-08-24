@@ -46,3 +46,19 @@ trees, so a regression in reproducibility fails the tests.
 Reproducibility makes review reliable: a difference in content is the
 whole difference between two builds, and republishing unchanged content
 verifiably changes nothing.
+
+## Readable output
+
+Published pages are indented, because an instructor has to be able to
+open one in Avenue's HTML editor and change it (ADR-004). The renderer's
+`Formatter` adds that whitespace only where the layout engine throws it
+away, which `renderer/test/format.test.js` holds to three properties:
+
+- no line long enough to defeat an editor, and every page indented;
+- formatting is idempotent, so republishing a page is a no-op diff and
+  reproducibility above is unaffected;
+- every element of the fixture course occupies identical pixels, at 400
+  and 1280 pixels wide, with the formatter's whitespace and without it.
+
+The same pixel comparison was run once across all 158 pages of
+SMRTTECH 3CC3 before the change was adopted: identical at both widths.

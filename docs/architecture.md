@@ -130,8 +130,19 @@ every topic.
    `Html` helper, which escapes text and rejects any attempt to emit an
    inline style. Code listings are highlighted during the build by a
    fixed tokenizer, so pages load no highlighting library.
-3. The output checks run (see `quality-gates.md`).
-4. `ZipWriter` packages the upload archives with fixed timestamps and
+3. `Formatter` indents every page before it is written. Templates build
+   markup by concatenation, which left a lab page as 29 lines with one
+   of them 258,000 characters long — output no instructor could edit in
+   Avenue's HTML editor, and so a breach of the platform's first
+   principle (ADR-004). Indentation must not change rendering, so the
+   formatter reads the same stylesheet the pages load, works out which
+   elements are inline-level and which lay their children out with flex
+   or grid, and breaks lines only where the layout engine discards the
+   whitespace. Two properties are tested: formatting is idempotent, and
+   every element renders in identical pixels at two viewport widths,
+   before and after.
+4. The output checks run (see `quality-gates.md`).
+5. `ZipWriter` packages the upload archives with fixed timestamps and
    sorted entries, so identical content produces identical archives.
 
 The renderer takes no configuration. A change of appearance belongs in

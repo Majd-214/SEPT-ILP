@@ -24,7 +24,7 @@ jobs:
       - name: Install Playwright Chromium (accessibility gate, single-file parity)
         run: npx playwright install --with-deps chromium
 
-      - name: Renderer tests (marking engine, gates, single-file parity)
+      - name: Renderer tests (marking engine, gates, formatting, single-file parity)
         run: npm test
 
       - name: Platform tests (auth, publish, keys, CSRF, no-student-routes, console a11y)

@@ -16,6 +16,7 @@ import { KnowledgeHubPage } from './pages/KnowledgeHubPage.js';
 import { KnowledgeTopicPage } from './pages/KnowledgeTopicPage.js';
 import { LabPage } from './pages/LabPage.js';
 import { PortalPage } from './pages/PortalPage.js';
+import { Formatter } from './lib/Formatter.js';
 import { SingleFile } from './lib/SingleFile.js';
 import { ZipWriter } from './lib/ZipWriter.js';
 
@@ -172,9 +173,14 @@ export class Pipeline {
     const problems = [];
     /** @type {Map<string, import('./marking/MarkingModel.js').MarkingModel>} */
     const models = new Map();
+    // Pages are indented before they are written. The formatter reads
+    // the same stylesheet the pages load, because whether a line may be
+    // broken next to an element is a question about that element's
+    // `display`, not about its tag name.
+    const formatter = new Formatter(this.designSystem.buildStylesheet());
     const write = (relativePath, page) => {
       try {
-        const html = page.render();
+        const html = formatter.format(page.render());
         const filePath = path.join(siteDir, relativePath);
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, html);
