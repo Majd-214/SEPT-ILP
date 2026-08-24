@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A2L capability probe — SEPT Interactive Laboratory Platform</title>
+<style>
+  :root {
+    --maroon:#7A003C; --maroon-10:#F2E5EC; --gold:#FDBF57;
+    --ink:#1C1B1F; --soft:#49454F; --line:#D9D3D8;
+    --ok:#1B6B3A; --ok-bg:#E7F3EC; --warn:#8A5A00; --warn-bg:#FDF3E0;
+    --bad:#A0142B; --bad-bg:#FBE9EC;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:#fff;color:var(--ink);
+    font:15px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:820px;margin:0 auto}
+  h1{color:var(--maroon);font-size:24px;margin:0 0 4px}
+  .sub{color:var(--soft);margin:0 0 20px}
+  h2{color:var(--maroon);font-size:17px;margin:28px 0 8px;
+    border-bottom:3px solid var(--gold);display:inline-block;padding-bottom:3px}
+  .verdict{padding:14px 16px;border-radius:6px;margin:0 0 22px;font-weight:600}
+  .row{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;
+    border:1px solid var(--line);border-radius:6px;margin-bottom:8px}
+  .badge{flex:0 0 auto;font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 9px;border-radius:10px;margin-top:2px}
+  .b-ok{background:var(--ok-bg);color:var(--ok)}
+  .b-warn{background:var(--warn-bg);color:var(--warn)}
+  .b-bad{background:var(--bad-bg);color:var(--bad)}
+  .b-info{background:var(--maroon-10);color:var(--maroon)}
+  .body{flex:1 1 auto;min-width:0}
+  .name{font-weight:600}
+  .why{color:var(--soft);font-size:13.5px;margin-top:2px}
+  .val{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+    color:var(--maroon);word-break:break-all}
+  button{font:inherit;font-weight:600;padding:9px 16px;border-radius:6px;
+    border:1px solid var(--maroon);background:var(--maroon);color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:var(--maroon)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  textarea{width:100%;height:190px;font-family:ui-monospace,Consolas,monospace;
+    font-size:12px;padding:10px;border:1px solid var(--line);border-radius:6px}
+  ol{padding-left:20px} li{margin-bottom:9px}
+  .hand{background:#FAF7F9;border:1px solid var(--line);border-radius:6px;padding:14px 18px}
+  code{background:var(--maroon-10);color:var(--maroon);padding:1px 5px;
+    border-radius:3px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Avenue to Learn capability probe</h1>
+  <p class="sub">Upload this file to a sandbox course as a content topic, then open it. It reports
+  what A2L lets an interactive lab page actually do.</p>
+
+  <div id="verdict" class="verdict" style="background:var(--warn-bg);color:var(--warn)">
+    JavaScript has not run. If this message is still here, scripts are blocked — which would rule
+    out interactive labs delivered this way.
+  </div>
+
+  <h2>Automatic checks</h2>
+  <div id="checks"></div>
+
+  <h2>Two things you must click</h2>
+  <p class="sub" style="margin-bottom:8px">A page cannot test these by itself.</p>
+  <div class="actions">
+    <button id="dl">Test a file download</button>
+    <button id="pick" class="ghost">Test choosing a file</button>
+  </div>
+  <div id="manual"></div>
+
+  <h2>Then reload this page</h2>
+  <p class="sub">The most important question is whether student work <em>survives</em>. Reload and
+  look at the “Saved work survives a reload” row. It must say <strong>found</strong>.</p>
+
+  <h2>Report</h2>
+  <p class="sub">Select all and copy this, then paste it back to me.</p>
+  <textarea id="report" readonly></textarea>
+
+  <h2>What this page cannot tell you</h2>
+  <div class="hand">
+    <ol>
+      <li><strong>Are the D2L HTML templates installed?</strong> Content → Upload/Create →
+        <em>Create a File</em>. Look for a <em>Select a Document Template</em> button. If it is
+        missing or the list is empty, nobody has installed them.</li>
+      <li><strong>Is Creator+ licensed?</strong> Open any HTML editor. Look for an
+        <em>Insert Element</em> button (accordions, tabs, flip cards). Present = licensed.</li>
+      <li><strong>Is H5P available?</strong> In the editor, <em>Insert Stuff</em> — look for H5P,
+        or check Course Admin → External Learning Tools.</li>
+      <li><strong>Do Arithmetic quiz questions do what we need?</strong> Quizzes → new quiz → add an
+        <em>Arithmetic</em> question. Check you can set <em>tolerance</em> (units or percent),
+        <em>significant figures</em>, and <em>units</em>. This is the native replacement for our
+        auto-marking.</li>
+      <li><strong>Can you gate one topic behind another?</strong> On any topic → Edit →
+        <em>Add release condition</em> → based on a quiz score or checklist. This is the native
+        replacement for our step-by-step locking.</li>
+      <li><strong>Is Content Sandboxing on?</strong> Course Admin → Course Offering Information →
+        look for <em>Enable Content Sandboxing</em>. (The row below infers this too.)</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+(function () {
+  var rows = [], KEY = 'sept-a2l-probe';
+
+  function add(name, status, value, why) {
+    rows.push({ name: name, status: status, value: value, why: why });
+  }
+  function tryIt(fn, fallback) {
+    try { return fn(); } catch (e) { return (fallback || 'blocked: ') + (e && e.name); }
+  }
+
+  /* Where are we? */
+  var secOrigin = tryIt(function () {
+    return (typeof window.origin !== 'undefined' ? window.origin : location.origin);
+  });
+  var opaque = (String(secOrigin) === 'null');
+
+  /* Framed? */
+  var framed = tryIt(function () { return window.top !== window.self; });
+  var depth = 0, w = window;
+  try { while (w !== w.parent && depth < 10) { w = w.parent; depth++; } } catch (e) { depth = -1; }
+  add('Inside a frame', 'info', framed ? ('yes, ' + depth + ' level(s) deep') : 'no — top level',
+    'A2L normally shows content topics inside a frame. That is fine by itself.');
+
+  /* Same-origin as the LMS page around it? */
+  var sameOrigin = tryIt(function () {
+    if (window.top === window.self) return 'n/a — not framed';
+    return window.parent.location.href ? 'yes' : 'unknown';
+  }, 'no — ');
+  add('Same origin as the surrounding page', /yes|n\/a/.test(String(sameOrigin)) ? 'ok' : 'warn',
+    String(sameOrigin),
+    'Same-origin means the browser treats saved work as first-party, which is what we want.');
+
+  /* Storage: does it work at all? Anything other than a clean true here
+     means the browser refused, and every later storage claim is void. */
+  var storageOk = false, storageErr = '';
+  try {
+    localStorage.setItem(KEY + ':t', '1');
+    storageOk = localStorage.getItem(KEY + ':t') === '1';
+    localStorage.removeItem(KEY + ':t');
+  } catch (e) { storageErr = e && e.name ? e.name : 'refused'; }
+  add('Can save work in the browser', storageOk ? 'ok' : 'bad',
+    storageOk ? 'yes' : ('NO — ' + (storageErr || 'refused')),
+    storageOk ? 'Students’ answers can be kept as they work.'
+      : 'Saving is blocked — the signature of Content Sandboxing. A lab still runs and still marks, '
+        + 'but every answer is lost on reload unless the student downloads their progress file.');
+
+  /* Storage: does it survive? Only meaningful when writes work. */
+  var stamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  var prior = null;
+  if (storageOk) {
+    try { prior = localStorage.getItem(KEY); } catch (e) { prior = null; }
+    try { localStorage.setItem(KEY, stamp); } catch (e) { /* nothing to do */ }
+  }
+  add('Saved work survives a reload',
+    !storageOk ? 'bad' : (prior ? 'ok' : 'info'),
+    !storageOk ? 'cannot survive — saving is blocked'
+      : (prior ? ('found — written ' + prior) : 'nothing found yet — reload this page to test'),
+    'The single most important row. After one reload it must say “found”.');
+
+  /* Session storage */
+  var sandboxed = opaque || !storageOk;
+  add('Content Sandboxing', sandboxed ? 'warn' : 'ok',
+    sandboxed ? 'appears to be ON' : 'appears to be OFF',
+    sandboxed
+      ? 'A2L is isolating this page. Scripts still run — but saved work is refused, so the '
+        + 'progress file becomes essential rather than optional. Worth asking whether it can be off.'
+      : 'This page is treated as ordinary first-party content, which is what we want.');
+  add('Page origin', 'info', String(secOrigin), 'Reported security origin of this page.');
+
+  add('Per-tab storage', 'info', tryIt(function () {
+    sessionStorage.setItem('t', '1'); sessionStorage.removeItem('t'); return 'works';
+  }, 'blocked: '), 'Minor — we do not rely on it.');
+
+  /* data: URIs — how a single-file lab carries its fonts and images */
+  var img = new Image();
+  img.onload = function () { patch('Embedded images and fonts', 'ok', 'load correctly'); };
+  img.onerror = function () { patch('Embedded images and fonts', 'bad', 'BLOCKED'); };
+  img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  add('Embedded images and fonts', 'info', 'testing…',
+    'A single-file lab carries its pictures and fonts inside itself. These must load.');
+
+  /* How much room do we have? */
+  add('Visible height of this frame', 'info',
+    tryIt(function () { return window.innerWidth + ' x ' + window.innerHeight + ' px'; }),
+    'Under about 600px tall, a long lab page feels cramped inside A2L.');
+
+  /* Render */
+  var BADGE = { ok: ['b-ok', 'works'], warn: ['b-warn', 'caution'],
+                bad: ['b-bad', 'blocked'], info: ['b-info', 'info'] };
+  function draw() {
+    var html = rows.map(function (r) {
+      var b = BADGE[r.status];
+      return '<div class="row"><span class="badge ' + b[0] + '">' + b[1] + '</span>' +
+        '<span class="body"><span class="name">' + r.name + '</span>' +
+        '<div class="val">' + String(r.value).replace(/</g, '&lt;') + '</div>' +
+        '<div class="why">' + r.why + '</div></span></div>';
+    }).join('');
+    document.getElementById('checks').innerHTML = html;
+
+    var bad = rows.filter(function (r) { return r.status === 'bad'; }).length;
+    var warn = rows.filter(function (r) { return r.status === 'warn'; }).length;
+    var v = document.getElementById('verdict');
+    if (bad) {
+      v.style.background = 'var(--bad-bg)'; v.style.color = 'var(--bad)';
+      v.textContent = 'JavaScript runs, but ' + bad + (bad === 1 ? ' capability is' : ' capabilities are')
+        + ' blocked. See the blocked rows below.';
+    } else if (warn) {
+      v.style.background = 'var(--warn-bg)'; v.style.color = 'var(--warn)';
+      v.textContent = 'JavaScript runs and nothing is blocked. Interactive labs work here — with ' +
+        warn + (warn === 1 ? ' note' : ' notes') + ' below worth reading.';
+    } else {
+      v.style.background = 'var(--ok-bg)'; v.style.color = 'var(--ok)';
+      v.textContent = 'JavaScript runs and nothing is blocked. Interactive labs work here.';
+    }
+
+    document.getElementById('report').value =
+      'A2L PROBE — ' + stamp + '\n' +
+      'user agent: ' + navigator.userAgent + '\n' +
+      rows.map(function (r) {
+        return '[' + r.status.toUpperCase() + '] ' + r.name + ': ' + r.value;
+      }).join('\n');
+  }
+  function patch(name, status, value) {
+    rows.forEach(function (r) { if (r.name === name) { r.status = status; r.value = value; } });
+    draw();
+  }
+  draw();
+
+  /* Manual: downloads — our progress file and submission package need these */
+  document.getElementById('dl').addEventListener('click', function () {
+    var note = document.getElementById('manual');
+    try {
+      var blob = new Blob(['SEPT-ILP probe: if you can read this, downloads work.'],
+        { type: 'text/plain' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'a2l-probe-download.txt';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+      note.innerHTML = '<div class="row"><span class="badge b-info">check</span><span class="body">' +
+        '<span class="name">Did a file called a2l-probe-download.txt download?</span>' +
+        '<div class="why">If yes, the progress file and the end-of-lab submission package both work. ' +
+        'If nothing happened, downloads are blocked here — that would be the most serious finding, ' +
+        'because students could not hand anything in from the page.</div></span></div>';
+    } catch (e) {
+      note.innerHTML = '<div class="row"><span class="badge b-bad">blocked</span><span class="body">' +
+        '<span class="name">Downloads are blocked</span><div class="why">' + e.name +
+        ' — students could not download their progress or submission package.</div></span></div>';
+    }
+  });
+
+  /* Manual: file picking — our evidence uploads need this */
+  document.getElementById('pick').addEventListener('click', function () {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      document.getElementById('manual').innerHTML =
+        '<div class="row"><span class="badge ' + (f ? 'b-ok' : 'b-warn') + '">' +
+        (f ? 'works' : 'nothing') + '</span><span class="body"><span class="name">Choosing a file</span>' +
+        '<div class="why">' + (f ? 'Picked “' + f.name + '” (' + f.size +
+        ' bytes). Evidence uploads work.' : 'No file was returned.') + '</div></span></div>';
+    });
+    input.click();
+  });
+})();
+</script>
+</body>
+</html>
