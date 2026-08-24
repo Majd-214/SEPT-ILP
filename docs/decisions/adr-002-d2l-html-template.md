@@ -78,8 +78,29 @@ orderings, 6 written questions, 2 calculators — precisely the proposal's
 "predict, measure, decide, and capture evidence at structured
 checkpoints". A template can style a lab manual; it cannot make a lab.
 
-**Empirically, in a browser** (Chromium; Safari and Firefox untested and
-still owed):
+**Measured in the McMaster sandbox** (`avenue.cllmcmaster.ca`, Edge 151
+on Windows, 2026-08-24) — an uploaded self-contained HTML topic:
+
+| Question | Answer |
+| --- | --- |
+| Served from | `https://avenue.cllmcmaster.ca` — **same origin as the LMS** |
+| Rendered inside a frame? | **No — top level**, full viewport (1912 × 948) |
+| Content Sandboxing | **Off** |
+| Can save student work | **Yes** |
+| Does it survive a reload | **Yes** — value written on the prior visit was found |
+| Embedded images and fonts | **Load correctly** |
+
+This is the decisive result. An interactive lab uploaded to Avenue runs
+with full capability, keeps student work first-party, and needs no
+external hosting, no server, and no CDN. The storage-partitioning risk
+that shaped `docs/deployment.md` does not arise in this configuration.
+Two caveats stay honest: this was one browser on a sandbox instance
+(production should be re-checked once), and Content Sandboxing is a
+per-course switch that an administrator could turn on later, so the
+graceful degradation below still matters.
+
+**Previously, in a local browser** (Chromium; Safari and Firefox untested
+and still owed):
 
 | Scenario | Result |
 | --- | --- |
@@ -149,8 +170,9 @@ empirically." The measurements above are a laboratory approximation in
 one browser engine. They narrow the risk; they do not close it. Two
 questions only the administrators can answer:
 
-- Is **Content Sandboxing** enabled for our course offerings? (Off by
-  default per course; the org-level switch ships on.)
+- ~~Is **Content Sandboxing** enabled for our course offerings?~~
+  **Answered by measurement: off, and storage works and persists.**
+  Worth confirming it stays off in production course offerings.
 - Is **Creator+** licensed at McMaster? It decides whether the template's
   authoring story is "no code" or "paste this HTML".
 - Which `shared*.zip` is authoritative for our instance (finding 4)?
