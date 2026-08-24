@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A2L editor fidelity — SEPT Interactive Laboratory Platform</title>
+<link rel="stylesheet" href="assets/sept-labs.css" id="specimen-stylesheet">
+<style>
+  :root {
+    --maroon:#7A003C; --maroon-10:#F2E5EC; --gold:#FDBF57;
+    --ink:#1C1B1F; --soft:#49454F; --line:#D9D3D8;
+    --ok:#1B6B3A; --ok-bg:#E7F3EC; --warn:#8A5A00; --warn-bg:#FDF3E0;
+    --bad:#A0142B; --bad-bg:#FBE9EC;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px;background:#fff;color:var(--ink);
+    font:15px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:820px;margin:0 auto}
+  h1{color:var(--maroon);font-size:24px;margin:0 0 4px}
+  .sub{color:var(--soft);margin:0 0 20px}
+  h2{color:var(--maroon);font-size:17px;margin:28px 0 8px;
+    border-bottom:3px solid var(--gold);display:inline-block;padding-bottom:3px}
+  .verdict{padding:14px 16px;border-radius:6px;margin:0 0 22px;font-weight:600;
+    background:var(--warn-bg);color:var(--warn)}
+  .row{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;
+    border:1px solid var(--line);border-radius:6px;margin-bottom:8px}
+  .badge{flex:0 0 auto;font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 9px;border-radius:10px;margin-top:2px;
+    min-width:74px;text-align:center}
+  .b-ok{background:var(--ok-bg);color:var(--ok)}
+  .b-bad{background:var(--bad-bg);color:var(--bad)}
+  .b-info{background:var(--maroon-10);color:var(--maroon)}
+  .body{flex:1 1 auto;min-width:0}
+  .name{font-weight:600}
+  .why{color:var(--soft);font-size:13.5px;margin-top:2px}
+  .val{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+    color:var(--maroon);word-break:break-all}
+  .lost{background:var(--bad-bg);border-color:var(--bad)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+  button{font:inherit;font-weight:600;padding:9px 16px;border-radius:6px;
+    border:1px solid var(--maroon);background:var(--maroon);color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:var(--maroon)}
+  ol{padding-left:20px} li{margin-bottom:9px}
+  .hand{background:#FAF7F9;border:1px solid var(--line);border-radius:6px;padding:14px 18px}
+  code{background:var(--maroon-10);color:var(--maroon);padding:1px 5px;
+    border-radius:3px;font-size:13px}
+  .specimens{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Does Avenue's HTML editor keep what the labs need?</h1>
+  <p class="sub">A lab page is interactive because of things a rich-text editor is entitled to
+  throw away. This page carries one of each, and reports which ones are still here.</p>
+
+  <div id="verdict" class="verdict">
+    JavaScript has not run. If this message is still here after the page loads, the editor removed
+    the script — which by itself answers the question.
+  </div>
+
+  <h2>What survived</h2>
+  <div id="checks"></div>
+
+  <div class="actions">
+    <button type="button" id="save-baseline">Save this as the baseline</button>
+    <button type="button" id="clear-baseline" class="ghost">Forget the baseline</button>
+  </div>
+  <p class="why" id="baseline-note"></p>
+
+  <h2>How to run it</h2>
+  <div class="hand">
+    <ol>
+      <li>Put this file in a sandbox course beside the unzipped course site — the same folder as
+        <code>index.html</code>, so <code>assets/</code> sits next to it — and open it as a content
+        topic. Every row should read <strong>present</strong>: that is the baseline. Press
+        <strong>Save this as the baseline</strong>.</li>
+      <li>In the topic's dropdown choose <strong>Edit HTML</strong> (or <strong>Edit</strong>, then
+        the <code>&lt;/&gt;</code> source view).</li>
+      <li><strong>Change nothing.</strong> Press <strong>Save</strong> or
+        <strong>Update</strong>.</li>
+      <li>Reload this page. Any row that now reads <strong>gone</strong> is something the editor
+        stripped on a save that changed nothing.</li>
+      <li>Repeat once more, this time typing a word into a paragraph before saving. Some editors
+        only rewrite the document when it is actually dirty.</li>
+    </ol>
+    <p class="why" style="margin-bottom:0">Rows are judged against the page's own DOM, so the answer
+    holds however Avenue chose to store the file.</p>
+  </div>
+</div>
+
+<!-- SPECIMENS. Each one stands for something a lab page depends on. Nothing below is decorative. -->
+<div class="specimens" aria-hidden="true">
+  <section class="c-checkpoint c-checkpoint--gated" id="specimen-checkpoint"
+    data-checkpoint="alpha" data-checkpoint-requires="quiz-1" role="group"
+    aria-label="Specimen checkpoint">
+    <button class="c-btn c-btn--filled" type="button" id="specimen-button"
+      data-quiz-check="quiz-1" aria-expanded="false"
+      aria-controls="specimen-panel">Check</button>
+    <div id="specimen-panel" hidden data-panel="specimen">Hidden panel</div>
+    <label class="c-field__label" for="specimen-input">Measured V<sub>out</sub></label>
+    <input class="c-field__control" id="specimen-input" type="text" data-field="v-out"
+      inputmode="decimal" autocomplete="off">
+    <select class="c-field__control" id="specimen-select" data-field="v-choice">
+      <option value="">Choose…</option>
+      <option value="a">A</option>
+    </select>
+    <textarea class="c-field__control" id="specimen-textarea" rows="3"
+      data-field="v-note"></textarea>
+    <a class="c-kb-link" href="knowledge/ohms-law.html" data-kb-open="ohms-law"
+      data-kb-href="knowledge/ohms-law.html">Ohm's law</a>
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+      stroke-width="2" aria-hidden="true" id="specimen-svg"><path d="M12 3v18 M3 12h18"></path></svg>
+    <pre class="c-code__pre" id="specimen-pre"><code>void setup()
+{
+  pinMode(13, OUTPUT);
+}</code></pre>
+    <template id="specimen-template"><span>deferred</span></template>
+  </section>
+</div>
+
+<script type="application/json" id="specimen-config">
+{
+  "page": "fidelity",
+  "quizzes": [
+    { "id": "quiz-1", "answer": "b3f1c2", "points": 2 }
+  ],
+  "fields": {
+    "v-out": { "step": 0.01, "tolerance": 0.05 }
+  }
+}
+</script>
+
+<script src="assets/sept-labs.js" defer id="specimen-runtime"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  /**
+   * Each check asks one question of the live DOM. `find` returns the
+   * value that proves the specimen survived, or null if it did not.
+   */
+  var CHECKS = [
+    {
+      name: 'data-* attributes on an interactive element',
+      why: 'Every checkpoint, quiz and input field is wired by these. Lose them and the page '
+        + 'still looks right and does nothing.',
+      find: function () {
+        var el = document.getElementById('specimen-checkpoint');
+        if (!el) return null;
+        var wanted = ['data-checkpoint', 'data-checkpoint-requires'];
+        var got = wanted.filter(function (name) { return el.hasAttribute(name); });
+        return got.length === wanted.length ? got.join(' ') : null;
+      }
+    },
+    {
+      name: 'data-* attributes on a button and a field',
+      why: 'The Check button and every answer box are found by these attributes, not by class.',
+      find: function () {
+        var button = document.querySelector('[data-quiz-check="quiz-1"]');
+        var input = document.querySelector('input[data-field="v-out"]');
+        var select = document.querySelector('select[data-field="v-choice"]');
+        var area = document.querySelector('textarea[data-field="v-note"]');
+        return button && input && select && area ? 'button, input, select, textarea' : null;
+      }
+    },
+    {
+      name: 'the JSON configuration island',
+      why: 'Answers, tolerances and checkpoint rules live here. It is also the one part of a lab '
+        + 'an instructor edits by hand to add a question.',
+      find: function () {
+        var island = document.getElementById('specimen-config');
+        if (!island) return null;
+        try {
+          var config = JSON.parse(island.textContent);
+          return config.quizzes[0].answer === 'b3f1c2' && config.fields['v-out'].step === 0.01
+            ? 'parsed, values intact' : null;
+        } catch (error) {
+          return null;
+        }
+      }
+    },
+    {
+      name: 'the script tag that loads the runtime',
+      why: 'One relative reference turns 400 KB of markup into a working lab.',
+      find: function () {
+        var script = document.getElementById('specimen-runtime');
+        if (!script) return null;
+        var raw = script.getAttribute('src');
+        return raw === 'assets/sept-labs.js' ? raw : 'REWRITTEN to ' + raw;
+      }
+    },
+    {
+      name: 'the relative stylesheet link',
+      why: 'Same question for the design system. A rewritten path is as broken as a removed one.',
+      find: function () {
+        var link = document.getElementById('specimen-stylesheet');
+        if (!link) return null;
+        var raw = link.getAttribute('href');
+        return raw === 'assets/sept-labs.css' ? raw : 'REWRITTEN to ' + raw;
+      }
+    },
+    {
+      name: 'ARIA attributes and roles',
+      why: 'The accessibility gate is part of publication. An editor that drops these silently '
+        + 'un-publishes the standard.',
+      find: function () {
+        // Looked up by id, not by data-attribute, so this row answers
+        // for ARIA alone even when the data-* rows have already failed.
+        var el = document.getElementById('specimen-checkpoint');
+        var button = document.getElementById('specimen-button');
+        if (!el || !button) return null;
+        return el.getAttribute('role') === 'group' && el.hasAttribute('aria-label')
+          && button.hasAttribute('aria-expanded') && button.hasAttribute('aria-controls')
+          ? 'role, aria-label, aria-expanded, aria-controls' : null;
+      }
+    },
+    {
+      name: 'the hidden attribute',
+      why: 'Gated content is hidden until it is unlocked. Without this every answer is visible '
+        + 'from the start.',
+      find: function () {
+        var panel = document.getElementById('specimen-panel');
+        return panel && panel.hasAttribute('hidden') ? 'hidden' : null;
+      }
+    },
+    {
+      name: 'BEM class names',
+      why: 'Two underscores and two hyphens. Some sanitizers normalise class lists.',
+      find: function () {
+        var el = document.getElementById('specimen-checkpoint');
+        if (!el) return null;
+        return el.classList.contains('c-checkpoint')
+          && el.classList.contains('c-checkpoint--gated') ? el.className : null;
+      }
+    },
+    {
+      name: 'inline SVG',
+      why: 'Every icon in the design system is inline SVG, not an image file.',
+      find: function () {
+        var svg = document.getElementById('specimen-svg');
+        return svg && svg.querySelector('path') ? 'svg with path' : null;
+      }
+    },
+    {
+      name: 'whitespace inside a code listing',
+      why: 'Code blocks are indented on purpose. An editor that collapses whitespace destroys '
+        + 'every listing in every lab.',
+      find: function () {
+        var pre = document.getElementById('specimen-pre');
+        if (!pre) return null;
+        var text = pre.textContent;
+        return text.indexOf('\n  pinMode') !== -1 ? 'newlines and indentation intact' : null;
+      }
+    },
+    {
+      name: 'a template element',
+      why: 'Used for content the runtime clones on demand.',
+      find: function () {
+        var template = document.getElementById('specimen-template');
+        return template && template.content
+          && template.content.querySelector('span') ? 'template with content' : null;
+      }
+    },
+    {
+      name: 'HTML comments',
+      why: 'Not required, but their loss is a reliable sign the document was rewritten rather '
+        + 'than stored.',
+      find: function () {
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_COMMENT);
+        return walker.nextNode() ? 'at least one comment' : null;
+      }
+    },
+    {
+      name: 'the page’s own indentation',
+      why: 'If this is gone the file was reformatted onto one line, which is the state we just '
+        + 'spent a release getting out of.',
+      find: function () {
+        return /\n\s\s+</.test(document.body.innerHTML) ? 'indented' : null;
+      }
+    }
+  ];
+
+  var KEY = 'sept-a2l-editor-fidelity-baseline';
+
+  /** @returns {object|null} The stored baseline, if storage works at all. */
+  function readBaseline() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function render() {
+    var baseline = readBaseline();
+    var host = document.getElementById('checks');
+    var lost = 0;
+    var present = 0;
+    host.textContent = '';
+
+    CHECKS.forEach(function (check) {
+      var value = null;
+      try {
+        value = check.find();
+      } catch (error) {
+        value = null;
+      }
+      var alive = value !== null && String(value).indexOf('REWRITTEN') !== 0;
+      if (alive) present++; else lost++;
+
+      var row = document.createElement('div');
+      row.className = 'row' + (alive ? '' : ' lost');
+
+      var badge = document.createElement('span');
+      badge.className = 'badge ' + (alive ? 'b-ok' : 'b-bad');
+      badge.textContent = alive ? 'present' : 'gone';
+
+      var body = document.createElement('div');
+      body.className = 'body';
+
+      var name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = check.name;
+
+      var why = document.createElement('div');
+      why.className = 'why';
+      why.textContent = check.why;
+
+      body.appendChild(name);
+      body.appendChild(why);
+
+      if (value !== null) {
+        var val = document.createElement('div');
+        val.className = 'val';
+        val.textContent = String(value);
+        body.appendChild(val);
+      }
+      if (baseline && baseline[check.name] === true && !alive) {
+        var change = document.createElement('div');
+        change.className = 'why';
+        change.style.color = '#A0142B';
+        change.textContent = 'This was present in the baseline. The editor removed it.';
+        body.appendChild(change);
+      }
+
+      row.appendChild(badge);
+      row.appendChild(body);
+      host.appendChild(row);
+    });
+
+    var verdict = document.getElementById('verdict');
+    if (lost === 0) {
+      verdict.style.background = 'var(--ok-bg)';
+      verdict.style.color = 'var(--ok)';
+      verdict.textContent = 'All ' + present + ' specimens are here. '
+        + (baseline
+          ? 'Nothing was lost against the saved baseline — the editor is safe for labs.'
+          : 'Save this as the baseline, then edit and save the topic in Avenue and reload.');
+    } else {
+      verdict.style.background = 'var(--bad-bg)';
+      verdict.style.color = 'var(--bad)';
+      verdict.textContent = lost + ' of ' + CHECKS.length + ' specimens are missing or rewritten. '
+        + 'Anything marked gone is a lab feature Avenue’s editor will not preserve.';
+    }
+
+    var note = document.getElementById('baseline-note');
+    note.textContent = baseline
+      ? 'A baseline is stored in this browser. Rows compare against it.'
+      : 'No baseline stored yet.';
+  }
+
+  document.getElementById('save-baseline').addEventListener('click', function () {
+    var snapshot = {};
+    CHECKS.forEach(function (check) {
+      var value = null;
+      try {
+        value = check.find();
+      } catch (error) {
+        value = null;
+      }
+      snapshot[check.name] = value !== null && String(value).indexOf('REWRITTEN') !== 0;
+    });
+    try {
+      window.localStorage.setItem(KEY, JSON.stringify(snapshot));
+    } catch (error) {
+      window.alert('This browser refused to store the baseline here. Compare the rows by eye '
+        + 'instead: photograph this list before editing the topic.');
+      return;
+    }
+    render();
+  });
+
+  document.getElementById('clear-baseline').addEventListener('click', function () {
+    try {
+      window.localStorage.removeItem(KEY);
+    } catch (error) { /* nothing to clear */ }
+    render();
+  });
+
+  render();
+}());
+</script>
+</body>
+</html>
