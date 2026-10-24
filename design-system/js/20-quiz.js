@@ -19,6 +19,12 @@ class Quiz {
     this.id = root.dataset.quiz;
     /** Salted hashes of accepted options — the page never knows the answer. */
     this.answerHashes = SeptLabs.config.quizzes[this.id]?.answers ?? [];
+    /**
+     * On a page an instructor wrote by hand there is no build to hash
+     * against, so the answer rides in `data-quiz-answer`. Acceptable
+     * only because author mode awards no mark for it.
+     */
+    this.plainAnswers = AuthorMode.active ? AuthorMode.quizAnswers(root) : [];
     this.inputs = Dom.all(`input[type="radio"]`, root);
     this.checkButton = root.querySelector('[data-quiz-check]');
     this.feedback = root.querySelector('[data-quiz-feedback]');
@@ -55,7 +61,9 @@ class Quiz {
       Dom.status(this.feedback, 'Select an answer first.', 'error');
       return;
     }
-    const correct = MarkingCheck.matchesString(this.id, selected.value, this.answerHashes, true);
+    const correct = AuthorMode.active
+      ? this.plainAnswers.includes(selected.value)
+      : MarkingCheck.matchesString(this.id, selected.value, this.answerHashes, true);
     SeptLabs.store.update((state) => {
       const record = state.quizzes[this.id] ?? { selection: null, correct: false, attempts: 0 };
       record.attempts += 1;

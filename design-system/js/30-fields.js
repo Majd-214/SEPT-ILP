@@ -55,10 +55,34 @@ class Fields {
    */
   static matchesExpected(expected, raw, key) {
     if (raw.trim() === '') return false;
+    // An authored rule carries the answer in plain sight, because the
+    // instructor typed it into the markup and no mark depends on it.
+    if (expected.plain !== undefined) return Fields.matchesPlain(expected, raw);
     if (expected.numeric) {
       return MarkingCheck.matchesNumber(key, raw, expected.hashes, expected.step ?? 0.01);
     }
     return MarkingCheck.matchesString(key, raw, expected.hashes, expected.caseSensitive === true);
+  }
+
+  /**
+   * Compare against a plaintext rule from the markup: a number within
+   * tolerance, or text matching the expected value or one of its
+   * alternatives.
+   * @param {{ plain: string, tolerance?: number, alternatives?: string[], caseSensitive?: boolean }} rule
+   * @param {string} raw
+   * @returns {boolean}
+   */
+  static matchesPlain(rule, raw) {
+    const value = String(raw).trim();
+    const target = Number(rule.plain);
+    const numeric = Number(value);
+    if (Number.isFinite(target) && Number.isFinite(numeric) && value !== '') {
+      return Math.abs(numeric - target) <= Math.abs(rule.tolerance ?? 0);
+    }
+    const accepted = [rule.plain, ...(rule.alternatives ?? [])];
+    return rule.caseSensitive === true
+      ? accepted.includes(value)
+      : accepted.some((candidate) => String(candidate).toLowerCase() === value.toLowerCase());
   }
 
   /**

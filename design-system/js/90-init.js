@@ -97,17 +97,24 @@ class PortalProgress {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Two ways in. A generated page carries its configuration; a page an
+  // instructor wrote from the Avenue template carries only markup, and
+  // the runtime derives what it can (design-system/js/01-author.js).
   const island = document.getElementById('sept-lab-config');
-  if (!island) return;
-
-  let config;
-  try {
-    config = JSON.parse(island.textContent);
-  } catch {
-    return;
+  let config = null;
+  if (island) {
+    try {
+      config = JSON.parse(island.textContent);
+    } catch {
+      config = null;
+    }
   }
+  if (!config) config = AuthorMode.deriveConfig();
+  if (!config) return;
+
   SeptLabs.config = config;
   document.documentElement.classList.add('js-enabled');
+  if (config.authored) document.documentElement.classList.add('js-authored');
   SeptLabs.navigation = new Navigation();
 
   if (config.page === 'lab') {
@@ -118,16 +125,26 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const element of Dom.all('.c-code')) new CodeCopy(element);
     for (const element of Dom.all('[data-tabs]')) new Tabs(element);
     for (const element of Dom.all('[data-quiz]')) new Quiz(element);
-    for (const element of Dom.all('[data-calc]')) new Calculator(element);
-    for (const element of Dom.all('[data-ordering]')) new Ordering(element);
-    for (const element of Dom.all('input[data-evidence]')) new Evidence(element);
     for (const element of Dom.all('details[data-gated-by]')) new GatedDetails(element);
     for (const element of Dom.all('[data-sidebar]')) new Sidebar(element);
     SeptLabs.knowledgePanel = new KnowledgePanel();
     SeptLabs.checkpoints = new Checkpoints();
-    new SubmissionPackage();
     new ProgressFile();
     new AutosaveIndicator();
+
+    // Calculators, ordering and evidence read definitions the pipeline
+    // generates, and the submission package reports marks the pipeline
+    // hashed. On a hand-written page none of that exists, so they are
+    // left out rather than wired to nothing: a Download button that
+    // produced an unmarked package would be worse than no button.
+    if (!config.authored) {
+      for (const element of Dom.all('[data-calc]')) new Calculator(element);
+      for (const element of Dom.all('[data-ordering]')) new Ordering(element);
+      for (const element of Dom.all('input[data-evidence]')) new Evidence(element);
+      new SubmissionPackage();
+    } else {
+      for (const element of Dom.all('.c-submission')) element.hidden = true;
+    }
 
     // Returning mid-lab: say where the student landed and when the work
     // was last saved, once, without stealing focus. The live region is
