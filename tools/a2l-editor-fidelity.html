@@ -278,6 +278,43 @@
       find: function () {
         return /\n\s\s+</.test(document.body.innerHTML) ? 'indented' : null;
       }
+    },
+    {
+      // Creator+ arrives at McMaster on 2026-11-02. Two institutions have
+      // reported that enabling it injects D2L's own stylesheet into HTML
+      // pages, below the page's own <link> tags and so ahead of them in
+      // the cascade: "it keeps appearing underneath our own CSS link tags
+      // and right before the closing head tag, which means it takes
+      // precedence." Governed by d2l.Tools.ContentStyler.AddStylesOnContentCreate,
+      // which defaults to ON. This row finds it on arrival rather than
+      // after someone reports the labs look wrong.
+      name: 'no D2L stylesheet injected into this page',
+      why: 'Enabling Creator+ has been reported to add D2L\u2019s own stylesheet below a page\u2019s '
+        + 'existing CSS links, where it overrides them. If this row turns red, the design system '
+        + 'is being overruled on every lab page.',
+      absence: true,
+      find: function () {
+        var intruders = [];
+        var links = document.querySelectorAll('link[rel~="stylesheet"]');
+        for (var i = 0; i < links.length; i++) {
+          var href = links[i].getAttribute('href') || '';
+          if (/templates\.lcs\.brightspace\.com|\/d2l\/le\/contentstyler\//.test(href)) {
+            intruders.push(href);
+          }
+        }
+        return intruders.length ? intruders.join(' , ') : null;
+      }
+    },
+    {
+      name: 'this page’s stylesheet is still the last word',
+      why: 'Even a stylesheet that belongs here loses if something is loaded after it. This row '
+        + 'checks that nothing was appended below the page\u2019s own CSS.',
+      find: function () {
+        var links = document.querySelectorAll('link[rel~="stylesheet"]');
+        if (!links.length) return null;
+        var last = links[links.length - 1].getAttribute('href') || '';
+        return /^assets\/|^\.\.\/|sept-labs\.css$/.test(last) ? last : 'OUTRANKED by ' + last;
+      }
     }
   ];
 
@@ -307,7 +344,11 @@
       } catch (error) {
         value = null;
       }
-      var alive = value !== null && String(value).indexOf('REWRITTEN') !== 0;
+      // Most rows pass when their specimen is still here. A row marked
+      // `absence` is the other way round: finding anything is the failure.
+      var found = value !== null && String(value).indexOf('REWRITTEN') !== 0
+        && String(value).indexOf('OUTRANKED') !== 0;
+      var alive = check.absence ? !found : found;
       if (alive) present++; else lost++;
 
       var row = document.createElement('div');
@@ -315,7 +356,8 @@
 
       var badge = document.createElement('span');
       badge.className = 'badge ' + (alive ? 'b-ok' : 'b-bad');
-      badge.textContent = alive ? 'present' : 'gone';
+      badge.textContent = check.absence ? (alive ? 'clear' : 'injected')
+        : (alive ? 'present' : 'gone');
 
       var body = document.createElement('div');
       body.className = 'body';
@@ -341,7 +383,9 @@
         var change = document.createElement('div');
         change.className = 'why';
         change.style.color = '#A0142B';
-        change.textContent = 'This was present in the baseline. The editor removed it.';
+        change.textContent = check.absence
+          ? 'This was clear in the baseline. Something has been added since.'
+          : 'This was present in the baseline. The editor removed it.';
         body.appendChild(change);
       }
 
@@ -380,7 +424,9 @@
       } catch (error) {
         value = null;
       }
-      snapshot[check.name] = value !== null && String(value).indexOf('REWRITTEN') !== 0;
+      var found = value !== null && String(value).indexOf('REWRITTEN') !== 0
+        && String(value).indexOf('OUTRANKED') !== 0;
+      snapshot[check.name] = check.absence ? !found : found;
     });
     try {
       window.localStorage.setItem(KEY, JSON.stringify(snapshot));
