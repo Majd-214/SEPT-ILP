@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  SEPT LABORATORY PAGE — TEMPLATE
+  ============================================================================
+
+  You are looking at a complete, working laboratory page. Everything on it
+  is yours to change. You do not need a web developer, and you do not need
+  to understand all of this file — you need four things:
+
+    1. WHERE TO TYPE.      Anything between > and < is text on the page.
+                           Change the words, leave the <tags> alone.
+
+    2. HOW TO ADD A STEP.  Copy one whole <section class="c-checkpoint">
+                           block, paste it after the last one, and change
+                           its data-checkpoint="..." to a new short name.
+                           Students move through steps in page order.
+
+    3. HOW TO ADD A PART.  The pattern library page has every available
+                           component — tables, code listings, callouts,
+                           figures, answer boxes — with the exact text to
+                           copy. Copy, paste, change the words.
+
+    4. KEEP A COPY.        Avenue has no undo for HTML. Before a big edit,
+                           copy this whole file into a document on your own
+                           computer. One minute now, an afternoon saved
+                           later.
+
+  THE TWO LINES YOU MUST NOT BREAK
+  --------------------------------
+  The <link> and <script> lines in the <head> below point at the shared
+  stylesheet and the shared behaviour file. They are what make this page
+  look and act like the rest of the course, and they are shared by every
+  page — so a fix made centrally reaches your page too. If a page suddenly
+  looks like plain text, one of those two lines was deleted or its path is
+  wrong.
+
+  THE FOUR THINGS ON <body> THAT MAKE IT YOURS
+  --------------------------------------------
+  data-sept-course   your course code, lowercase, hyphens, no spaces
+  data-sept-lab      a short name for THIS lab, unique within the course
+  data-sept-version  change this whenever you change an answer below; it
+                     tells the page that work students saved no longer
+                     matches the questions
+  data-sept-code     your course code as students should see it
+
+  WHAT THIS PAGE DOES ON ITS OWN
+  ------------------------------
+  Steps unlock in order. Answers students type are saved in their browser
+  and come back when they return. A step will not confirm until the things
+  it asks for are done, and it says which ones are missing. Students can
+  download their work as a file.
+
+  WHAT IT DOES NOT DO
+  -------------------
+  It does not send marks to the Avenue gradebook, and the answers written
+  into this file are visible to a student who looks at the page source. So
+  use these questions for teaching and immediate feedback — for work that
+  counts, use an Avenue quiz, or ask for a marked version of the lab.
+
+  WITH SCRIPTING OFF
+  ------------------
+  Every step is simply open, and the page reads and prints as a complete
+  laboratory manual. Nothing is hidden behind the behaviour file.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- CHANGE THIS: the browser tab, and the heading screen readers announce first. -->
+<title>Laboratory 1: Voltage dividers · SMRTTECH 3CC3</title>
+<meta name="description" content="Build a voltage divider, measure it, and predict its output.">
+
+<!-- DO NOT DELETE THESE TWO LINES. Adjust only if the course files live in
+     a different folder — see the note at the top of this file. -->
+<link rel="stylesheet" href="assets/sept-labs.css">
+</head>
+
+<!-- CHANGE THE FOUR data-sept-* VALUES. Leave class="has-dock" alone. -->
+<body class="has-dock"
+  data-sept-course="smrttech-3cc3"
+  data-sept-code="SMRTTECH 3CC3"
+  data-sept-lab="lab-01"
+  data-sept-version="1">
+
+<a class="c-skip-link" href="#main">Skip to content</a>
+
+<header class="c-appbar">
+  <span class="c-appbar__brand">
+    <span class="c-appbar__course">SMRTTECH 3CC3</span>
+  </span>
+  <span class="c-appbar__spacer"></span>
+</header>
+
+<div class="l-shell">
+
+  <!-- ==========================================================
+       THE STEP LIST on the left.
+       One button per step. The data-checkpoint-link value must
+       match the data-checkpoint value of its step below, and the
+       number is just the text students see.
+       ========================================================== -->
+  <nav class="c-nav" id="site-nav" aria-label="Laboratory steps">
+    <div class="c-nav__group">
+      <p class="c-nav__label">Steps</p>
+      <button class="c-nav__item" type="button" data-checkpoint-link="build">
+        <span class="c-nav__num" aria-hidden="true">1</span>
+        <span class="c-nav__text">Build the divider</span>
+      </button>
+      <button class="c-nav__item" type="button" data-checkpoint-link="measure">
+        <span class="c-nav__num" aria-hidden="true">2</span>
+        <span class="c-nav__text">Measure it</span>
+      </button>
+      <button class="c-nav__item" type="button" data-checkpoint-link="predict">
+        <span class="c-nav__num" aria-hidden="true">3</span>
+        <span class="c-nav__text">Predict and explain</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="l-main">
+    <main id="main" class="l-content">
+
+      <section class="c-hero">
+        <p class="c-hero__eyebrow">Laboratory 1</p>
+        <!-- There is exactly one <h1> on a page. This is it. -->
+        <h1 class="c-hero__title">Voltage dividers</h1>
+        <p class="c-hero__lead">
+          Two resistors in series split a supply voltage in proportion to their
+          resistances. You will build one, measure what it actually does, and
+          then predict what happens when you change it.
+        </p>
+      </section>
+
+      <!-- ====================================================================
+           STEP 1 — the shape of every step.
+           TO ADD A STEP: copy this whole <section> … </section>, paste it
+           after the last step, change data-checkpoint to a new short name,
+           and add a matching button to the step list above.
+           ==================================================================== -->
+      <section class="c-checkpoint" id="build" data-checkpoint="build"
+        aria-label="Build the divider">
+        <span class="c-checkpoint__marker" aria-hidden="true">1</span>
+        <div class="c-card c-card--accent">
+
+          <div class="c-checkpoint__header">
+            <div>
+              <p class="c-checkpoint__eyebrow">Before you measure anything</p>
+              <h2 class="c-checkpoint__title">Build the divider</h2>
+            </div>
+          </div>
+
+          <!-- ORDINARY PARAGRAPHS. One <p> per paragraph. -->
+          <div class="o-prose o-stack o-stack--tight">
+            <p>
+              Put a 10 kΩ resistor and a 4.7 kΩ resistor in series across the 5 V
+              rail, with the junction between them brought out to a spare row. That
+              junction is the output of the divider, and it is the only place you
+              will measure in this step.
+            </p>
+          </div>
+
+          <div class="o-stack">
+
+            <!-- A CALLOUT. Change --note to --warning, --danger or --success. -->
+            <aside class="c-callout c-callout--warning">
+              <p class="c-callout__title">Check the meter before the circuit</p>
+              <div class="c-callout__body">
+                <p>
+                  A multimeter left in the current jacks is close to a short
+                  circuit. Red lead in the voltage jack, dial on DC volts, before
+                  the probes touch anything.
+                </p>
+              </div>
+            </aside>
+
+            <!-- A FIGURE. Replace the file in assets/ and change src.
+                 The alt text is read aloud to students who cannot see the
+                 image, so describe what it shows, not what it is called. -->
+            <figure class="c-figure">
+              <img class="c-figure__image" src="assets/placeholder.svg"
+                alt="Placeholder: replace with a photograph of the divider wired on the breadboard."
+                width="1200" height="675">
+              <figcaption class="c-figure__caption">
+                The divider on the breadboard, with the junction brought out to its
+                own row.
+              </figcaption>
+            </figure>
+
+            <!-- A CHECKLIST STEP STUDENTS TICK.
+                 data-checkpoint-requires="check:wired" on the <section> above
+                 would make this tick mandatory before the step confirms. -->
+            <div>
+              <h3 class="c-block-title">Before you move on</h3>
+              <label class="c-field">
+                <span class="c-field__row">
+                  <input class="c-field__control" type="checkbox" data-check="wired">
+                  <span class="c-field__label">Both resistors are in series and the junction is on its own row.</span>
+                </span>
+              </label>
+            </div>
+
+          </div>
+
+          <!-- THE STEP FOOTER. Keep all three parts: the message region tells
+               students what is still missing, and the button confirms the step.
+               Change only the button's words. -->
+          <div class="c-checkpoint__footer">
+            <div class="c-checkpoint__message" data-checkpoint-message role="status"
+              aria-live="polite"></div>
+            <div class="c-checkpoint__nav">
+              <button class="c-btn c-btn--filled" type="button" data-checkpoint-complete>
+                Complete step
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           STEP 2 — AN ANSWER BOX THAT CHECKS ITSELF.
+           data-checkpoint-requires="field:v-out" means this step will not
+           confirm until that box holds an acceptable answer.
+           ==================================================================== -->
+      <section class="c-checkpoint" id="measure" data-checkpoint="measure"
+        data-checkpoint-requires="field:v-out"
+        aria-label="Measure it">
+        <span class="c-checkpoint__marker" aria-hidden="true">2</span>
+        <div class="c-card c-card--accent">
+
+          <div class="c-checkpoint__header">
+            <div>
+              <p class="c-checkpoint__eyebrow">At the bench</p>
+              <h2 class="c-checkpoint__title">Measure it</h2>
+            </div>
+          </div>
+
+          <div class="o-prose o-stack o-stack--tight">
+            <p>
+              Measure the voltage at the junction with respect to ground and type it
+              below. Two resistors of 10 kΩ and 4.7 kΩ across 5 V put the junction
+              near 1.6 V; the box accepts anything within 0.15 V of that, because
+              ordinary resistors are not exact.
+            </p>
+          </div>
+
+          <!-- AN ANSWER BOX.
+               data-field            a short unique name for this box
+               data-field-label      what the page calls it when it is missing
+               data-field-expected   the answer you will accept
+               data-field-tolerance  how far out a number may be and still pass
+               data-field-message    what to say when it is wrong
+               data-field-min / -max a sanity range, to catch wrong units
+
+               FOR A TEXT ANSWER instead of a number: use type="text" and drop
+               data-field-tolerance. Add data-field-alternatives="other,spellings"
+               to accept more than one wording.
+
+               FOR AN ANSWER WITH NO RIGHT VALUE (an observation, a prediction):
+               leave out data-field-expected entirely. The box is still saved and
+               can still be required. -->
+          <label class="c-field">
+            <span class="c-field__label">Measured output voltage</span>
+            <span class="c-field__row">
+              <input class="c-field__control" type="number" inputmode="decimal"
+                data-field="v-out"
+                data-field-label="Measured output voltage"
+                data-field-expected="1.6"
+                data-field-tolerance="0.15"
+                data-field-message="Not yet — check that the black probe is on ground and the dial is on DC volts."
+                data-field-min="0" data-field-max="5"
+                step="0.01" placeholder="e.g. 1.61">
+              <span class="c-field__unit">V</span>
+            </span>
+            <span class="c-field__note" data-expected-for="v-out" role="status"></span>
+          </label>
+
+          <div class="c-checkpoint__footer">
+            <div class="c-checkpoint__message" data-checkpoint-message role="status"
+              aria-live="polite"></div>
+            <div class="c-checkpoint__nav">
+              <button class="c-btn c-btn--filled" type="button" data-checkpoint-complete>
+                Complete step
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           STEP 3 — A QUESTION.
+           data-checkpoint-requires="quiz:divider-q1" means this step will not
+           confirm until that question is answered correctly.
+           ==================================================================== -->
+      <section class="c-checkpoint" id="predict" data-checkpoint="predict"
+        data-checkpoint-requires="quiz:divider-q1"
+        aria-label="Predict and explain">
+        <span class="c-checkpoint__marker" aria-hidden="true">3</span>
+        <div class="c-card c-card--accent">
+
+          <div class="c-checkpoint__header">
+            <div>
+              <p class="c-checkpoint__eyebrow">Before you change the circuit</p>
+              <h2 class="c-checkpoint__title">Predict and explain</h2>
+            </div>
+          </div>
+
+          <!-- A QUESTION.
+               data-quiz         a short unique name for this question
+               data-quiz-answer  the value= of the correct option. Use
+                                 "b c" to accept more than one.
+               Each option needs a unique value and the same name= as the
+               question. Add or remove options by copying one <label>.
+
+               NOTE: the answer is in this file, so a student who views the
+               page source can read it. Use these to teach, not to grade. -->
+          <fieldset class="c-quiz" data-quiz="divider-q1" data-quiz-answer="b">
+            <legend class="c-quiz__question">
+              You replace the 4.7 kΩ resistor with 1 kΩ. What happens to the voltage
+              at the junction?
+            </legend>
+            <div class="c-quiz__options">
+              <label class="c-quiz__option">
+                <input type="radio" name="divider-q1" value="a">
+                <span>It rises, because a smaller resistor drops less voltage.</span>
+              </label>
+              <label class="c-quiz__option">
+                <input type="radio" name="divider-q1" value="b">
+                <span>It falls, because the junction takes a smaller share of the 5 V.</span>
+              </label>
+              <label class="c-quiz__option">
+                <input type="radio" name="divider-q1" value="c">
+                <span>It does not change, because the supply is still 5 V.</span>
+              </label>
+            </div>
+            <div class="c-quiz__actions">
+              <button class="c-btn c-btn--tonal" type="button" data-quiz-check>
+                Check answer
+              </button>
+              <span class="c-quiz__attempts" data-quiz-attempts></span>
+            </div>
+            <p class="c-quiz__feedback" data-quiz-feedback role="status"></p>
+            <!-- Shown after a wrong answer. -->
+            <span data-quiz-hint hidden>
+              Write out V&#8202;×&#8202;R2&#8202;/&#8202;(R1&#8202;+&#8202;R2) with the new number.
+            </span>
+            <!-- Shown once the answer is right. Optional. -->
+            <span data-quiz-explanation hidden>
+              The junction's share is R2 over the total, so shrinking R2 shrinks the
+              share.
+            </span>
+          </fieldset>
+
+          <div class="c-checkpoint__footer">
+            <div class="c-checkpoint__message" data-checkpoint-message role="status"
+              aria-live="polite"></div>
+            <div class="c-checkpoint__nav">
+              <button class="c-btn c-btn--filled" type="button" data-checkpoint-complete>
+                Complete step
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           STUDENTS TAKE THEIR WORK WITH THEM.
+           Keep this block. It saves everything typed above into a file the
+           student can keep or hand in, and restores it on another machine.
+           ==================================================================== -->
+      <section class="c-progressfile">
+        <h2 class="c-block-title">Your work</h2>
+        <p>
+          Everything you type is saved in this browser. Download a copy to keep it,
+          or to carry it to another computer.
+        </p>
+        <p class="c-storage-warning" data-storage-warning hidden>
+          This browser is not saving data between visits. Download your work often;
+          it is the only copy.
+        </p>
+        <div class="c-progressfile__actions">
+          <button class="c-btn c-btn--filled" type="button" data-progress-download>
+            Download my work
+          </button>
+          <button class="c-btn c-btn--tonal" type="button" data-progress-restore-button>
+            Restore my work
+          </button>
+        </div>
+        <!-- The file picker the Restore button opens. Keep it. -->
+        <input type="file" accept="application/json" data-progress-restore
+          class="u-hidden" aria-hidden="true" tabindex="-1">
+        <p class="c-progressfile__status" data-progress-status role="status"
+          aria-live="polite"></p>
+      </section>
+
+      <footer class="c-footer">
+        McMaster University · W Booth School of Engineering Practice and Technology
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<!-- DO NOT DELETE THIS LINE. It is what makes the steps, the answer boxes and
+     the questions work. Adjust only the path. -->
+<script src="assets/sept-labs.js" defer></script>
+</body>
+</html>

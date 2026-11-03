@@ -26,7 +26,8 @@
     "test:marker": "npm --prefix apps/marker test",
     "test:admin": "npm --prefix apps/admin test",
     "test:all": "npm test && npm run test:platform && npm run test:marker && npm run test:admin",
-    "docs:guide": "node docs/guide-src/render.mjs"
+    "docs:guide": "node docs/guide-src/render.mjs",
+    "pack:sandbox": "npm run gates && node tools/build-sandbox-pack.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

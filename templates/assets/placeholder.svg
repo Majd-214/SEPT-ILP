@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img"
+  aria-label="Placeholder image">
+  <rect width="1200" height="675" fill="#F2E5EC"/>
+  <rect x="24" y="24" width="1152" height="627" fill="none" stroke="#7A003C"
+    stroke-width="4" stroke-dasharray="18 14"/>
+  <g fill="#7A003C" font-family="Segoe UI, system-ui, sans-serif" text-anchor="middle">
+    <text x="600" y="320" font-size="46" font-weight="700">Replace this image</text>
+    <text x="600" y="380" font-size="26">Upload yours to assets/ and change the src below</text>
+  </g>
+</svg>
